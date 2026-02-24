@@ -1,0 +1,26 @@
+// sim-events/academic.ts
+import type { EventBlueprint } from "../sim/types";
+type Weight<T> = { item: T; w: number };
+
+export const academicEvents: Weight<EventBlueprint>[] = [
+    { item: { kind: "Publication", detail: "Published a well-received paper in a respected journal.", check: { type: 'skill', name: 'Science' }, isAttributeGain: true, onSuccess: { skillChanges: [{ name: 'Science', value: '1d4' }], sanChange: 1 }, onFailure: { skillChanges: [{ name: 'Science', value: '1' }] } }, w: 20 },
+    { item: { kind: "Award", detail: "Secured a significant grant for a new research project.", check: { type: 'skill', name: 'Bureaucracy' }, onSuccess: { skillChanges: [{ name: 'Bureaucracy', value: '1d4' }], sanChange: 1 }, onFailure: { skillChanges: [{ name: 'Bureaucracy', value: '1' }] } }, w: 15 },
+    { item: { kind: "Investigation", detail: "Spent a year on sabbatical conducting field research.", check: { type: 'attribute', name: 'INT' }, onSuccess: { skillChanges: [{ name: 'Survival', value: '1d4' }] }, onFailure: { skillChanges: [{ name: 'Survival', value: '1' }] } }, w: 10 },
+    { item: { kind: "PeerReview", detail: "Engaged in a contentious peer review process.", check: { type: 'attribute', name: 'INT' }, onSuccess: {}, onFailure: { sanChange: -1 } }, w: 8 },
+    { item: { kind: "ResearchBreakthrough", detail: "Made a significant breakthrough in their field of study.", check: { type: 'skill', name: 'Science' }, onSuccess: { skillChanges: [{ name: 'Science', value: '1d4' }], sanChange: 1 }, onFailure: {} }, w: 7 },
+    { item: { kind: "EthicalDilemma", detail: "Faced an ethical dilemma regarding research funding or methodology.", check: { type: 'attribute', name: 'POW' }, onSuccess: {}, onFailure: { sanChange: -1 } }, w: 5 },
+    { item: { kind: "TenureReview", detail: "Underwent a stressful tenure review process.", check: { type: 'skill', name: 'Bureaucracy' }, onSuccess: { sanChange: 1 }, onFailure: { sanChange: -2 } }, w: 8 },
+    { item: { kind: "GrantRejected", detail: "A major grant proposal was rejected, jeopardizing research.", check: { type: 'skill', name: 'Persuade' }, onSuccess: {}, onFailure: { sanChange: -1 } }, w: 6 },
+    { item: { kind: "DGIncident", detail: "Discovered an artifact during fieldwork that defied all known science.", check: { type: 'skill', name: 'Archaeology' }, onSuccess: { skillChanges: [{ name: 'Unnatural', value: '1' }] }, onFailure: { sanChange: -2, skillChanges: [{ name: 'Unnatural', value: '1d4' }] }, flags: ["classified"] }, w: 3 },
+    { item: { kind: "DGIncident", detail: "While researching an obscure text, discovered a passage that was actively hostile.", check: { type: 'skill', name: 'Occult' }, onSuccess: { skillChanges: [{ name: 'Unnatural', value: '1' }] }, onFailure: { sanChange: -2, skillChanges: [{ name: 'Unnatural', value: '1d4' }] }, flags: ["classified"] }, w: 5 },
+    { item: { kind: "SpecialAssignment", detail: "Mentored a brilliant but deeply troubled graduate student.", check: { type: 'skill', name: 'Psychotherapy' }, onSuccess: { sanChange: 1 }, onFailure: { sanChange: -1 } }, w: 8 },
+    { item: { kind: "Investigation", detail: "Became embroiled in nasty departmental politics and infighting.", check: { type: 'skill', name: 'Persuade' }, onSuccess: { skillChanges: [{ name: 'Bureaucracy', value: '1d4' }] }, onFailure: { sanChange: -2 } }, w: 7 },
+    { item: { kind: "SpecialAssignment", detail: "Presented research at a major international conference.", check: { type: 'attribute', name: 'CHA' }, onSuccess: { sanChange: 1 }, onFailure: {} }, w: 10 },
+    { item: { kind: "Investigation", detail: "Archival research uncovered a historical document that should not exist.", check: { type: 'skill', name: 'History' }, onSuccess: { skillChanges: [{ name: 'History', value: '1d4' }, { name: 'Search', value: '1' }] }, onFailure: { skillChanges: [{ name: 'History', value: '1' }] } }, w: 6 },
+    { item: { kind: "PublicScandal", detail: "Falsely accused of academic plagiarism by a rival.", check: { type: 'skill', name: 'Law' }, onSuccess: {}, onFailure: { sanChange: -2 } }, w: 4 },
+    { item: { kind: "SpecialAssignment", detail: "Served on a deeply divided university hiring committee.", check: { type: 'skill', name: 'Bureaucracy' }, onSuccess: { skillChanges: [{ name: 'Bureaucracy', value: '1' }] }, onFailure: { sanChange: -1 } }, w: 7 },
+    { item: { kind: "Publication", detail: "Co-authored an interdisciplinary paper with a colleague from a different field.", check: { type: 'attribute', name: 'INT' }, onSuccess: { skillChanges: [{ name: 'Science', value: '1d4' }] }, onFailure: {} }, w: 9 },
+    { item: { kind: "EthicalDilemma", detail: "A tenured professor used your research without proper credit.", check: { type: 'attribute', name: 'POW' }, onSuccess: {}, onFailure: { sanChange: -1 } }, w: 5 },
+    { item: { kind: "Investigation", detail: "Taught a controversial subject that drew protests and administrative scrutiny.", check: { type: 'skill', name: 'Persuade' }, onSuccess: { sanChange: 1 }, onFailure: { sanChange: -2 } }, w: 4 },
+    { item: { kind: "Award", detail: "Received an award for excellence in teaching.", check: { type: 'attribute', name: 'CHA' }, onSuccess: { sanChange: 1 }, onFailure: {} }, w: 10 },
+];

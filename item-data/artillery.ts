@@ -1,0 +1,88 @@
+import type { DGItem } from '../types';
+
+export const artillery: DGItem[] = [
+  {
+    section: 'Artillery',
+    name: 'General-Purpose Bomb',
+    shortName: 'GP Bomb',
+    skill: 'Artillery',
+    expense: 'Unusual',
+    radius: 'Air-dropped',
+    lethality: '70%',
+    killRadius: '100 m',
+    ammoCapacity: 'N/A,10',
+    description: 'RESTRICTED. Requires special training. Examples: MK 82, FAB-250.',
+    isRestricted: true,
+    sourceType: 'core'
+  },
+  {
+    section: 'Artillery',
+    name: 'Heavy Mortar',
+    shortName: 'Heavy Mortar',
+    skill: 'Artillery',
+    expense: 'Major',
+    radius: '4 km',
+    lethality: '35%',
+    killRadius: '50 m',
+    ammoCapacity: '1,5',
+    description: 'RESTRICTED. Examples: M120, 2B11 Sani.',
+    isRestricted: true,
+    sourceType: 'core'
+  },
+  {
+    section: 'Artillery',
+    name: 'Light Mortar',
+    shortName: 'Light Mortar',
+    skill: 'Artillery',
+    expense: 'Major',
+    radius: '2 km',
+    lethality: '20%',
+    killRadius: '25 m',
+    ammoCapacity: '1,N/A',
+    description: 'RESTRICTED. Examples: M224, Hirtenberger M6.',
+    isRestricted: true,
+    sourceType: 'core'
+  },
+  {
+    section: 'Artillery',
+    name: 'Anti-Tank Guided Missile (ATGM)',
+    shortName: 'ATGM',
+    skill: 'Artillery',
+    expense: 'Extreme',
+    radius: '4 km',
+    lethality: '45%',
+    killRadius: '50 m',
+    ammoCapacity: 'N/A,25',
+    description: 'RESTRICTED. Examples: AGM-114 Hellfire, 9M120 Ataka.',
+    isRestricted: true,
+    sourceType: 'core'
+  },
+  {
+    section: 'Artillery',
+    name: 'Artillery',
+    shortName: 'Artillery',
+    skill: 'Artillery',
+    expense: 'Extreme',
+    radius: '5 km',
+    lethality: '50%',
+    killRadius: '100 m',
+    ammoCapacity: '1,10',
+    description: 'RESTRICTED. Examples: M109, M777, 2A65 Msta-B, 2S19 Msta-S.',
+    isRestricted: true,
+    sourceType: 'core'
+  },
+  {
+    section: 'Artillery',
+    name: 'Cruise Missile',
+    shortName: 'Cruise Missile',
+    skill: 'Artillery',
+    expense: 'Extreme',
+    radius: '100 km',
+    lethality: '80%',
+    killRadius: '150 m',
+    ammoCapacity: 'N/A,15',
+    description: 'RESTRICTED. Requires special training. Examples: BGM-109 Tomahawk, Kh-555M.',
+    isRestricted: true,
+    sourceType: 'core'
+  },
+];

@@ -1,0 +1,232 @@
+// departments-data/usa.ts
+import type { Department } from '../types';
+
+export const usaDepartments: Department[] = [
+    {
+        stub: 'usamriid',
+        name: 'U.S. Army Medical Research Institute of Infectious Diseases (USAMRIID)',
+        agency: 'U.S. Army',
+        description: 'The DoD\'s lead laboratory for medical biological defense research. Its mission is to protect military personnel from biological threats and to investigate disease outbreaks.',
+        country: 'United States of America',
+        rank_order: 46,
+        yearOfEstablishment: 1969,
+        info: { powers_of_arrest: 'None.', carry_of_weapon: 'Not authorized (military police provide security).', access_to_funds: { maximum_request: 'Major', access_protocol: 'Limited' }, budget_and_restricted_items: 'Operates BSL-3 and BSL-4 laboratories for studying the world\'s most dangerous pathogens. Access to advanced genetic sequencing and diagnostic equipment.' },
+        wikipedia_url: 'https://en.wikipedia.org/wiki/United_States_Army_Medical_Research_Institute_of_Infectious_Diseases',
+        professions: ['Scientist', 'Physician'],
+        suggested_bonus_skills: ['Science', 'Medicine', 'Forensics', 'Pharmacy', 'Alertness'],
+        equipment: ['bsl4_suit', 'electron_microscope', 'petri_dishes', 'dna_sequencer'],
+        ranks: {
+            'Scientist': ['Research Scientist', 'Principal Investigator', 'Chief, Diagnostic Systems Division', 'Chief, Virology Division', 'Chief Scientist, USAMRIID', 'Commander, USAMRIID'],
+            'Physician': ['Clinical Investigator', 'Chief, Clinical Research', 'Chief, Medical Management', 'Director, Medical Countermeasures', 'Chief Medical Officer, USAMRIID', 'Commander, USAMRIID']
+        },
+        source: "Delta Green Agent's Handbook",
+        page: 130,
+        equipmentKit: ["SCIENTIST / MEDICAL KIT"],
+        infoId: 'agency_army',
+        specialTrainings: ['BSL-4 Protocols', 'Hazmat Containment']
+    },
+    {
+        stub: 'usa_902_mig',
+        name: 'U.S. Army, 902nd Military Intelligence Group',
+        agency: 'U.S. Army',
+        description: 'A counterintelligence (CI) unit that conducts operations worldwide to detect, identify, neutralize, and exploit foreign intelligence and terrorist threats to the U.S. Army.',
+        country: 'United States of America',
+        rank_order: 25,
+        yearOfEstablishment: 1966,
+        info: { powers_of_arrest: 'None (refers criminal matters to Army CID).', carry_of_weapon: 'Authorized to carry concealed firearms for personal protection.', access_to_funds: { maximum_request: 'Standard', access_protocol: 'Limited' }, budget_and_restricted_items: 'Access to Army intelligence databases, polygraph services, and technical surveillance equipment.' },
+        wikipedia_url: 'https://en.wikipedia.org/wiki/902nd_Military_Intelligence_Group_(United_States)',
+        professions: ['Intelligence Case Officer', 'Intelligence Analyst'],
+        suggested_bonus_skills: ['HUMINT', 'Persuade', 'SIGINT', 'Disguise', 'Search'],
+        equipment: ['concealed_handgun', 'surveillance_kit', 'polygraph_machine', 'case_files'],
+        ranks: {
+            'Intelligence Case Officer': ['CI Special Agent', 'Senior CI Agent', 'Supervisory CI Agent', 'Detachment Commander', 'Battalion Commander', 'Group Commander'],
+            'Intelligence Analyst': ['CI Analyst', 'Senior CI Analyst', 'Supervisory Analyst', 'Detachment S-2', 'Battalion S-2', 'Group S-2']
+        },
+        source: "Delta Green Agent's Handbook",
+        page: 130,
+        equipmentKit: ["INTELLIGENCE / COVERT OPS KIT"],
+        infoId: 'agency_army',
+        specialTrainings: ['Advanced Interrogation', 'Technical Surveillance Counter-Measures (TSCM)', 'Counter-Surveillance']
+    },
+    {
+        stub: 'usa_medcorps',
+        name: 'U.S. Army, Medical Corps',
+        agency: 'U.S. Army',
+        description: 'Comprised of commissioned medical doctors responsible for the health and well-being of soldiers on and off the battlefield, from field hospitals to major medical centers.',
+        country: 'United States of America',
+        rank_order: 47,
+        yearOfEstablishment: 1775,
+        info: { powers_of_arrest: 'None.', carry_of_weapon: 'Generally not armed, as they are protected non-combatants under the Geneva Conventions.', access_to_funds: { maximum_request: 'Standard', access_protocol: 'Limited' }, budget_and_restricted_items: 'Access to military medical facilities, advanced surgical tools, and a wide array of pharmaceuticals. Can request medical evacuation (MEDEVAC) helicopters.' },
+        wikipedia_url: 'https://en.wikipedia.org/wiki/Medical_Corps_(United_States_Army)',
+        professions: ['Physician', 'Nurse or Paramedic'],
+        suggested_bonus_skills: ['Medicine', 'Surgery', 'First Aid', 'Pharmacy', 'Psychotherapy'],
+        equipment: ['combat_medic_bag', 'scalpel_set', 'bone_saw', 'syringes'],
+        ranks: {
+            'Physician': ['Captain (O-3)', 'Major (O-4)', 'Lieutenant Colonel (O-5)', 'Colonel (O-6)', 'Brigadier General (O-7)', 'The Surgeon General (LTG)'],
+            'Nurse or Paramedic': ['First Lieutenant (O-2)', 'Captain (O-3)', 'Major (O-4)', 'Lieutenant Colonel (O-5)', 'Colonel (O-6)', 'Chief, Army Nurse Corps (BG)']
+        },
+        source: "Delta Green Agent's Handbook",
+        page: 131,
+        equipmentKit: ["SCIENTIST / MEDICAL KIT"],
+        infoId: 'agency_army',
+        specialTrainings: ['Epidemiological Field Work']
+    },
+    {
+        stub: 'usa_1cav',
+        name: 'U.S. Army, 1st Brigade, 1st Cavalry Division',
+        agency: 'U.S. Army',
+        description: 'A combined arms brigade combat team (BCT) equipped with M1 Abrams tanks and M2 Bradley fighting vehicles, designed for high-intensity conventional warfare.',
+        country: 'United States of America',
+        rank_order: 42,
+        yearOfEstablishment: 1921,
+        info: { powers_of_arrest: 'Military police have arrest powers under the UCMJ.', carry_of_weapon: 'Authorized to carry standard issue military rifles and sidearms.', access_to_funds: { maximum_request: 'Standard', access_protocol: 'On Request' }, budget_and_restricted_items: 'Controls a massive fleet of armored vehicles, artillery, and logistical support. Can call for air and artillery support.' },
+        wikipedia_url: 'https://en.wikipedia.org/wiki/1st_Cavalry_Division_(United_States)',
+        professions: ['Soldier or Marine'],
+        suggested_bonus_skills: ['Military Science', 'Heavy Weapons', 'Artillery', 'Heavy Machinery', 'Drive'],
+        equipment: ['m4_carbine', 'm1_abrams_tank', 'combat_uniform', 'radio'],
+        ranks: {
+            'Soldier or Marine': ['Private', 'Specialist', 'Sergeant', 'Staff Sergeant', 'Sergeant First Class', 'First Sergeant']
+        },
+        source: "Delta Green Agent's Handbook",
+        page: 131,
+        equipmentKit: ["SOLDIER'S KIT"],
+        infoId: 'agency_army',
+        specialTrainings: ['Urban Warfare']
+    },
+    {
+        stub: 'usa_10mtn',
+        name: 'U.S. Army, 10th Mountain Division',
+        agency: 'U.S. Army',
+        description: 'A light infantry division specializing in operations in harsh terrain and extreme weather conditions. It is designed for rapid deployment worldwide.',
+        country: 'United States of America',
+        rank_order: 43,
+        yearOfEstablishment: 1943,
+        info: { powers_of_arrest: 'Military police have arrest powers under the UCMJ.', carry_of_weapon: 'Authorized to carry standard issue military rifles and sidearms.', access_to_funds: { maximum_request: 'Standard', access_protocol: 'On Request' }, budget_and_restricted_items: 'Equipped for mountain and cold-weather warfare. Focus on dismounted infantry tactics and helicopter insertions.' },
+        wikipedia_url: 'https://en.wikipedia.org/wiki/10th_Mountain_Division',
+        professions: ['Soldier or Marine'],
+        suggested_bonus_skills: ['Athletics', 'Survival', 'Navigate', 'Military Science', 'First Aid'],
+        equipment: ['m4_carbine', 'climbing_gear', 'cold_weather_clothing', 'rucksack'],
+        ranks: {
+            'Soldier or Marine': ['Private', 'Specialist', 'Sergeant', 'Staff Sergeant', 'Sergeant First Class', 'First Sergeant']
+        },
+        source: "Delta Green Agent's Handbook",
+        page: 131,
+        equipmentKit: ["SOLDIER'S KIT"],
+        infoId: 'agency_army',
+        specialTrainings: ['Cold Weather Operations', 'Rappelling']
+    },
+    {
+        stub: 'usa_1sfg',
+        name: 'U.S. Army, 1st Special Forces Group (Airborne)',
+        agency: 'U.S. Army',
+        description: 'An elite U.S. Army Special Forces unit focused on unconventional warfare, foreign internal defense, and special reconnaissance in the Pacific theater.',
+        country: 'United States of America',
+        rank_order: 7,
+        yearOfEstablishment: 1957,
+        info: { powers_of_arrest: 'None. Mission is not law enforcement.', carry_of_weapon: 'Authorized to carry a wide array of customized U.S. and foreign weapons.', access_to_funds: { maximum_request: 'Major', access_protocol: 'On Request' }, budget_and_restricted_items: 'Experts in training and advising foreign troops. Access to specialized communications gear, advanced weapons, and language/cultural training.' },
+        wikipedia_url: 'https://en.wikipedia.org/wiki/1st_Special_Forces_Group_(United_States)',
+        professions: ['Special Operator'],
+        suggested_bonus_skills: ['Military Science', 'HUMINT', 'Foreign Language', 'Survival', 'Persuade'],
+        equipment: ['custom_carbine', 'green_beret', 'foreign_currency', 'language_dictionary'],
+        ranks: {
+            'Special Operator': ['Weapons Sergeant (18B)', 'Engineer Sergeant (18C)', 'Medical Sergeant (18D)', 'Communications Sergeant (18E)', 'Team Sergeant (18Z)', 'Sergeant Major']
+        },
+        source: "Delta Green Agent's Handbook",
+        page: 143,
+        equipmentKit: ['SPECIAL OPERATOR'],
+        infoId: 'agency_army',
+        specialTrainings: ['Parachuting', 'SCUBA Gear', 'Advanced Interrogation']
+    },
+    {
+        stub: 'usa_75rr',
+        name: 'U.S. Army, 75th Ranger Regiment',
+        agency: 'U.S. Army',
+        description: 'The U.S. Army\'s premier light infantry special operations force, specializing in direct action raids and airfield seizures.',
+        country: 'United States of America',
+        rank_order: 6,
+        yearOfEstablishment: 1974,
+        info: { powers_of_arrest: 'None. Mission is direct action.', carry_of_weapon: 'Authorized to carry advanced military weaponry.', access_to_funds: { maximum_request: 'Standard', access_protocol: 'On Request' }, budget_and_restricted_items: 'Experts in large-scale direct action raids. Access to advanced night vision, weapons, and dedicated air transport.' },
+        wikipedia_url: 'https://en.wikipedia.org/wiki/75th_Ranger_Regiment_(United_States)',
+        professions: ['Special Operator', 'Soldier or Marine'],
+        suggested_bonus_skills: ['Firearms', 'Athletics', 'Demolitions', 'Military Science', 'Stealth'],
+        equipment: ['mk18_rifle', 'night_vision_goggles', 'tan_beret', 'breaching_tools'],
+        ranks: {
+            'Special Operator': ['Ranger', 'Team Leader', 'Squad Leader', 'Platoon Sergeant', 'First Sergeant', 'Regimental Sergeant Major'],
+            'Soldier or Marine': ['Ranger', 'Team Leader', 'Squad Leader', 'Platoon Sergeant', 'First Sergeant', 'Regimental Sergeant Major']
+        },
+        source: "Delta Green Agent's Handbook",
+        page: 143,
+        equipmentKit: ['SPECIAL OPERATOR'],
+        infoId: 'agency_army',
+        specialTrainings: ['Parachuting', 'Explosive Entry / Breaching', 'Urban Warfare']
+    },
+    {
+        stub: 'usa_isa',
+        name: 'U.S. Army, Intelligence Support Activity (ISA)',
+        agency: 'U.S. Army',
+        description: 'A top-secret special operations unit that collects actionable intelligence and provides operational support for other JSOC units like Delta Force and DEVGRU.',
+        country: 'United States of America',
+        rank_order: 1,
+        yearOfEstablishment: 1981,
+        info: { powers_of_arrest: 'None.', carry_of_weapon: 'Authorized to carry concealed and customized weapons.', access_to_funds: { maximum_request: 'Extreme', access_protocol: 'On Request' }, budget_and_restricted_items: 'Access to the most advanced and often experimental SIGINT and HUMINT collection technology. Operates under deep cover with immense operational funds.' },
+        wikipedia_url: 'https://en.wikipedia.org/wiki/Intelligence_Support_Activity',
+        professions: ['Special Operator', 'Intelligence Case Officer'],
+        suggested_bonus_skills: ['HUMINT', 'SIGINT', 'Stealth', 'Disguise', 'Computer Science'],
+        equipment: ['concealed_pistol', 'covert_surveillance_kit', 'untraceable_vehicle', 'false_identities'],
+        ranks: {
+            'Special Operator': ['Operator', 'Senior Operator', 'Team Leader', 'Troop Sergeant Major', 'Squadron Sergeant Major', 'Unit Sergeant Major'],
+            'Intelligence Case Officer': ['Field Agent', 'Senior Field Agent', 'Team Leader', 'Troop Chief', 'Squadron Commander', 'Unit Commander']
+        },
+        source: "Delta Green Agent's Handbook",
+        page: 144,
+        equipmentKit: ['SPECIAL OPERATOR'],
+        infoId: 'agency_socom',
+        specialTrainings: ['Parachuting', 'SCUBA Gear', 'Advanced Interrogation', 'Electronic Security Systems', 'Technical Surveillance Counter-Measures (TSCM)', 'Covert Communications']
+    },
+    {
+        stub: 'usa_160soar',
+        name: 'U.S. Army, 160th Special Operations Aviation Regiment (Airborne)',
+        agency: 'U.S. Army',
+        description: 'Known as the "Night Stalkers," this elite unit provides helicopter aviation support for general purpose and special operations forces, specializing in night-time, adverse weather, high-altitude missions.',
+        country: 'United States of America',
+        rank_order: 9,
+        yearOfEstablishment: 1981,
+        info: { powers_of_arrest: 'None.', carry_of_weapon: 'Authorized to operate aircraft-mounted weapons systems.', access_to_funds: { maximum_request: 'Unusual', access_protocol: 'On Request' }, budget_and_restricted_items: 'Operates highly modified helicopters like the MH-60 Black Hawk and MH-47 Chinook, equipped with advanced avionics, sensors, and defensive systems.' },
+        wikipedia_url: 'https://en.wikipedia.org/wiki/160th_Special_Operations_Aviation_Regiment_(Airborne)',
+        professions: ['Pilot or Sailor', 'Special Operator'],
+        suggested_bonus_skills: ['Pilot', 'Navigate', 'Alertness', 'Heavy Weapons', 'Craft'],
+        equipment: ['modified_black_hawk', 'advanced_flight_helmet', 'night_vision_goggles', 'minigun'],
+        ranks: {
+            'Pilot or Sailor': ['Basic Mission Qualified', 'Fully Mission Qualified', 'Flight Lead', 'Standardization Instructor Pilot', 'Company Commander', 'Battalion Commander'],
+            'Special Operator': ['Crew Chief', 'Senior Crew Chief', 'Section Sergeant', 'Platoon Sergeant', 'Company First Sergeant', 'Battalion Command Sergeant Major']
+        },
+        source: "Delta Green Agent's Handbook",
+        page: 144,
+        equipmentKit: ["SPECIAL OPERATOR"],
+        infoId: 'agency_army',
+        specialTrainings: ['Drone Piloting']
+    },
+    {
+        stub: 'usa_4mist',
+        name: 'U.S. Army, 4th Military Information Support Group (Airborne)',
+        agency: 'U.S. Army',
+        description: 'The primary psychological operations (PSYOP) unit in the U.S. Army, tasked with influencing foreign populations and leaders to support U.S. objectives.',
+        country: 'United States of America',
+        rank_order: 29,
+        yearOfEstablishment: 1952,
+        info: { powers_of_arrest: 'None.', carry_of_weapon: 'Authorized to carry personal defense weapons.', access_to_funds: { maximum_request: 'Major', access_protocol: 'Limited' }, budget_and_restricted_items: 'Access to printing presses, radio broadcast equipment, loudspeakers, and multimedia production facilities to create and disseminate propaganda.' },
+        wikipedia_url: 'https://en.wikipedia.org/wiki/4th_Psychological_Operations_Group_(United_States)',
+        professions: ['Soldier or Marine', 'Intelligence Analyst'],
+        suggested_bonus_skills: ['Persuade', 'Art', 'Anthropology', 'Foreign Language', 'SIGINT'],
+        equipment: ['propaganda_leaflets', 'loudspeaker_truck', 'radio_transmitter', 'cultural_guidebooks'],
+        ranks: {
+            'Soldier or Marine': ['PSYOP Specialist', 'Senior PSYOP Specialist', 'Team Leader', 'Detachment NCOIC', 'Company First Sergeant', 'Battalion Command Sergeant Major'],
+            'Intelligence Analyst': ['Target Audience Analyst', 'Senior Analyst', 'Team Leader, Analysis', 'Detachment OIC', 'Company Commander', 'Battalion Commander']
+        },
+        source: "Delta Green Agent's Handbook",
+        page: 144,
+        equipmentKit: ["INTELLIGENCE / COVERT OPS KIT"],
+        infoId: 'agency_army',
+        specialTrainings: ['Covert Communications']
+    },
+];
