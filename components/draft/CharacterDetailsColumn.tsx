@@ -4,7 +4,7 @@ import { useCharacterContext } from '../../context/CharacterContext';
 import { GenderSelector } from './GenderSelector';
 import { DiceIcon } from '../icons/DiceIcon';
 import { SpinnerIcon } from '../icons/SpinnerIcon';
-import { RefreshIcon } from '../icons/RefreshIcon';
+import { AIStarsIcon } from '../icons/AIStarsIcon';
 import type { Department } from '../../types';
 import { Tooltip } from '../Tooltip';
 import { BondManager } from '../bonds/BondManager';
@@ -173,7 +173,7 @@ export const CharacterDetailsColumn: React.FC<CharacterDetailsColumnProps> = ({ 
                                     aria-label="Generate Name"
                                     title="Generate Name"
                                 >
-                                {ai.isGeneratingName ? <SpinnerIcon className="h-4 w-4"/> : <RefreshIcon className="h-4 w-4" />}
+                                {ai.isGeneratingName ? <SpinnerIcon className="h-4 w-4"/> : <AIStarsIcon className="h-4 w-4" />}
                                 </button>
                             </div>
                             
@@ -189,7 +189,7 @@ export const CharacterDetailsColumn: React.FC<CharacterDetailsColumnProps> = ({ 
                                     aria-label="Generate Codename"
                                     title="Generate Codename"
                                 >
-                                    {ai.isGeneratingCodename ? <SpinnerIcon className="h-4 w-4"/> : <RefreshIcon className="h-4 w-4" />}
+                                    {ai.isGeneratingCodename ? <SpinnerIcon className="h-4 w-4"/> : <AIStarsIcon className="h-4 w-4" />}
                                 </button>
                             </div>
 

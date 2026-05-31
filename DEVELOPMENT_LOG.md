@@ -250,3 +250,89 @@ Project imported from existing worktree and standard management docs added.
 - Validation: `npm run dev` was restarted cleanly on port `3002`, `curl -I
   http://localhost:3002/` returned `200 OK`, `npm run build` completed
   successfully, and `npm test` passed with 38/38 tests.
+
+## 2026-05-31 - Auto-pick a non-generic nationality on new rolls
+
+- Context: a fresh Bio roll could still leave the Nationality field on the
+  default generic value, which made the Dossier tab feel incomplete.
+- Root cause: the automatic nationality picker still considered the generic
+  American placeholder a valid weighted outcome, so a new character could
+  legitimately land on the default-looking entry.
+- Files changed:
+  - `hooks/useAIGeneration.ts`: added an option for the random nationality
+    picker to exclude the generic placeholder and keep that behavior for the
+    automatic roll path.
+  - `hooks/useCharacter.ts`: updated the attribute-roll flow to invoke the
+    non-generic nationality picker after rolling a new set of characteristics.
+  - `CHANGELOG.md`: recorded the Bio nationality behavior change under
+    `Unreleased`.
+- Validation: `npm run dev` was restarted cleanly on port `3002`, `curl -I
+  http://localhost:3002/` returned `200 OK`, `npm run build` completed
+  successfully, and `npm test` passed with 38/38 tests.
+
+## 2026-05-31 - Replace identity reroll icons with AI stars
+
+- Context: the identity detail buttons for generating name and codename still
+  used the old reroll icon, which made them feel like generic refresh actions
+  instead of AI-assisted generation.
+- Root cause: the buttons were wired to the refresh glyph even though the rest
+  of the app already uses AI-themed iconography for generation actions.
+- Files changed:
+  - `components/icons/AIStarsIcon.tsx`: added a dedicated AI-stars icon
+    component for the identity generation buttons.
+  - `components/draft/CharacterDetailsColumn.tsx`: swapped the refresh icon
+    out for the AI-stars icon in both green identity buttons.
+  - `CHANGELOG.md`: recorded the icon swap under `Unreleased`.
+- Validation: `npm run dev` was restarted cleanly on port `3002`, `curl -I
+  http://localhost:3002/` returned `200 OK`, `npm run build` completed
+  successfully, and `npm test` passed with 38/38 tests.
+
+## 2026-05-31 - Audit profession metadata for Career History
+
+- Context: the expanded Complex profession set needed a metadata audit to make
+  sure Career History and the Dossier tab still had complete coverage after the
+  import.
+- Root cause: two CIA SAD professions were present in the profession list, but
+  their dossier info and rank ladders were not fully wired into the metadata
+  registry, causing the dossier lookup regression test to fail.
+- Files changed:
+  - `data/information-data.ts`: added a dedicated `agency_cia` dossier entry
+    so the CIA SAD roles can resolve their dossier content.
+  - `data/profession-data.ts`: added rank ladders for `CIA SAD/SOG Operator`
+    and `CIA SAD/PAG Officer` so Career History can display progression for
+    both roles.
+  - `tests/professionMetadata.test.ts`: added a regression test covering the
+    minimum metadata required for Career History and dossier rendering.
+  - `CHANGELOG.md`: recorded the metadata coverage fix under `Unreleased`.
+- Validation: `npm run dev` was restarted cleanly on port `3002`, `curl -I
+  http://localhost:3002/` returned `200 OK`, `npm run build` completed
+  successfully, and `npm test` passed with 39/39 tests.
+
+## 2026-05-31 - Route AI prompts by complexity
+
+- Context: the app was still sending several cheap, high-volume prompts to the
+  creative model by default, which is unnecessary cost for deterministic or
+  procedural tasks.
+- Root cause: prompt call sites were not consistently triaged by complexity,
+  so some low-risk prompts shared the same model tier as the narrative-heavy
+  generation flows.
+- Files changed:
+  - `hooks/useCareerSimulation.ts`: moved injury reporting, injury summaries,
+    and career-history narrative generation to the simple model lane.
+  - `CHANGELOG.md`: documented the new prompt-routing split under
+    `Unreleased`.
+- Validation: `npm run dev` was restarted cleanly on port `3002`, and the app
+  continued to answer `200 OK` on `http://localhost:3002/` after the restart.
+
+## 2026-05-31 - Prepare release 1.1.0
+
+- Context: the project is ready for a versioned release centered on The
+  Complex expansion and the broader AI/runtime integration work.
+- Root cause: the release notes still used the working `Unreleased` heading,
+  and the top-level changelog copy did not yet present the Complex expansion as
+  a formal 1.1.0 release with marketing-oriented feature bullets.
+- Files changed:
+  - `CHANGELOG.md`: promoted the release notes to `1.1.0`, added a marketing
+    summary for The Complex's 82 professions, and reframed the feature bullets
+    to describe what is now available.
+- Validation: changelog review only; no code path changed in this step.

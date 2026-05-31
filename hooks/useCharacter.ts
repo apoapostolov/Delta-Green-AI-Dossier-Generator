@@ -452,7 +452,7 @@ export const useCharacter = (setToastMessage: (msg: string | null, type?: ToastT
         setIsDeceased(false);
         setBonds([]);
         ai.reset();
-        ai.onGenerateRandomNationality();
+        ai.onGenerateRandomNationality(true);
     }, [ai, baseAttributes, fullResetCareer, resetSkills, resetInventory, resetVeteranState]);
 
     const handleRestoreRoll = useCallback((rollToRestore: AttributeSet) => {

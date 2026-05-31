@@ -83,10 +83,14 @@ export const useAIGeneration = (
         }
     }, [dob, currentYear]);
 
-    const onGenerateRandomNationality = useCallback(() => {
-        const totalWeight = aggregatedData.WEIGHTED_NATIONALITIES.reduce((sum, nat) => sum + nat.weight, 0);
+    const onGenerateRandomNationality = useCallback((excludeGenericDefault = false) => {
+        const candidateNationalities = excludeGenericDefault
+            ? aggregatedData.WEIGHTED_NATIONALITIES.filter(nat => nat.name !== 'American (Unspecified/Mixed)')
+            : aggregatedData.WEIGHTED_NATIONALITIES;
+        const pool = candidateNationalities.length > 0 ? candidateNationalities : aggregatedData.WEIGHTED_NATIONALITIES;
+        const totalWeight = pool.reduce((sum, nat) => sum + nat.weight, 0);
         let random = Math.random() * totalWeight;
-        for (const nat of aggregatedData.WEIGHTED_NATIONALITIES) {
+        for (const nat of pool) {
             if (random < nat.weight) {
                 setNationality(nat.name);
                 return;
@@ -94,7 +98,7 @@ export const useAIGeneration = (
             random -= nat.weight;
         }
         if (aggregatedData.NATIONALITIES.length > 0) {
-            setNationality(aggregatedData.NATIONALITIES[0]);
+            setNationality(excludeGenericDefault ? (aggregatedData.WEIGHTED_NATIONALITIES.find(nat => nat.name !== 'American (Unspecified/Mixed)')?.name || aggregatedData.NATIONALITIES[0]) : aggregatedData.NATIONALITIES[0]);
         }
     }, [aggregatedData.WEIGHTED_NATIONALITIES, aggregatedData.NATIONALITIES]);
 

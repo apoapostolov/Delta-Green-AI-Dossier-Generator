@@ -40,6 +40,29 @@ This section provides an overview of the service branches of the Department of D
         long: `## Intelligence and Diplomacy
 This section describes the CIA and the U.S. Department of State, the intelligence and diplomacy organizations most frequently involved in Delta Green operations.`
     },
+    'agency_cia': {
+        short: 'The CIA is the United States’ principal foreign-intelligence service: clandestine HUMINT, covert action, strategic analysis, and cover-based field work abroad. It has no domestic arrest power, but it has deep access, strong tradecraft, and a long memory when it comes to rival agencies.',
+        long: `## The Central Intelligence Agency (CIA)
+The Central Intelligence Agency is the United States’ primary foreign-intelligence service. It gathers human intelligence, runs clandestine operations overseas, produces strategic analysis, and supports national-security decision-making through cover identities, field tradecraft, and access to a wide global network of assets and partners.
+
+### The Organization
+The CIA is headquartered in Langley, Virginia, and reports to the Director of National Intelligence. Its work is divided among analytic, operational, support, and technical elements, with the Counterterrorism Center, the clandestine service, and specialist directorates all contributing to the agency’s broader mission. The CIA is one of the most prominent and best known members of the intelligence community, but much of its day-to-day work is deliberately opaque even to other parts of the U.S. government.
+
+### Operatives
+CIA officers are usually selected for discretion, flexibility, language ability, and the ability to operate under cover. Case officers cultivate sources and recruit assets; analysts turn raw reports into intelligence products; support personnel build the systems, legends, and logistics that let operations survive in denied environments. Many CIA personnel spend long stretches overseas or in tightly compartmented domestic support roles.
+
+### Authority and Mandate
+The CIA does not perform domestic law enforcement and does not have arrest powers like a federal police agency. Its mandate is foreign intelligence and clandestine influence. In practice, that means the CIA is often concerned with foreign governments, militant groups, transnational threats, and operations that require deniable access rather than open enforcement.
+
+### Field Operations
+CIA field work is shaped by cover. Officers may pass as diplomats, contractors, researchers, business travelers, or representatives of other government bodies. Access to information can be broad, but equipment is usually limited to what can be carried plausibly under cover. The agency’s strength is not gear; it is access, tradecraft, and the ability to work in places where overt government presence would be a liability.
+
+### Areas of Friction
+The CIA’s long-standing rivalry with the FBI is famous, but it also competes for influence with DIA, NSA, NCTC, and other intelligence bodies. Its most aggressive operations can look reckless to outsiders, while the CIA often views the rest of the government as clumsy, overt, or compromised. That tension is part of the job.
+
+### Playing the CIA
+If you are a CIA character, you live in the gray space between diplomacy, espionage, and covert action. You are expected to understand people, places, and politics quickly, then use that understanding to shape events without getting caught in the open. The work rewards patience, concealment, language skill, and the ability to treat every relationship as both a source and a liability.`
+    },
     'public_safety_overview': {
         short: 'Public safety partners at a glance: CDC and EPA. When outbreaks, toxins, and environmental crimes threaten lives, these agencies bring scientific expertise, emergency coordination, and legal authority—often providing credible covers for unusual investigations.',
         long: `## Public Safety

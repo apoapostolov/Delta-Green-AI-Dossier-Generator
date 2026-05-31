@@ -98,7 +98,7 @@ export const useCareerSimulation = (showToast: (msg: string, type?: ToastType) =
                 try {
                     const injuryPrompt = getInjuryReportPrompt(permanentInjuries);
                     const injuryData = parseJsonLike(
-                        await generateText({ prompt: injuryPrompt, json: true, purpose: 'creative' }),
+                        await generateText({ prompt: injuryPrompt, json: true, purpose: 'simple' }),
                     ) as { report: string; shortDescription: string; mechanicalEffect: string };
 
                     finalInjuryReport = injuryData.report;
@@ -111,7 +111,7 @@ export const useCareerSimulation = (showToast: (msg: string, type?: ToastType) =
                     setInjuryMechanics(finalInjuryMechanics);
 
                     const summaryPrompt = `Summarize the following medical report into one or two sentences for a personnel file. Focus on the agent's long-term operational limitations and suitability for non-frontline roles (e.g., support, analysis, advisory capacity) due to their injuries.\n\nMedical Report:\n"""\n${finalInjuryReport}\n"""\n\nSummary:`;
-                    finalInjurySummary = (await generateText({ prompt: summaryPrompt, purpose: 'creative' })).trim();
+                    finalInjurySummary = (await generateText({ prompt: summaryPrompt, purpose: 'simple' })).trim();
                     setInjurySummary(finalInjurySummary);
 
                 } catch (e) {
@@ -138,7 +138,7 @@ export const useCareerSimulation = (showToast: (msg: string, type?: ToastType) =
             setIsGeneratingNarrative(true);
             const narrativePrompt = getCareerNarrativePrompt(rawResult.events.map(e => ({ year: e.year, detail: e.detail, success: e.check.success })));
             const result = parseJsonLike(
-                await generateText({ prompt: narrativePrompt, json: true, purpose: 'creative' }),
+                await generateText({ prompt: narrativePrompt, json: true, purpose: 'simple' }),
             ) as { narratives?: string[] };
             const narratives = result.narratives;
 

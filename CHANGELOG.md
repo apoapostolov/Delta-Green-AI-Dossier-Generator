@@ -5,17 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2026-05-31
 
 ### Changed
 
 -   Reorganized the flat data, prompt, and configuration modules into `data/`,
     `prompts/`, and `config/` folders so the project root stays cleaner.
 -   Updated the Vite dev server and launcher scripts to use port `3002`.
--   Backported the provider-aware AI runtime from the richer Call of Cthulhu
-    project so DG now supports Settings-based provider/model selection, `.env`
-    loading, AI skill distribution for DG bonus advancements, and restored
-    save/load coverage for the new state.
+-   The AI runtime now supports Settings-based provider/model selection,
+    `.env` loading, AI skill distribution for Delta Green bonus
+    advancements, and save/load coverage for the new AI state.
 -   Added separate instant filter inputs for the Profession and Department
     lists so each tab preserves its own search text while switching between
     groups.
@@ -27,17 +26,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Improved the AI Item Generation prompt viewer with descriptive tab names
     and live prompt previews that show placeholder adlibs even before an item
     has been generated.
+-   Updated Bio nationality generation so a fresh attribute roll auto-picks a
+    non-generic nationality instead of leaving the default placeholder in
+    place.
+-   Replaced the Identity Details reroll icons with the AI-stars glyph so the
+    name and codename generators better match the rest of the AI-assisted UI.
+-   Added the missing CIA agency dossier entry so the CIA SAD Complex
+    professions now resolve correctly in the Dossier tab.
+-   Added career rank ladders for the CIA SAD Complex professions so their
+    Career History displays no longer fall back to incomplete metadata.
+-   Rebalanced AI prompt routing so name generation, bio data, traits, bonds,
+    and Career History stay on the simple model, while AI item creation,
+    AI distribution, and dossier-style narrative generation use the creative
+    model.
 
 ### Added
 
+-   **The Complex Profession Suite**: Added 82 new professions spanning law enforcement, defense, intelligence, research, treasury, and private-sector careers.
+-   **Repaired Complex Dossiers**: Every Complex profession now ships with readable in-world dossier prose, organization primers, and source-aware context that feels native to the book.
+-   **Career History Ready**: The new professions carry rank ladders, starting bonds, bonus advancements, equipment kits, and special trainings so they plug directly into Dossier and Career History flow.
+-   **Unified Metadata Coverage**: The Complex roles now participate in search, selection, save/load, PDF generation, and dossier lookup the same way core professions do.
+-   **Expanded Agency Coverage**: Intelligence, law enforcement, defense, research, public safety, treasury, and private-sector roles now provide much broader character-building variety.
 -   **1950s Era**: Extended the selectable operational eras back to the 1950s, with thematic prompts for the Red Scare period.
 -   **Enhanced Dossier Prompt**: The dossier generation prompt now includes the agent's era, nationality, profession, rank, reporting structure, and top three skills for a more context-aware narrative.
 -   **Historical Context in Dossier**: The AI is now instructed to ground the agent's dossier in real-world political, geopolitical, or clandestine events from a specific year within their operational era.
 -   **Dossier Prompt Preview**: The AI prompt for the Career Dossier can now be viewed in the UI before the career is simulated.
--   **The Complex Profession Import**: Added a first-pass backport of The Complex profession set as selectable Tab 1 professions, with repaired Markdown dossier text exposed through the profession `(?)` modal.
--   **The Complex Dossier Cleanup**: Removed import-process wording from the Complex profession dossiers and replaced it with cleaner in-world agency text and source labels.
--   **The Complex Dossier Expansion**: Reworked the Complex profession dossier tab to include richer organization primers, operational context, friction, and culture notes drawn from the book material instead of dry import metadata.
--   **Core Profession Dossiers**: Added full educational dossier tabs for the main Agent's Handbook professions, including role context, skill patterns, career shape, and field use.
 
 ### Changed
 
