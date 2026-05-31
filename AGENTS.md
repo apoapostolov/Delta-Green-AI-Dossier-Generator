@@ -31,6 +31,14 @@ Describe **what** the code does, not which planning ticket it belongs to.
    - `curl -I http://localhost:3002/`
    - `netstat -ano | findstr :3002`
 
+## Vite Reload Reliability (Mandatory)
+
+Vite hot reload is not reliable enough for this workspace.
+
+1. After changing code, styles, or generated data, restart the Vite dev server before validating the result.
+2. Do not assume the browser is showing the latest bundle until the server has been restarted and the page reloaded.
+3. Treat stale UI as a server restart issue first, not a browser cache issue.
+
 ## Documentation Workflow (Mandatory)
 
 **DEVELOPMENT_LOG.md must be updated as the final step of every response changing code, UX, or behaviour.**

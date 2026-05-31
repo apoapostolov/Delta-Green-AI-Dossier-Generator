@@ -101,3 +101,152 @@ Project imported from existing worktree and standard management docs added.
   dossier repair first; several roles with heavily interleaved OCR custom skill
   blocks may merit a later manual mechanics pass if we want every imported role
   to diverge from its base profession chassis in the summary tab as well.
+
+## 2026-05-31 - Clean up Complex dossier wording
+
+- Context: the initial Complex dossier output still exposed import-process
+  language and generic repair notes in the modal, which made the second tab
+  read like tooling output instead of an in-world Delta Green reference entry.
+- Root cause: the generated Markdown template still carried OCR-specific note
+  text and inherited the base profession page reference without being rewritten
+  into agency-facing dossier language.
+- Files changed:
+  - `data/complex-profession-dossiers.ts`: rewrote the dossier template to use
+    professional in-world prose, removed OCR and repair wording, and stopped
+    inheriting the base-book page reference for these Complex entries.
+  - `CHANGELOG.md`: documented the dossier wording cleanup under `Unreleased`.
+- Validation: `npm run build`; `npm test` (38 passing tests); `curl -I
+  http://localhost:3002/` returned `200 OK` after a clean Vite restart.
+
+## 2026-05-31 - Expand Complex dossiers with organization primers
+
+- Context: the Complex dossier tab was still reading like a short metadata card
+  even after the OCR/import wording had been removed.
+- Root cause: the dossier generator only rendered a brief role summary, skill
+  list, and equipment line, so it was not reusing the richer descriptive and
+  educational content from the Complex chapter.
+- Files changed:
+  - `data/complex-org-dossiers.ts`: added reusable organization primers for
+    each Complex agency and contractor family.
+  - `data/complex-profession-dossiers.ts`: rewrote the dossier generator to
+    incorporate organization overview, operational reality, friction, culture,
+    and role-focus sections for each profession.
+  - `CHANGELOG.md`: recorded the dossier expansion under `Unreleased`.
+- Validation: `npm run build`; `npm test` (38 passing tests); `npm run dev`
+  relaunched cleanly on port `3002`, and `curl -I http://localhost:3002/`
+  returned `200 OK`.
+
+## 2026-05-31 - Add educational dossiers for core professions
+
+- Context: the main Agent's Handbook professions still lacked full educational
+  dossier tabs, even though the Complex content had already been upgraded to a
+  richer reference style.
+- Root cause: the base profession entries were only carrying mechanical data
+  and short descriptions, so the `(?)` modal did not yet explain how each role
+  actually works in Delta Green terms.
+- Files changed:
+  - `data/core-profession-dossiers.ts`: added a reusable dossier generator and
+    info-id map for all main-book professions.
+  - `data/profession-data.ts`: attached the new dossier ids to the core
+    professions and exported the generated profession dossier map.
+  - `data/information-data.ts`: merged the core profession dossiers into the
+    existing modal information registry.
+  - `CHANGELOG.md`: recorded the shipped dossier expansion under `Unreleased`.
+- Validation: `npm run build`; `npm test` (38 passing tests).
+
+## 2026-05-31 - Require Vite restarts for stale bundle validation
+
+- Context: Vite hot reload has been serving stale bundles in this workspace,
+  which has repeatedly caused UI changes to appear missing even after the
+  source files were updated.
+- Root cause: the local dev loop is not reliable enough to use hot reload as
+  the sole validation path for this project.
+- Files changed:
+  - `AGENTS.md`: added a mandatory Vite reload reliability rule instructing
+    agents to restart the dev server after code, style, or generated-data
+    changes before validating.
+- Validation: `npm run dev` relaunched cleanly on port `3002`, and `curl -I
+  http://localhost:3002/` returned `200 OK` after the restart.
+
+## 2026-05-31 - Add separate profession and department filters
+
+- Context: the Profession and Department lists had grown large enough that
+  browsing them manually was becoming slow and error-prone.
+- Root cause: the stats selector UI did not yet include instant text filtering,
+  and any filter state would have been shared implicitly across the two tab
+  groups.
+- Files changed:
+  - `components/StatsTab.tsx`: added independent live filter fields for the
+    Profession and Department views, with separate preserved text state for
+    each subtab.
+  - `CHANGELOG.md`: recorded the new filtering behavior under `Unreleased`.
+- Validation: `npm run dev` was restarted cleanly on port `3002`, `curl -I
+  http://localhost:3002/` returned `200 OK`, and `npm test` passed with 38/38
+  tests.
+
+## 2026-05-31 - Remove redundant equipment packs from the Equipment tab
+
+- Context: the Equipment tab still exposed separate Equipment Packs even
+  though Delta Green already has the native Tools of the Trade kit workflow,
+  which makes the pack UI redundant and confusing.
+- Root cause: a backported Equipment Packs block and its data source remained
+  visible in the tab even after the project had standardized on Tools of the
+  Trade for kit selection.
+- Files changed:
+  - `components/GearTab.tsx`: removed the Equipment Packs block from both the
+    desktop and mobile layouts and deleted its add-pack handler.
+  - `components/gear/EquipmentPacks.tsx`: deleted the redundant pack UI
+    component.
+  - `data/equipment-pack-data.ts`: deleted the unused equipment pack data.
+  - `CHANGELOG.md`: recorded the removal under `Unreleased`.
+- Validation: `npm run dev` was restarted cleanly on port `3002`, `curl -I
+  http://localhost:3002/` returned `200 OK`, `npm test` passed with 38/38
+  tests, and `npm run build` completed successfully.
+
+## 2026-05-31 - Remove the profession filter caption
+
+- Context: the live filter under the Profession/Department header still showed
+  a visible "Filter professions" caption, which made the control feel heavier
+  than necessary.
+- Root cause: the filter input was wrapped in a label that duplicated the
+  intent already made clear by the surrounding tab header and placeholder
+  text.
+- Files changed:
+  - `components/StatsTab.tsx`: removed the label above the filter field while
+    keeping the separate profession and department filter state intact.
+- Validation: `npm run dev` was restarted cleanly on port `3002`, `curl -I
+  http://localhost:3002/` returned `200 OK`, and `npm test` passed with 38/38
+  tests.
+
+## 2026-05-31 - Move AI Distribution beside Quick Assign
+
+- Context: the AI Distribution action in the Skills tab was visually separated
+  from the other skill-automation controls, making the workflow feel a bit
+  scattered.
+- Root cause: the button lived in the header controls instead of the main
+  action row where Quick Assign already sits.
+- Files changed:
+  - `components/SkillsTab.tsx`: moved the AI Distribution button into the
+    action row immediately before Quick Assign and styled it blue.
+  - `components/skills/SkillsHeader.tsx`: removed the AI Distribution prop and
+    button from the header so the header only handles grouping and reset.
+  - `CHANGELOG.md`: recorded the UI move under `Unreleased`.
+- Validation: `npm run dev` was restarted cleanly on port `3002`, `curl -I
+  http://localhost:3002/` returned `200 OK`, `npm run build` completed
+  successfully, and `npm test` passed with 38/38 tests.
+
+## 2026-05-31 - Improve AI item prompt previews
+
+- Context: the AI Item Generation prompts were still labeled generically and
+  showed placeholder helper text until an item had been generated once.
+- Root cause: the prompt modal was only receiving generated prompt strings,
+  so its fallback content was not useful for previewing the workflow ahead of
+  time.
+- Files changed:
+  - `components/GearTab.tsx`: renamed the two prompt tabs to descriptive
+    labels and added live preview prompt content with placeholder adlibs even
+    before any item has been generated.
+  - `CHANGELOG.md`: recorded the prompt viewer improvement under `Unreleased`.
+- Validation: `npm run dev` was restarted cleanly on port `3002`, `curl -I
+  http://localhost:3002/` returned `200 OK`, `npm run build` completed
+  successfully, and `npm test` passed with 38/38 tests.

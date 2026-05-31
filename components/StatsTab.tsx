@@ -70,6 +70,8 @@ export const StatsTab: React.FC<StatsTabProps> = ({
     setActiveTab,
 }) => {
     const [subTab, setSubTab] = useState<'professions' | 'departments'>('professions');
+    const [professionFilterText, setProfessionFilterText] = useState('');
+    const [departmentFilterText, setDepartmentFilterText] = useState('');
     const { veteranChanges, damagedVeteranOption, selectDepartmentOrSpecialProfession } = useCharacterContext();
     const subTabContainerRef = useRef<HTMLDivElement>(null);
     
@@ -123,6 +125,9 @@ export const StatsTab: React.FC<StatsTabProps> = ({
         return professions.filter(p => !p.isDepartment);
     }, [professions]);
 
+    const activeFilterText = subTab === 'professions' ? professionFilterText : departmentFilterText;
+    const setActiveFilterText = subTab === 'professions' ? setProfessionFilterText : setDepartmentFilterText;
+
     const professionGroups = [
         { name: 'Federal Agents', group: 'Federal Agent', borderColor: 'border-blue-700', list: professionsToShow.filter(p => p.group === 'Federal Agent') },
         { name: 'Military Personnel', group: 'Military', borderColor: 'border-green-700', list: professionsToShow.filter(p => p.group === 'Military') },
@@ -174,6 +179,39 @@ export const StatsTab: React.FC<StatsTabProps> = ({
 
         return grouped;
     }, [departments, professions, selectedProfession]);
+
+    const filteredProfessionGroups = useMemo(() => {
+        const query = professionFilterText.trim().toLowerCase();
+        if (!query) return professionGroups;
+
+        return professionGroups
+            .map(group => ({
+                ...group,
+                list: group.list.filter(profession => (
+                    profession.name.toLowerCase().includes(query) ||
+                    profession.description.toLowerCase().includes(query)
+                )),
+            }))
+            .filter(group => group.list.length > 0);
+    }, [professionFilterText, professionGroups]);
+
+    const filteredDepartmentsByCountry = useMemo(() => {
+        const query = departmentFilterText.trim().toLowerCase();
+        if (!query) return departmentsAndUnitsByCountry;
+
+        const filteredEntries = Object.entries(departmentsAndUnitsByCountry).reduce((acc, [country, depts]) => {
+            const filtered = depts.filter(dept => (
+                dept.name.toLowerCase().includes(query) ||
+                dept.description.toLowerCase().includes(query) ||
+                dept.country.toLowerCase().includes(query)
+            ));
+
+            if (filtered.length > 0) acc[country] = filtered;
+            return acc;
+        }, {} as Record<string, Department[]>);
+
+        return filteredEntries;
+    }, [departmentFilterText, departmentsAndUnitsByCountry]);
 
 
     const derivedStatOrder = ['HP', 'SAN', 'WP', 'Bonds', 'BP'];
@@ -279,10 +317,23 @@ export const StatsTab: React.FC<StatsTabProps> = ({
                                 2. Department
                             </button>
                         </div>
+
+                        <div className="mb-8">
+                            <input
+                                id="profession-department-filter"
+                                type="text"
+                                value={activeFilterText}
+                                onChange={(e) => setActiveFilterText(e.target.value)}
+                                placeholder={subTab === 'professions' ? 'Type to filter professions...' : 'Type to filter departments...'}
+                                className="w-full max-w-2xl mx-auto block bg-gray-900/80 border border-gray-600 rounded-lg px-4 py-3 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-400 shadow-inner"
+                                autoComplete="off"
+                                spellCheck={false}
+                            />
+                        </div>
                         
                         {subTab === 'professions' && (
                             <div>
-                                {professionGroups.map(group => {
+                                {filteredProfessionGroups.map(group => {
                                     const sortedList = group.list.slice().sort((a, b) => {
                                         const qualA = isProfessionQualified(a, attributes) ? 1 : 0;
                                         const qualB = isProfessionQualified(b, attributes) ? 1 : 0;
@@ -310,7 +361,10 @@ export const StatsTab: React.FC<StatsTabProps> = ({
                                         </div>
                                     )
                                 })}
-                                {professionsToShow.length === 0 && selectedDepartment && (
+                                {professionFilterText.trim() && filteredProfessionGroups.length === 0 && (
+                                    <p className="text-center text-lg text-gray-500 py-8">No professions match your filter.</p>
+                                )}
+                                {professionsToShow.length === 0 && selectedDepartment && !professionFilterText.trim() && (
                                     <p className="text-center text-lg text-gray-500 py-8">No standard professions are available for the selected department. Clear the department selection to see all professions.</p>
                                 )}
                             </div>
@@ -318,8 +372,8 @@ export const StatsTab: React.FC<StatsTabProps> = ({
 
                         {subTab === 'departments' && (
                              <div>
-                                {Object.keys(departmentsAndUnitsByCountry).length > 0 ? (
-                                    Object.keys(departmentsAndUnitsByCountry).map(country => { const depts = departmentsAndUnitsByCountry[country]; return (
+                                {Object.keys(filteredDepartmentsByCountry).length > 0 ? (
+                                    Object.keys(filteredDepartmentsByCountry).map(country => { const depts = filteredDepartmentsByCountry[country]; return (
                                         <div key={country} className="mb-12">
                                             <h4 className="text-2xl font-semibold text-left mb-4 text-gray-300 border-b-2 border-green-700 pb-2">
                                                 {country} Agencies & Units
@@ -345,7 +399,11 @@ export const StatsTab: React.FC<StatsTabProps> = ({
                                         </div>
                                     )})
                                 ) : (
-                                    <p className="text-center text-lg text-gray-500 py-8">No specific departments or specialized units are available for this profession.</p>
+                                    <p className="text-center text-lg text-gray-500 py-8">
+                                        {departmentFilterText.trim()
+                                            ? 'No departments or specialized units match your filter.'
+                                            : 'No specific departments or specialized units are available for this profession.'}
+                                    </p>
                                 )}
                             </div>
                         )}

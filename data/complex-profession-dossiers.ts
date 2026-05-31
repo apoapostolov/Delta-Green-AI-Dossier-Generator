@@ -1,1168 +1,294 @@
-export interface ComplexProfessionSeed {
-    id: string;
-    name: string;
-    baseProfession: string;
-    organization: string;
-    summary: string;
-    role: string[];
-    professionalSkills?: string[];
-    bonds?: number;
-    suggestedBonusSkills: string[];
-    equipment: string[];
-    notes?: string[];
+import type { Profession } from '../types';
+import { ORGANIZATION_DOSSIERS } from './complex-org-dossiers';
+
+type ChoiceGroup = Profession['choiceGroups'][number];
+
+interface ComplexProfessionSeed {
+  name: string;
+  baseProfession: string;
+  organization: string;
+  description: string;
+  professionText?: string;
+  bonusSkills: string[];
+  equipment: string;
+  notes: string[];
+  bonds?: number;
+  professionalSkills?: Profession['professionalSkills'];
+  choiceGroups?: ChoiceGroup[];
+  bonusSkillAdvancements?: number;
+  equipmentKit?: string[];
+  specialTrainings?: string[];
+  page?: number;
 }
 
-const toMarkdown = (seed: ComplexProfessionSeed) => {
-    const sections = [
-        `## ${seed.name}`,
-        seed.summary,
-        '',
-        `**Organization:** ${seed.organization}`,
-        `**Underlying Profession Model:** ${seed.baseProfession}`,
-        '',
-        '### Role',
-        ...seed.role.map((entry) => `- ${entry}`),
-        '',
-    ];
-
-    if (seed.professionalSkills && seed.professionalSkills.length > 0) {
-        sections.push('### Professional Skills', ...seed.professionalSkills.map((entry) => `- ${entry}`), '');
-    }
-
-    if (typeof seed.bonds === 'number') {
-        sections.push('### Bonds', `- ${seed.bonds}`, '');
-    }
-
-    sections.push('### Suggested Bonus Skills', ...seed.suggestedBonusSkills.map((entry) => `- ${entry}`), '');
-    sections.push('### Likely Equipment and Access', ...seed.equipment.map((entry) => `- ${entry}`), '');
-
-    if (seed.notes && seed.notes.length > 0) {
-        sections.push('### Notes', ...seed.notes.map((entry) => `- ${entry}`), '');
-    }
-
-    return sections.join('\n').trim();
+const BASE_PROFESSION_ALIASES: Record<string, string> = {
+  'Anthropologist': 'Anthropologist or Historian',
+  'Anthropologist or Historian': 'Anthropologist or Historian',
+  'Computer Scientist': 'Computer Scientist or Engineer',
+  'Computer Scientist or Engineer': 'Computer Scientist or Engineer',
+  'Engineer': 'Computer Scientist or Engineer',
+  'Federal Agent': 'Federal Agent',
+  'Firefighter': 'Firefighter',
+  'Foreign Service Officer': 'Foreign Service Officer',
+  'Historian': 'Anthropologist or Historian',
+  'Intelligence Analyst': 'Intelligence Analyst',
+  'Intelligence Case Officer': 'Intelligence Case Officer',
+  'Lawyer': 'Lawyer or Business Executive',
+  'Lawyer or Business Executive': 'Lawyer or Business Executive',
+  'Media Specialist': 'Media Specialist',
+  'Nurse or Paramedic': 'Nurse or Paramedic',
+  'Paramedic': 'Nurse or Paramedic',
+  'Physician': 'Physician',
+  'Pilot': 'Pilot or Sailor',
+  'Pilot or Sailor': 'Pilot or Sailor',
+  'Police Officer': 'Police Officer',
+  'Program Manager': 'Program Manager',
+  'Scientist': 'Scientist',
+  'Soldier': 'Soldier or Marine',
+  'Soldier or Marine': 'Soldier or Marine',
+  'Sailor': 'Pilot or Sailor',
+  'Soldier or Sailor': 'Soldier or Marine',
+  'Special Operator': 'Special Operator',
 };
 
-export const COMPLEX_PROFESSION_SEEDS: ComplexProfessionSeed[] = [
-    {
-        id: 'complex_cbp_border_protection',
-        name: 'CBP Border Protection Officer',
-        baseProfession: 'Federal Agent',
-        organization: 'Customs and Border Protection',
-        summary: 'A port-of-entry officer screening travelers and cargo, often under pressure from smugglers, desperate migrants, and hostile surveillance targets.',
-        role: [
-            'Mans points of entry into the United States, including preclearance sites and sensitive inspection lanes.',
-            'Screens visitors, cargo, and vehicles while balancing customer-facing authority with counter-smuggling vigilance.',
-            'Often works in dangerous border crossings where narcotics traffickers are armed, organized, and determined.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'Bureaucracy', 'HUMINT', 'Persuade'],
-        equipment: ['Federal-agent field kit', 'inspection access to cargo and travel records', 'routine access to secured ports of entry'],
-    },
-    {
-        id: 'complex_cbp_marine_interdiction',
-        name: 'CBP Marine Interdiction Agent',
-        baseProfession: 'Federal Agent',
-        organization: 'Customs and Border Protection Air and Marine Operations',
-        summary: 'A boarding specialist who jumps from small craft to larger vessels to stop smugglers at sea.',
-        role: [
-            'Boards suspect watercraft and conducts maritime interdiction operations.',
-            'Works close to the edge of federal law enforcement and naval small-craft tactics.',
-            'Relies on Spanish language ability, water confidence, and disciplined close-quarters force.',
-        ],
-        professionalSkills: ['Alertness 50%', 'Bureaucracy 30%', 'Criminology 50%', 'Drive 50%', 'Firearms 50%', 'Forensics 30%', 'Foreign Language (Spanish) 50%', 'Heavy Weapons 30%', 'HUMINT 60%', 'Law 30%', 'Persuade 40%', 'Pilot (Boat) 60%', 'Search 50%', 'Swim 50%', 'Unarmed Combat 60%'],
-        bonds: 2,
-        suggestedBonusSkills: ['Alertness', 'Pilot (Boat)', 'Search', 'Swim'],
-        equipment: ['Federal-agent field kit', 'boarding gear and maritime PPE', 'small-craft operational support'],
-    },
-    {
-        id: 'complex_cbp_detection_canine',
-        name: 'CBP Detection Canine Handler',
-        baseProfession: 'Federal Agent',
-        organization: 'Customs and Border Protection Office of Field Operations',
-        summary: 'A canine-team operator tasked with finding drugs, explosives, contraband, and hidden people in high-throughput environments.',
-        role: [
-            'Runs an in-demand K9 team that may travel constantly between ports, airports, and special operations support missions.',
-            'Specializes in identifying contraband, narcotics, explosives, and hidden cargo with a trained dog partner.',
-            'Combines inspection discipline with animal handling and practical veterinary awareness.',
-        ],
-        bonds: 2,
-        suggestedBonusSkills: ['Alertness', 'Craft (Dog Training)', 'Science (Veterinary Science)', 'Search'],
-        equipment: ['Federal-agent field kit', 'working canine partner', 'dog-handling equipment and veterinary supplies'],
-    },
-    {
-        id: 'complex_cbp_border_patrol',
-        name: 'U.S. Border Patrol Agent',
-        baseProfession: 'Federal Agent',
-        organization: 'U.S. Border Patrol',
-        summary: 'A field agent running interdiction, surveillance, and long-range patrols out of trucks and remote staging points.',
-        role: [
-            'Tracks illegal entry patterns, contraband routes, and remote movement across difficult terrain.',
-            'Operates for long periods from SUVs and isolated patrol infrastructure.',
-            'Needs practical endurance more than polish: navigation, survival, and aggressive field judgment matter.',
-        ],
-        suggestedBonusSkills: ['Athletics', 'Drive', 'Navigate', 'Survival'],
-        equipment: ['Federal-agent field kit', 'broad transportation access and field mobility assets'],
-    },
-    {
-        id: 'complex_cbp_borstar',
-        name: 'CBP BORSTAR Rescue Specialist',
-        baseProfession: 'Nurse or Paramedic',
-        organization: 'Border Patrol Search, Trauma, and Rescue',
-        summary: 'A search-and-rescue medic for border operations, built for trauma care in austere country.',
-        role: [
-            'Provides advanced medical and rescue support to Border Patrol tactical and search elements.',
-            'Focuses on remote-area extraction, trauma treatment, and difficult casualty movement.',
-            'Represents the humanitarian edge of CBP field operations while still working around armed teams.',
-        ],
-        professionalSkills: ['Bureaucracy 50%', 'First Aid 60%', 'Forensics 50%', 'Medicine 60%', 'Navigate 40%', 'Persuade 40%', 'Pharmacy 50%', 'Science (Biology) 50%', 'Search 50%', 'Surgery 50%'],
-        suggestedBonusSkills: ['First Aid', 'Medicine', 'Search', 'Survival'],
-        equipment: ['portable trauma and rescue equipment', 'airliftable field medical loadout', 'remote operations supplies'],
-    },
-    {
-        id: 'complex_cbp_bortac',
-        name: 'CBP BORTAC Operator',
-        baseProfession: 'Special Operator',
-        organization: 'Border Tactical Unit',
-        summary: 'CBP’s mobile tactical arm, designed to operate in cities or badlands without nearby support.',
-        role: [
-            'Deploys as the agency’s primary tactical response force for dangerous or remote missions.',
-            'Works in dense urban and remote environments with long sustainment windows.',
-            'Blends border-law enforcement realities with military-style self-sufficiency and trauma preparedness.',
-        ],
-        professionalSkills: ['Alertness 50%', 'Bureaucracy 20%', 'Criminology 50%', 'Drive 50%', 'Firearms 50%', 'Forensics 30%', 'Foreign Language (Spanish) 40%', 'HUMINT 40%', 'Law 30%', 'Navigate 60%', 'Persuade 50%', 'Pharmacy 50%', 'Search 50%', 'Survival 60%', 'Unarmed Combat 60%'],
-        bonds: 2,
-        suggestedBonusSkills: ['Firearms', 'First Aid', 'Medicine', 'Survival'],
-        equipment: ['Federal-agent field kit', 'extensive trauma equipment', 'self-sustainment tactical gear'],
-    },
-    {
-        id: 'complex_cbp_naso',
-        name: 'CBP NASO Pilot',
-        baseProfession: 'Pilot or Sailor',
-        organization: 'National Air Security Operations',
-        summary: 'A long-range patrol aviator or drone operator flying customs surveillance and interdiction missions.',
-        role: [
-            'Operates P-3 surveillance aircraft, drones, and related long-range customs aviation assets.',
-            'Needs airframe competence, electronics troubleshooting, and intelligence-minded observation.',
-            'Works in a world of checklists, secure spaces, and classified flight data rather than casual cockpit freedom.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'Craft (Electronics)', 'Pilot', 'SIGINT'],
-        equipment: ['flight manuals and troubleshooting references', 'access to patrol aircraft or secure drone-control facilities'],
-    },
-    {
-        id: 'complex_atf_tactical_canine',
-        name: 'ATF Tactical Canine Handler',
-        baseProfession: 'Federal Agent',
-        organization: 'ATF Special Response Team',
-        summary: 'A suspect-tracking and tactical K9 specialist expected to fight and hunt with the dog as a true partner.',
-        role: [
-            'Uses canine teams to find hidden, fleeing, or entrenched suspects.',
-            'Expected to track targets without the dog and become even more formidable with one.',
-            'Works as a tactical specialist inside violent federal firearms investigations.',
-        ],
-        suggestedBonusSkills: ['Craft (Dog Training)', 'Melee Weapons', 'Search', 'Survival'],
-        equipment: ['Federal-agent field kit', 'working canine partner', 'tracking, handling, and limited veterinary gear'],
-    },
-    {
-        id: 'complex_atf_tactical_medic',
-        name: 'ATF Tactical Medic',
-        baseProfession: 'Federal Agent',
-        organization: 'ATF Special Response Team',
-        summary: 'A combat-trauma special agent who keeps tactical teams alive during firearms and explosives incidents.',
-        role: [
-            'Specializes in casualty care while still moving with armed tactical elements.',
-            'Balances medicine, firearms competence, and field-law-enforcement credibility.',
-            'Serves where violent manhunts and rapid casualty stabilization overlap.',
-        ],
-        professionalSkills: ['Alertness 50%', 'Bureaucracy 40%', 'Criminology 50%', 'Drive 50%', 'Firearms 50%', 'First Aid 50%', 'Forensics 30%', 'HUMINT 60%', 'Law 30%', 'Medicine 30%', 'Military Science (Land) 30%', 'Persuade 50%'],
-        bonds: 1,
-        suggestedBonusSkills: ['Athletics', 'Demolitions', 'Firearms', 'HUMINT'],
-        equipment: ['Federal-agent field kit', 'portable trauma and medical support gear'],
-    },
-    {
-        id: 'complex_atf_field_ops',
-        name: 'ATF Field Operations Agent',
-        baseProfession: 'Federal Agent',
-        organization: 'ATF Office of Field Operations and Investigation',
-        summary: 'A case-building special agent targeting illegal weapons dealers, smugglers, and violent criminal networks.',
-        role: [
-            'Builds cases against unlawful firearm dealers and traffickers.',
-            'Regularly collides with gangs, organized crime, and cross-border smuggling pipelines.',
-            'Lives at the intersection of tracing evidence, violent enforcement, and prosecutable paperwork.',
-        ],
-        suggestedBonusSkills: ['Criminology', 'Firearms', 'Forensics', 'Law'],
-        equipment: ['Federal-agent field kit', 'access to ATF tracing resources and investigative case support'],
-    },
-    {
-        id: 'complex_atf_criminal_analyst',
-        name: 'ATF Criminal Investigative Analyst',
-        baseProfession: 'Intelligence Analyst',
-        organization: 'ATF',
-        summary: 'A geographic or behavioral profiler who predicts where violent offenders will strike and why.',
-        role: [
-            'Turns crime patterns, geography, psychology, and demographics into actionable investigative guidance.',
-            'Supports field agents by anticipating motives, tendencies, and likely future activity.',
-            'Works with specialized language, statistics, and profiling methods rather than direct arrests.',
-        ],
-        professionalSkills: ['Bureaucracy 40%', 'Computer Science 40%', 'Criminology 50%', 'Foreign Language (Spanish) 40%', 'HUMINT 60%', 'Forensics 40%', 'Law 40%', 'Psychotherapy 30%', 'Science (Statistics) 50%', 'Science (Biology) 50%'],
-        bonds: 3,
-        suggestedBonusSkills: ['Criminology', 'Forensics', 'Law', 'Psychotherapy'],
-        equipment: ['access to ATF and FBI investigative data', 'behavioral science research and profiling libraries'],
-    },
-    {
-        id: 'complex_atf_tactical_operations',
-        name: 'ATF Tactical Operations Operator',
-        baseProfession: 'Special Operator',
-        organization: 'ATF Special Response Team',
-        summary: 'A dangerous-mission operator built for manhunts, entries, and heavily armed suspects.',
-        role: [
-            'Focuses on high-risk tactical hunts for violent offenders.',
-            'Operates where demolition, athleticism, and direct force matter more than patience.',
-            'Represents ATF’s hardest-edged response element.',
-        ],
-        professionalSkills: ['Alertness 60%', 'Athletics 60%', 'Demolitions 50%', 'Dodge 60%', 'Firearms 60%', 'Heavy Weapons 50%', 'Melee Weapons 50%', 'Military Science 50%', 'Stealth 50%', 'Survival 50%', 'Unarmed Combat 60%'],
-        bonds: 1,
-        suggestedBonusSkills: ['Alertness', 'Firearms', 'Search', 'Stealth'],
-        equipment: ['SWAT-grade tactical kit', 'high-risk entry and manhunt gear'],
-    },
-    {
-        id: 'complex_atf_explosives_specialist',
-        name: 'ATF Explosives Specialist',
-        baseProfession: 'Federal Agent',
-        organization: 'ATF Certified Explosives Specialists',
-        summary: 'A bomb-investigation and disposal specialist who understands both criminal explosives use and commercial blasting practice.',
-        role: [
-            'Investigates explosive incidents and understands how legal explosive industries work.',
-            'Some are trained as Explosive Enforcement Officers for field defusal during active operations.',
-            'Needs chemical diagnostics, tool fluency, and nerves under pressure.',
-        ],
-        professionalSkills: ['Alertness 60%', 'Athletics 60%', 'Artillery 40%', 'Demolitions 60%', 'Dodge 60%', 'Firearms 50%', 'First Aid 40%', 'Heavy Machinery 60%', 'Heavy Weapons 50%', 'Military Science (Land) 20%', 'Stealth 50%', 'Survival 50%', 'Swim 50%', 'Unarmed Combat 50%'],
-        bonds: 1,
-        suggestedBonusSkills: ['Criminology', 'Demolitions', 'Forensics', 'Science'],
-        equipment: ['Federal-agent field kit', 'explosive-protection gear', 'chemical and electronic diagnostic tools', 'remotely operated bomb vehicles'],
-    },
-    {
-        id: 'complex_usss_pid',
-        name: 'USSS Protective Intelligence Analyst',
-        baseProfession: 'Intelligence Analyst',
-        organization: 'U.S. Secret Service Protective Intelligence and Assessment Division',
-        summary: 'A protective-intelligence analyst hunting signs of assassination plots before they turn kinetic.',
-        role: [
-            'Collects open-source and classified reporting for threat indicators against VIPs.',
-            'Builds attack-case files when the data suggest a credible threat.',
-            'Lives in the overlap between intelligence analysis, behavioral warning, and protective operations.',
-        ],
-        suggestedBonusSkills: ['Computer Science', 'Criminology', 'HUMINT', 'SIGINT'],
-        equipment: ['classified reporting across the intelligence community', 'protective-intelligence case access'],
-    },
-    {
-        id: 'complex_usss_cat',
-        name: 'USSS Counter Assault Team Operator',
-        baseProfession: 'Special Operator',
-        organization: 'U.S. Secret Service Counter Assault Team',
-        summary: 'A specialized defender trained to suppress attackers and buy seconds for VIP evacuation.',
-        role: [
-            'Acts as the Secret Service’s dedicated high-end protective assault element.',
-            'Fights defensively and aggressively so principals can be moved to safety.',
-            'Combines assault-team speed with protection-detail discipline.',
-        ],
-        professionalSkills: ['Alertness 60%', 'Athletics 60%', 'Demolitions 40%', 'Drive 50%', 'Firearms 60%', 'First Aid 40%', 'Heavy Weapons 50%', 'Melee Weapons 50%', 'Military Science (Land) 60%', 'Navigate 50%', 'Stealth 50%', 'Survival 50%', 'Swim 50%', 'Unarmed Combat 60%'],
-        bonds: 1,
-        suggestedBonusSkills: ['Athletics', 'First Aid', 'Military Science', 'Search'],
-        equipment: ['Federal-agent field kit', 'counter-assault and protective-response weaponry'],
-    },
-    {
-        id: 'complex_usss_ppd',
-        name: 'USSS Personal Protective Detail Agent',
-        baseProfession: 'Police Officer',
-        organization: 'U.S. Secret Service Personal Protective Detail Division',
-        summary: 'A close-protection bodyguard who never lets distance or comfort outrank the principal’s safety.',
-        role: [
-            'Protects high-profile principals and controls sites around them.',
-            'Must read crowds, pre-attack indicators, and physical environments constantly.',
-            'Combines low-visibility vigilance with the ability to go instantly violent if needed.',
-        ],
-        professionalSkills: ['Alertness 60%', 'Athletics 50%', 'Criminology 30%', 'Drive 50%', 'Firearms 60%', 'Heavy Weapons 50%', 'HUMINT 60%', 'Law 20%', 'Melee Weapons 50%', 'Navigate 50%', 'Stealth 50%', 'Survival 50%', 'Swim 50%', 'Unarmed Combat 60%'],
-        bonds: 1,
-        suggestedBonusSkills: ['Alertness', 'Criminology', 'Firearms', 'Law'],
-        equipment: ['Federal-agent field kit', 'close-protection transport and site-control resources'],
-    },
-    {
-        id: 'complex_usss_fapt',
-        name: 'USSS Financial Investigations Specialist',
-        baseProfession: 'Lawyer or Business Executive',
-        organization: 'U.S. Secret Service Financial Administrative, Professional, and Technical Support',
-        summary: 'A financial-crimes specialist forming the bureaucratic backbone of counterfeiting and fraud investigations.',
-        role: [
-            'Performs analytical, accounting, and digital-forensics work for financial crimes cases.',
-            'Supports investigators with highly specialized financial knowledge.',
-            'Turns paper trails, systems, and records into criminal narratives.',
-        ],
-        suggestedBonusSkills: ['Accounting', 'Computer Science', 'Criminology', 'SIGINT'],
-        equipment: ['significant classified reporting access', 'financial and analytical case-support resources'],
-    },
-    {
-        id: 'complex_uscg_sar',
-        name: 'USCG Search and Rescue Specialist',
-        baseProfession: 'Firefighter',
-        organization: 'U.S. Coast Guard Search and Rescue',
-        summary: 'A Coast Guard rescuer expected to hit the worst weather head-on because lives depend on it.',
-        role: [
-            'Faces brutal environmental conditions to save lives at sea and along the coast.',
-            'Embodies the service’s operational culture: team-first, practical, and mission-focused.',
-            'Brings rescue professionalism rather than heroic recklessness.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'First Aid', 'Navigate', 'Swim'],
-        equipment: ['portable SAR gear', 'water-survival equipment', 'thermal wetsuit and swimming kit'],
-    },
-    {
-        id: 'complex_uscg_response_policy',
-        name: 'USCG Response Policy Planner',
-        baseProfession: 'Program Manager',
-        organization: 'U.S. Coast Guard Office of Response Policy',
-        summary: 'A counterterrorism and planning specialist linking Coast Guard assets with other military branches.',
-        role: [
-            'Builds joint counterterrorism programs and training opportunities.',
-            'Serves as a principal contact on counterterror missions involving Coast Guard assets.',
-            'Works in plans, files, and interservice coordination instead of direct boarding operations.',
-        ],
-        suggestedBonusSkills: ['Accounting', 'Bureaucracy', 'Military Science', 'Persuade'],
-        equipment: ['classified terrorism and military-operations files', 'contacts throughout the military'],
-    },
-    {
-        id: 'complex_uscg_investigations',
-        name: 'USCG Casualty Analysis Investigator',
-        baseProfession: 'Anthropologist or Historian',
-        organization: 'U.S. Coast Guard Office of Investigations and Casualty Analysis',
-        summary: 'A disaster-history and casualty-analysis specialist who reconstructs fatal or serious incidents involving Coast Guard operations.',
-        role: [
-            'Builds detailed case analyses of deaths and serious injuries tied to Coast Guard missions.',
-            'Works with disaster history, recurring operational failures, and post-incident lessons.',
-            'Brings historical, forensic, and practical pattern-reading to operational tragedy.',
-        ],
-        suggestedBonusSkills: ['Craft', 'Forensics', 'HUMINT', 'Search'],
-        equipment: ['large physical and digital disaster-history library', 'search-and-rescue and water-survival gear'],
-    },
-    {
-        id: 'complex_uscg_hitron',
-        name: 'USCG HITRON Sniper-Pilot',
-        baseProfession: 'Pilot or Sailor',
-        organization: 'U.S. Coast Guard Helicopter Interdiction Tactical Squadron',
-        summary: 'A helicopter-borne interdiction specialist marrying aviation with precision disablement of hostile vessels.',
-        role: [
-            'Combines helicopter mobility with disciplined long-gun accuracy.',
-            'Specializes in disabling watercraft with large-caliber precision fire.',
-            'Operates where aviation, weather, maintenance, and sharpshooting all matter at once.',
-        ],
-        professionalSkills: ['Alertness 60%', 'Athletics 40%', 'Bureaucracy 30%', 'Craft (Electrician) 50%', 'Craft (Mechanic) 50%', 'Firearms 60%', 'Heavy Machinery 40%', 'Military Science (Sea) 50%', 'Navigate 50%', 'Pilot (Helicopter) 50%', 'Science (Meteorology) 40%', 'Swim 50%'],
-        bonds: 2,
-        suggestedBonusSkills: ['Alertness', 'Craft', 'Firearms', 'Pilot'],
-        equipment: ['special-operator aviation kit', 'custom heavy sniper system with mission optics'],
-    },
-    {
-        id: 'complex_uscg_taclet',
-        name: 'USCG TACLET Boarding Agent',
-        baseProfession: 'Federal Agent',
-        organization: 'U.S. Coast Guard Tactical Law Enforcement Team',
-        summary: 'A boarding and interdiction agent deployed from naval vessels against smugglers and pirates.',
-        role: [
-            'Embarks on U.S. and allied naval ships to execute maritime law-enforcement missions.',
-            'Handles narcotics interdiction, piracy response, and aggressive sea-based arrests.',
-            'Lives in the overlap of police powers and naval deployment realities.',
-        ],
-        professionalSkills: ['Alertness 50%', 'Athletics 40%', 'Bureaucracy 40%', 'Criminology 50%', 'Drive 50%', 'Firearms 50%', 'Foreign Language (Spanish) 50%', 'Forensics 30%', 'Heavy Weapons 50%', 'HUMINT 60%', 'Law 30%', 'Persuade 50%', 'Search 50%', 'Swim 60%', 'Unarmed Combat 60%'],
-        bonds: 2,
-        suggestedBonusSkills: ['Alertness', 'Firearms', 'Military Science', 'Pilot'],
-        equipment: ['Federal-agent field kit', 'water-survival gear for naval deployments'],
-    },
-    {
-        id: 'complex_uscg_msst',
-        name: 'USCG MSST Security Team Operator',
-        baseProfession: 'Federal Agent',
-        organization: 'U.S. Coast Guard Maritime Safety and Security Team',
-        summary: 'A port-security specialist patrolling major waterways against national-security threats.',
-        role: [
-            'Patrols large-port waterways and responds to threats against maritime infrastructure.',
-            'Uses small-boat mobility, port familiarity, and tactical law-enforcement skills.',
-            'Works where terrorism, smuggling, and critical-infrastructure protection overlap.',
-        ],
-        professionalSkills: ['Alertness 60%', 'Athletics 50%', 'Bureaucracy 30%', 'Craft (Mechanic) 40%', 'Criminology 40%', 'Firearms 40%', 'Heavy Weapons 50%', 'Law 40%', 'Military Science (Sea) 50%', 'Navigate 50%', 'Pilot (Small Boat) 60%', 'Science (Meteorology) 40%', 'Search 30%', 'Swim 60%'],
-        bonds: 1,
-        suggestedBonusSkills: ['Alertness', 'Forensics', 'HUMINT', 'Stealth'],
-        equipment: ['Federal-agent field kit', 'basic maritime-survival gear'],
-    },
-    {
-        id: 'complex_uscg_msrt',
-        name: 'USCG MSRT Operator',
-        baseProfession: 'Special Operator',
-        organization: 'U.S. Coast Guard Maritime Security Response Team',
-        summary: 'A waterborne counterterror and hostage-response operator for vessel assaults and retakes.',
-        role: [
-            'Boards and secures vessels held by terrorists or hostage-takers.',
-            'Functions as a maritime SWAT-style team with arrest authority in the boarding environment.',
-            'Needs water confidence, tactical violence, and shipboard movement discipline.',
-        ],
-        professionalSkills: ['Alertness 60%', 'Athletics 60%', 'Demolitions 40%', 'Dodge 60%', 'Firearms 60%', 'Heavy Weapons 50%', 'Melee Weapons 50%', 'Military Science (Sea) 60%', 'Navigate 50%', 'Search 40%', 'Stealth 50%', 'Survival 50%', 'Swim 50%', 'Unarmed Combat 60%'],
-        bonds: 1,
-        suggestedBonusSkills: ['Alertness', 'Athletics', 'Firearms', 'Law'],
-        equipment: ['special-operator maritime kit', 'restraining gear for shipboard arrests'],
-    },
-    {
-        id: 'complex_uscg_nsf',
-        name: 'USCG National Strike Force Scientist',
-        baseProfession: 'Scientist',
-        organization: 'U.S. Coast Guard National Strike Force',
-        summary: 'A hazardous-material and environmental-emergency specialist for spills, WMD scares, and contamination response.',
-        role: [
-            'Mitigates oil discharges, hazardous releases, and suspected WMD incidents.',
-            'Brings scientific field capability to environmental and contamination emergencies.',
-            'Operates where chemistry, weather, public safety, and disaster response intersect.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'Science (Chemistry)', 'Science (Environmental)', 'Science (Meteorology)'],
-        equipment: ['environmental and chemical surveillance gear', 'technical field-detection equipment'],
-    },
-    {
-        id: 'complex_nctc_jcat',
-        name: 'NCTC JCAT Policy Analyst',
-        baseProfession: 'Intelligence Analyst',
-        organization: 'National Counterterrorism Center Joint Counterterrorism Assessment Team',
-        summary: 'A prestigious interagency policy and threat-priority analyst for the terrorism-intelligence community.',
-        role: [
-            'Sets priorities and policy guidance across the counterterror intelligence community.',
-            'Works among high-status detailees from multiple agencies.',
-            'Lives in a world of interagency access, politics, and strategic assessment rather than street operations.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'Foreign Language', 'HUMINT', 'Law'],
-        equipment: ['broad access to NCTC reporting and interagency intelligence stores'],
-    },
-    {
-        id: 'complex_nctc_near_east',
-        name: 'NCTC Near East Desk Analyst',
-        baseProfession: 'Intelligence Analyst',
-        organization: 'National Counterterrorism Center Near East Desk',
-        summary: 'A regional terrorism analyst focused on North Africa and the Middle East.',
-        role: [
-            'Tracks groups and individuals linked to terrorist threats from the Near East and North Africa.',
-            'Synthesizes intelligence-community reporting into products for other agencies.',
-            'Requires deep regional language, history, and threat-context literacy.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'Criminology', 'Foreign Language', 'History'],
-        equipment: ['full NCTC reporting access', 'reporting from CIA, NSA, FBI, ONI, NSC, and allied services'],
-    },
-    {
-        id: 'complex_oni_mda',
-        name: 'ONI Maritime Domain Analyst',
-        baseProfession: 'Intelligence Analyst',
-        organization: 'Office of Naval Intelligence Maritime Domain Awareness',
-        summary: 'A maritime tracker and intelligence specialist watching sea traffic, naval developments, and regional threats.',
-        role: [
-            'Tracks maritime movement within a combatant command’s area of responsibility.',
-            'Supports Navy decision-makers with regional sea-traffic and vessel analysis.',
-            'Works in a technically strong, Navy-focused analytic culture.',
-        ],
-        suggestedBonusSkills: ['Computer Science', 'History', 'Navigate', 'SIGINT'],
-        equipment: ['classified maritime reporting', 'technical analysis on foreign vessels and systems'],
-    },
-    {
-        id: 'complex_nsa_cryptoanalysis',
-        name: 'NSA Cryptoanalysis Unit Analyst',
-        baseProfession: 'Computer Scientist or Engineer',
-        organization: 'National Security Agency Operations Directorate',
-        summary: 'A technical analyst cracking or exploiting encrypted traffic for operational value.',
-        role: [
-            'Decrypts, models, and interprets signals and protected communications.',
-            'Works where mathematics, coding, and national-security pressure all collide.',
-            'Supports mission teams who need answers from electronic noise.',
-        ],
-        professionalSkills: ['Bureaucracy 40%', 'Computer Science 60%', 'Foreign Language 40%', 'SIGINT 60%', 'Science (Mathematics) 60%', 'Science (Statistics) 50%'],
-        suggestedBonusSkills: ['Bureaucracy', 'Computer Science', 'Science', 'SIGINT'],
-        equipment: ['high-end analytical systems', 'classified intercept collections and technical tooling'],
-    },
-    {
-        id: 'complex_nsa_tao',
-        name: 'NSA TAO Operator',
-        baseProfession: 'Computer Scientist or Engineer',
-        organization: 'National Security Agency Tailored Access Operations',
-        summary: 'An intrusion specialist breaking into remote systems for foreign-intelligence collection.',
-        role: [
-            'Conducts advanced access operations against target networks and devices.',
-            'Needs technical creativity, patience, and operational secrecy.',
-            'Lives on the offensive edge of SIGINT and cyber intrusion.',
-        ],
-        suggestedBonusSkills: ['Computer Science', 'Craft', 'Foreign Language', 'SIGINT'],
-        equipment: ['specialized intrusion frameworks', 'classified exploit and access infrastructure'],
-    },
-    {
-        id: 'complex_nsa_remote_devices',
-        name: 'NSA Remote Device Activities Specialist',
-        baseProfession: 'Computer Scientist or Engineer',
-        organization: 'National Security Agency Operations Directorate',
-        summary: 'A remote-access specialist tasked with extracting value from deployed devices and edge hardware.',
-        role: [
-            'Works against remote devices rather than only core networks.',
-            'Needs hardware intuition as well as software tradecraft.',
-            'Bridges physical devices, access operations, and collected data exploitation.',
-        ],
-        suggestedBonusSkills: ['Computer Science', 'Craft', 'Search', 'SIGINT'],
-        equipment: ['classified remote-device tooling', 'technical support for deployed-access operations'],
-    },
-    {
-        id: 'complex_nsa_counterintelligence',
-        name: 'NSA Counterintelligence Investigator',
-        baseProfession: 'Federal Agent',
-        organization: 'National Security Agency Q Directorate',
-        summary: 'A counterintelligence investigator hunting insider threats and hostile penetration of NSA missions.',
-        role: [
-            'Investigates compromises, leaks, and hostile service activity affecting NSA work.',
-            'Needs investigative discipline plus deep familiarity with technical-security environments.',
-            'Moves between bureaucracy, interviews, and sensitive compartmented evidence.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'Criminology', 'HUMINT', 'Search'],
-        equipment: ['classified security reporting', 'counterintelligence case access in tightly controlled spaces'],
-    },
-    {
-        id: 'complex_dia_dcs',
-        name: 'DIA Defense Clandestine Service Officer',
-        baseProfession: 'Intelligence Case Officer',
-        organization: 'Defense Intelligence Agency',
-        summary: 'A clandestine collector operating under DIA authority against military targets and defense priorities.',
-        role: [
-            'Runs or supports clandestine collection with a defense and military emphasis.',
-            'Works closer to uniformed concerns than CIA equivalents do.',
-            'Balances espionage tradecraft with formal military and defense expectations.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'Foreign Language', 'HUMINT', 'Military Science'],
-        equipment: ['defense-intelligence reporting access', 'overseas liaison and covert-operations support'],
-    },
-    {
-        id: 'complex_dia_analysis',
-        name: 'DIA Americas Division Analyst',
-        baseProfession: 'Intelligence Analyst',
-        organization: 'Defense Intelligence Agency Directorate for Analysis',
-        summary: 'A regional defense analyst focused on the Americas and the military implications of activity there.',
-        role: [
-            'Builds assessments from military, diplomatic, and intelligence reporting.',
-            'Prioritizes defense implications over broader political questions.',
-            'Helps shape how military planners understand regional actors and crises.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'Foreign Language', 'History', 'Military Science'],
-        equipment: ['classified regional reporting and defense analysis products'],
-    },
-    {
-        id: 'complex_dia_attache',
-        name: 'DIA Defense Attaché',
-        baseProfession: 'Foreign Service Officer',
-        organization: 'Defense Intelligence Agency',
-        summary: 'A defense representative overseas, part diplomat and part military intelligence observer.',
-        role: [
-            'Works in embassies as a formal military representative.',
-            'Observes, liaises, and reports on foreign military matters.',
-            'Needs diplomatic polish without losing a defense-intelligence mindset.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'Foreign Language', 'HUMINT', 'Persuade'],
-        equipment: ['embassy access', 'defense-diplomatic reporting channels', 'military protocol knowledge'],
-    },
-    {
-        id: 'complex_nga_innovision',
-        name: 'NGA InnoVision Engineer',
-        baseProfession: 'Computer Scientist or Engineer',
-        organization: 'National Geospatial-Intelligence Agency InnoVision Directorate',
-        summary: 'A geospatial-technology developer building the next generation of mapping, imagery, and sensor systems.',
-        role: [
-            'Works at the experimental edge of geospatial technology.',
-            'Combines engineering with imagery, sensors, and classified collection problems.',
-            'Builds tools that future analysts and operators will depend on.',
-        ],
-        suggestedBonusSkills: ['Computer Science', 'Craft', 'Science', 'SIGINT'],
-        equipment: ['advanced geospatial research tools', 'access to imagery and engineering test environments'],
-    },
-    {
-        id: 'complex_nga_analysis',
-        name: 'NGA Analysis Directorate Analyst',
-        baseProfession: 'Intelligence Analyst',
-        organization: 'National Geospatial-Intelligence Agency Analysis Directorate',
-        summary: 'An imagery and geospatial analyst turning pictures, terrain, and signatures into actionable intelligence.',
-        role: [
-            'Interprets imagery, terrain, and geospatial products for decision-makers.',
-            'Works where photography, mapping, and intelligence interpretation converge.',
-            'Often sees the battlefield, target site, or anomaly before anyone else can explain it.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'History', 'Navigate', 'Search'],
-        equipment: ['geospatial products', 'imagery-analysis systems', 'classified mapping datasets'],
-    },
-    {
-        id: 'complex_nro_imint',
-        name: 'NRO IMINT Systems Specialist',
-        baseProfession: 'Intelligence Analyst',
-        organization: 'National Reconnaissance Office IMINT Systems Directorate',
-        summary: 'A specialist in reconnaissance-imagery systems and what they can reveal about hidden activity.',
-        role: [
-            'Supports or interprets reconnaissance-imagery systems at the systems level.',
-            'Needs to understand both the collection platform and the intelligence result.',
-            'Works in one of the U.S. government’s most secretive technical organizations.',
-        ],
-        suggestedBonusSkills: ['Computer Science', 'Navigate', 'Science', 'Search'],
-        equipment: ['classified imagery-systems data', 'platform performance reporting'],
-    },
-    {
-        id: 'complex_nro_ast',
-        name: 'NRO Advanced Systems Scientist',
-        baseProfession: 'Scientist',
-        organization: 'National Reconnaissance Office Advanced Systems and Technology Directorate',
-        summary: 'A scientist shaping future reconnaissance technology before it becomes operational reality.',
-        role: [
-            'Pushes advanced collection and systems technology into prototype territory.',
-            'Works on capabilities too sensitive to discuss casually even inside cleared circles.',
-            'Exists where physics, engineering ambition, and black-budget patience meet.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'Computer Science', 'Science', 'SIGINT'],
-        equipment: ['extremely sensitive technical reporting', 'prototype-level systems research access'],
-    },
-    {
-        id: 'complex_nps_ranger',
-        name: 'NPS Park Ranger',
-        baseProfession: 'Police Officer',
-        organization: 'National Park Service',
-        summary: 'A front-line ranger expected to handle security, law enforcement, rescue, and wilderness reality at once.',
-        role: [
-            'Acts as the jack-of-all-trades law-enforcement face of the National Park Service.',
-            'Moves between visitor contact, law enforcement, and harsh natural environments.',
-            'Needs broad competence more than narrow specialization.',
-        ],
-        suggestedBonusSkills: ['Athletics', 'Navigate', 'Science', 'Survival'],
-        equipment: ['Federal-agent field kit', 'park access and rugged outdoors support gear'],
-    },
-    {
-        id: 'complex_nps_brd',
-        name: 'NPS Biological Resources Scientist',
-        baseProfession: 'Scientist',
-        organization: 'National Park Service Biological Resources Division',
-        summary: 'A conservation scientist protecting natural systems while advising policy on preservation and land stewardship.',
-        role: [
-            'Preserves ecological and biological integrity across the park system.',
-            'Translates practical field science into policy advice and preservation planning.',
-            'Works equally with landscapes, data, and institutional obligations.',
-        ],
-        suggestedBonusSkills: ['History', 'Law', 'Search', 'Survival'],
-        equipment: ['scientific field gear', 'camping and back-country equipment'],
-    },
-    {
-        id: 'complex_nps_wildland_fire',
-        name: 'NPS Wildland Firefighter',
-        baseProfession: 'Firefighter',
-        organization: 'National Park Service Wildland Fire Division',
-        summary: 'A wilderness firefighter built for exhausting, dangerous back-country incidents and long deployments.',
-        role: [
-            'Serves on hand crews, modules, engine crews, helitack teams, or elite hotshot elements.',
-            'Lives in rugged gear and harsh terrain for long operational periods.',
-            'Needs endurance, survival discipline, and acceptance of extreme physical risk.',
-        ],
-        suggestedBonusSkills: ['Athletics', 'First Aid', 'Survival', 'Swim'],
-        equipment: ['extensive wildland firefighting PPE', 'camping and climbing gear', 'portable medical supplies', 'infrared and communications tools'],
-    },
-    {
-        id: 'complex_nps_interpretive',
-        name: 'NPS Interpretive Ranger',
-        baseProfession: 'Anthropologist or Historian',
-        organization: 'National Park Service',
-        summary: 'A public-facing ranger who educates visitors while quietly protecting the site, its story, and the people in it.',
-        role: [
-            'Balances education, visitor management, site protection, and emergency response.',
-            'Often serves as the most visible cultural interpreter for a park or monument.',
-            'Must be personable without becoming naive about threats or emergencies.',
-        ],
-        professionalSkills: ['Bureaucracy 50%', 'First Aid 60%', 'Forensics 50%', 'History 60%', 'HUMINT 60%', 'Navigate 40%', 'Persuade 60%', 'Science 60%', 'Search 50%', 'Survival 60%'],
-        bonds: 2,
-        suggestedBonusSkills: ['Firearms', 'First Aid', 'Medicine', 'Survival'],
-        equipment: ['uniform and badge', 'small historical and ecological library', 'camping tools'],
-    },
-    {
-        id: 'complex_nps_isb',
-        name: 'NPS Investigative Services Ranger',
-        baseProfession: 'Federal Agent',
-        organization: 'National Park Service Investigative Services Branch',
-        summary: 'A protection ranger with extra training to investigate crimes and build cases that hold up in court.',
-        role: [
-            'Pushes beyond routine ranger work into formal criminal investigation.',
-            'Builds prosecutable cases while staying grounded in park realities and wilderness logistics.',
-            'Occupies the point where preservation law and federal enforcement meet.',
-        ],
-        suggestedBonusSkills: ['Criminology', 'Forensics', 'Law', 'Search'],
-        equipment: ['Federal-agent field kit', 'specialized park investigative access'],
-    },
-    {
-        id: 'complex_nps_archaeology',
-        name: 'NPS Federal Archaeologist',
-        baseProfession: 'Anthropologist or Historian',
-        organization: 'National Park Service Federal Archeology Program',
-        summary: 'A field archaeologist preserving and restoring historical sites and artifacts before they are lost or looted.',
-        role: [
-            'Identifies significant undiscovered locations and artifacts.',
-            'Preserves and restores historical material in fragile or isolated places.',
-            'Works where scholarship, field survival, and cultural stewardship overlap.',
-        ],
-        suggestedBonusSkills: ['Archaeology', 'Navigate', 'Search', 'Survival'],
-        equipment: ['aging specialist books', 'survey and camping gear', 'artifact-preservation support'],
-    },
-    {
-        id: 'complex_fema_usr',
-        name: 'FEMA Urban Search and Rescue Specialist',
-        baseProfession: 'Firefighter',
-        organization: 'Federal Emergency Management Agency Urban Search and Rescue',
-        summary: 'A collapse-rescue specialist built for extrication, rapid hazard assessment, and immediate casualty support.',
-        role: [
-            'Finds, extricates, and stabilizes trapped victims after structural failure or similar disasters.',
-            'Works in collapsed buildings, transport accidents, mines, and trenches.',
-            'Thrives when normal law and order have failed and calm competence matters most.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'First Aid', 'Search', 'Survival'],
-        equipment: ['extensive portable rescue gear', 'airliftable structural-collapse equipment'],
-    },
-    {
-        id: 'complex_fema_omi',
-        name: 'FEMA Mitigation Program Manager',
-        baseProfession: 'Program Manager',
-        organization: 'Federal Emergency Management Agency Office of Mitigation Insurance',
-        summary: 'A mitigation planner focused on funding, preparation, and recovery structures before the disaster hits.',
-        role: [
-            'Builds financial and programmatic resilience for future disasters.',
-            'Lives in grants, preparedness metrics, and difficult practical tradeoffs.',
-            'Represents FEMA’s quieter but vital prevention side.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'Craft', 'Science', 'Survival'],
-        equipment: ['control of project budgets', 'preparedness research materials and program data'],
-    },
-    {
-        id: 'complex_fema_rdf',
-        name: 'FEMA Rapid Deployment Force Paramedic',
-        baseProfession: 'Nurse or Paramedic',
-        organization: 'Federal Emergency Management Agency NDMS Rapid Deployment Force',
-        summary: 'A disaster-environment trauma medic expected to arrive early and work fast under primitive conditions.',
-        role: [
-            'Focuses on field trauma and medical stabilization in disaster zones.',
-            'Deploys quickly, often before a situation has fully stabilized.',
-            'Works with portable, airliftable medicine instead of hospital certainty.',
-        ],
-        suggestedBonusSkills: ['First Aid', 'HUMINT', 'Psychotherapy', 'Survival'],
-        equipment: ['portable and airliftable medical supplies', 'survival gear for austere deployments'],
-    },
-    {
-        id: 'complex_nasa_ert',
-        name: 'NASA Emergency Response Specialist',
-        baseProfession: 'Firefighter',
-        organization: 'NASA Kennedy Emergency Response Team',
-        summary: 'A launch-site emergency specialist dealing with fires, fuel, crashes, and catastrophic aerospace accidents.',
-        role: [
-            'Supports one of the most dangerous built environments in civilian science.',
-            'Needs calm under technical disaster conditions involving rocket fuel, impact, or contamination.',
-            'Represents NASA’s blunt practical edge.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'Demolitions', 'First Aid', 'Heavy Machinery'],
-        equipment: ['specialized aerospace emergency gear', 'launch-site hazard and rescue support equipment'],
-    },
-    {
-        id: 'complex_nasa_scan',
-        name: 'NASA SCaN Communications Specialist',
-        baseProfession: 'Computer Scientist or Engineer',
-        organization: 'NASA Space Communications and Navigation',
-        summary: 'A communications-and-navigation specialist keeping distant spacecraft and complex missions connected.',
-        role: [
-            'Supports mission communications and navigational problem-solving.',
-            'Works where engineering, orbital math, and high-stakes mission reliability overlap.',
-            'Needs systems thinking more than glamour.',
-        ],
-        suggestedBonusSkills: ['Computer Science', 'Navigate', 'Pilot', 'Science'],
-        equipment: ['mission technical references', 'communications and navigation systems access'],
-    },
-    {
-        id: 'complex_nasa_astronaut',
-        name: 'NASA Astronaut Corps Pilot',
-        baseProfession: 'Pilot or Sailor',
-        organization: 'NASA Astronaut Corps',
-        summary: 'An astronaut pilot operating in an elite, ruthlessly technical environment that makes other pilots envious.',
-        role: [
-            'Lives inside checklists, mission testing, and advanced aerospace problem-solving.',
-            'May handle aircraft, spacecraft, suits, or remote vehicles depending on the mission set.',
-            'Combines operational poise with rare scientific and systems literacy.',
-        ],
-        professionalSkills: ['Alertness 50%', 'Athletics 40%', 'Bureaucracy 30%', 'Craft (Electrician) 40%', 'Craft (Mechanic) 40%', 'Military Science (Air) 30%', 'Navigate 50%', 'Pilot (Airplane) 60%', 'Pilot (Spacecraft, Space Suit, or ROV) 60%', 'Science (Meteorology) 40%', 'Science (Physics) 40%', 'Swim 40%'],
-        bonds: 2,
-        suggestedBonusSkills: ['Computer Science', 'Craft', 'Pilot', 'Science'],
-        equipment: ['technical manuals, testing data, and mission systems access'],
-    },
-    {
-        id: 'complex_nasa_orion',
-        name: 'NASA Orion Program Manager',
-        baseProfession: 'Program Manager',
-        organization: 'NASA Human Exploration and Operations / Orion Project',
-        summary: 'A next-generation spacecraft manager shepherding an expensive, fragile, politically exposed project.',
-        role: [
-            'Oversees design, development, and testing for the Orion spacecraft.',
-            'Balances engineering ambition, budget pressure, and schedule realities.',
-            'Must lead without pretending the project is small, cheap, or forgiving.',
-        ],
-        suggestedBonusSkills: ['Accounting', 'Bureaucracy', 'Craft', 'Science'],
-        equipment: ['access to major project budgets and Orion program materials'],
-    },
-    {
-        id: 'complex_darpa_mto',
-        name: 'DARPA Microsystems Program Manager',
-        baseProfession: 'Program Manager',
-        organization: 'DARPA Microsystems Technology Office',
-        summary: 'A research program manager pushing quantum, power, and miniaturized systems into practical use.',
-        role: [
-            'Looks for operational applications for discoveries in quantum physics and exotic power systems.',
-            'Manages fragile, brilliant work that may not survive contact with reality.',
-            'Needs enough technical depth to ask the right questions while still running the machine around the science.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'Computer Science', 'Science (Mathematics)', 'Science (Physics)'],
-        equipment: ['project-budget access', 'a fragile but impressive prototype device'],
-    },
-    {
-        id: 'complex_darpa_sme',
-        name: 'DARPA SME Technology Contractor',
-        baseProfession: 'Computer Scientist or Engineer',
-        organization: 'DARPA contractor support',
-        summary: 'A contracted technical specialist brought in because the program needs expertise faster than bureaucracy can hire it.',
-        role: [
-            'Provides technical or computer support on advanced DARPA projects.',
-            'Usually arrives as a true specialist rather than a generic staffer.',
-            'Often has more travel freedom and spending latitude than a normal government employee.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'Computer Science', 'Craft', 'Science'],
-        equipment: ['private-company resources', 'travel budget with broader operational latitude than typical staff'],
-    },
-    {
-        id: 'complex_nnsa_nest_search',
-        name: 'NNSA NEST Search Scientist',
-        baseProfession: 'Scientist',
-        organization: 'National Nuclear Security Administration NEST Search Group',
-        summary: 'A scientist or physician called in when a suspected nuclear threat device may be in the field.',
-        role: [
-            'Supports search operations for suspected nuclear or radiological threat devices.',
-            'Brings advanced detection and protective capability to an already terrifying problem.',
-            'Must stay methodical while everyone around them worries about catastrophe.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'Computer Science', 'Science', 'SIGINT'],
-        equipment: ['radiological protective gear', 'advanced detection and surveillance equipment'],
-    },
-    {
-        id: 'complex_nnsa_jtot',
-        name: 'NNSA JTOT Ordnance Specialist',
-        baseProfession: 'Firefighter',
-        organization: 'National Nuclear Security Administration Joint Technical Operations Team',
-        summary: 'A neutralization specialist for nuclear or radiological threat devices, working closely with FBI bomb talent.',
-        role: [
-            'Evaluates and neutralizes suspected nuclear or radiological weapons.',
-            'Works with EOD-style specialists under pressure that is technical, political, and existential.',
-            'Uses machines and heavy protection to do jobs no one wants done by hand.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'Craft', 'Demolitions', 'Science'],
-        equipment: ['ordnance-destruction gear', 'body armor', 'remote-controlled robots for device access'],
-    },
-    {
-        id: 'complex_irs_ci',
-        name: 'IRS Criminal Investigation Agent',
-        baseProfession: 'Federal Agent',
-        organization: 'Internal Revenue Service Criminal Investigation Division',
-        summary: 'A forensic-accounting special agent who treats computers and money trails as the real crime scene.',
-        role: [
-            'Investigates criminal violations of tax law, money laundering, and related financial schemes.',
-            'Often secures computers before suspects because the digital record matters more than bravado.',
-            'Builds cases from systems, ledgers, and patterns rather than personality.',
-        ],
-        suggestedBonusSkills: ['Accounting', 'Computer Science', 'Science (Mathematics)', 'SIGINT'],
-        equipment: ['Federal-agent field kit', 'law library access', 'wide access to tax records inside the U.S.'],
-    },
-    {
-        id: 'complex_irs_opr',
-        name: 'IRS Professional Responsibility Counsel',
-        baseProfession: 'Lawyer or Business Executive',
-        organization: 'Internal Revenue Service Office of Professional Responsibility',
-        summary: 'A tax-law and standards specialist who helps cases hold together when professionals cross the line.',
-        role: [
-            'Ensures tax practitioners follow the law and required professional standards.',
-            'Supports investigations when licensed professionals become part of the offense.',
-            'Lives in tax law, accounting detail, and forensic rigor.',
-        ],
-        suggestedBonusSkills: ['Accounting', 'Computer Science', 'Forensics', 'Law'],
-        equipment: ['large physical and electronic tax-law library', 'historical corporate and personal tax-return access'],
-    },
-    {
-        id: 'complex_constellis_mst',
-        name: 'Constellis Mobile Security Team Operator',
-        baseProfession: 'Special Operator',
-        organization: 'Constellis Group',
-        summary: 'A premium private-security operator deployed for kidnap, extortion, evacuation, and ugly field security problems.',
-        role: [
-            'Works for high-paying clients in dangerous places with little institutional sympathy if things go wrong.',
-            'Needs decorum, tactical competence, and the discipline to document everything because contractors have no safety net.',
-            'Operates under two masters: the client who directs the work and the company that expects the client kept happy.',
-        ],
-        suggestedBonusSkills: ['Computer Science', 'HUMINT', 'Persuade', 'Search'],
-        equipment: ['special-operator kit', 'rapid-deployment protective security support'],
-    },
-    {
-        id: 'complex_constellis_roleplayer',
-        name: 'Constellis Tactical Roleplayer',
-        baseProfession: 'Soldier or Marine',
-        organization: 'Constellis Group',
-        summary: 'A professional opposition-force actor for realistic field training, relying on verbal skill as much as force.',
-        role: [
-            'Plays hostile forces in live training environments.',
-            'Needs enough improvisation and communication skill to pressure trainees believably without breaking the training mission.',
-            'Works in a contract culture with high turnover, blunt incentives, and little sentimentality.',
-        ],
-        suggestedBonusSkills: ['Disguise', 'HUMINT', 'Persuade', 'Stealth'],
-        equipment: ['regional civilian clothing', 'training weapons and simulated firearms', 'exercise-specific protective gear'],
-    },
-    {
-        id: 'complex_constellis_marksman',
-        name: 'Constellis Defensive Designated Marksman',
-        baseProfession: 'Special Operator',
-        organization: 'Constellis Group',
-        summary: 'A mercenary precision shooter protecting clients and teammates from hostile distance.',
-        role: [
-            'Covers teams and clients in hostile areas as the precision-fire specialist.',
-            'Needs patience, observation, and confidence under corporate rather than military authority.',
-            'Treats the rifle as a protective instrument, not a symbol.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'Craft (Gunsmith)', 'Firearms', 'Search'],
-        equipment: ['SWAT-team grade kit', 'precision rifle with a full suite of optics and aiming aids'],
-    },
-    {
-        id: 'complex_constellis_pss',
-        name: 'Constellis Protective Security Specialist',
-        baseProfession: 'Police Officer',
-        organization: 'Constellis Group',
-        summary: 'A close-protection bodyguard expected to stay near the client and solve danger fast.',
-        role: [
-            'Travels with a client and prioritizes that client’s survival above personal comfort.',
-            'Works in low-visibility protective postures until violence becomes unavoidable.',
-            'Needs foreign-travel practicality and a bodyguard’s instinct for space and timing.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'First Aid', 'Foreign Language', 'Stealth'],
-        equipment: ['SWAT-grade protective kit', 'concealable firearms and briefcase-deployable long guns'],
-    },
-    {
-        id: 'complex_constellis_paramedic',
-        name: 'Constellis Protective Paramedic',
-        baseProfession: 'Nurse or Paramedic',
-        organization: 'Constellis Group',
-        summary: 'A medical specialist attached to protective teams to keep injured clients and operators alive.',
-        role: [
-            'Travels with protective security teams to handle trauma or pre-existing client medical needs.',
-            'Needs to treat people while embedded in a security detail rather than a clinical space.',
-            'Represents the contract world’s blunt answer to “what if the client goes down?”',
-        ],
-        suggestedBonusSkills: ['Firearms', 'Melee Weapons', 'Search', 'Unarmed Combat'],
-        equipment: ['SWAT-grade protective support', 'portable medical and triage equipment in hard cases'],
-    },
-    {
-        id: 'complex_constellis_asm',
-        name: 'Constellis Socio-Cultural Analyst',
-        baseProfession: 'Media Specialist',
-        organization: 'Constellis Group',
-        summary: 'A regional analyst helping clients understand culture, politics, and social conditions before they blunder into them.',
-        role: [
-            'Tracks regional trends in culture, economics, politics, and social dynamics.',
-            'Packages context so operators and clients do not mistake ignorance for confidence.',
-            'Turns area knowledge into operational value for private clients.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'Computer Science', 'Foreign Language', 'Law'],
-        equipment: ['electronic library on the region of expertise', 'regional reference material and current-trend resources'],
-    },
-    {
-        id: 'complex_lockheed_scientist',
-        name: 'Lockheed Senior Research Scientist',
-        baseProfession: 'Computer Scientist or Engineer',
-        organization: 'Lockheed Martin Advanced Technology Laboratories',
-        summary: 'A robotics and autonomy scientist exploring AI and machine systems at the far edge of defense industry research.',
-        role: [
-            'Works on autonomous systems and advanced AI under heavy security expectations.',
-            'Needs broad curiosity across biology, logic, philosophy, and engineering-adjacent fields.',
-            'Lives inside corporate secrecy but still at the frontier of technical imagination.',
-        ],
-        suggestedBonusSkills: ['Anthropology', 'Science (Biology)', 'Science (Logic)', 'Science (Physics)'],
-        equipment: ['deep technical library across AI-adjacent disciplines', 'computers linked by advanced neural-network systems'],
-    },
-    {
-        id: 'complex_lockheed_engineer',
-        name: 'Lockheed Advanced Programs Engineer',
-        baseProfession: 'Computer Scientist or Engineer',
-        organization: 'Lockheed Martin Skunk Works',
-        summary: 'A disruptive-project engineer building advanced aircraft and other cut-above prototypes inside intense security.',
-        role: [
-            'Works on “next generational” or “cutting edge” programs, often in aerospace.',
-            'Thrives in a creative but tightly secured environment that expects strict operational silence.',
-            'Builds the strange machines other people will only learn about years later.',
-        ],
-        suggestedBonusSkills: ['Heavy Machinery', 'Military Science (Air)', 'Pilot', 'Science'],
-        equipment: ['large engineering and materials-science library', 'advanced-program technical access'],
-    },
-    {
-        id: 'complex_lockheed_test_pilot',
-        name: 'Lockheed Advanced Programs Test Pilot',
-        baseProfession: 'Pilot or Sailor',
-        organization: 'Lockheed Martin Skunk Works',
-        summary: 'A Skunk Works test pilot flying airframes so advanced that astronauts get jealous.',
-        role: [
-            'Tests classified aircraft and highly sensitive performance envelopes.',
-            'Handles prestige, danger, and constant scrutiny in equal measure.',
-            'Has access to extraordinary flight systems but never owns them in any casual sense.',
-        ],
-        suggestedBonusSkills: ['Computer Science', 'Heavy Machinery', 'Pilot', 'Science (Physics)'],
-        equipment: ['technical manuals, testing data, and classified performance material for current airframes'],
-    },
-    {
-        id: 'complex_lockheed_risk',
-        name: 'Lockheed Systems Risk Analyst',
-        baseProfession: 'Program Manager',
-        organization: 'Lockheed Martin',
-        summary: 'A facility and program risk specialist alert to physical, financial, cyber, and espionage threats.',
-        role: [
-            'Anticipates risks to programs, facilities, and sensitive technology.',
-            'Tracks access, logs, and suspicious behavior across a project environment.',
-            'Lives at the seam between security management and intelligence-minded suspicion.',
-        ],
-        suggestedBonusSkills: ['Alertness', 'Criminology', 'SIGINT', 'Stealth'],
-        equipment: ['broad facility access', 'control over access logs and internal risk information'],
-    },
-    {
-        id: 'complex_lockheed_space',
-        name: 'Lockheed Space Operations Specialist',
-        baseProfession: 'Computer Scientist or Engineer',
-        organization: 'Lockheed Martin',
-        summary: 'A control-room specialist running satellites and launch-adjacent modeling for space programs.',
-        role: [
-            'Monitors satellites and rocket programs from mission-control environments.',
-            'Uses heavy statistical and ballistic modeling to plan and execute projects.',
-            'Needs both computing depth and comfort with abstract trajectory work.',
-        ],
-        suggestedBonusSkills: ['Navigate', 'Science (Astrophysics)', 'Science (Mathematics)', 'Science (Statistics)'],
-        equipment: ['ballistic-modeling software and electrical-engineering references', 'control-room and satellite-output access'],
-    },
-    {
-        id: 'complex_caci_targeting',
-        name: 'Contract Targeting Officer',
-        baseProfession: 'Intelligence Analyst',
-        organization: 'CACI / Booz Allen Hamilton',
-        summary: 'A contractor targeter mapping people, organizations, and relationships inside illicit networks.',
-        role: [
-            'Identifies people and structures within arms, drug, terror, cyber, and CI targets.',
-            'Often supports CIA, DIA, and FBI clients.',
-            'Needs language, HUMINT, SIGINT, and pattern-building discipline in equal measure.',
-        ],
-        professionalSkills: ['Accounting 50%', 'Anthropology 60%', 'Bureaucracy 40%', 'Computer Science 40%', 'Criminology 50%', 'Foreign Language 50%', 'Forensics 30%', 'HUMINT 60%', 'History 60%', 'SIGINT 60%'],
-        bonds: 3,
-        suggestedBonusSkills: ['Bureaucracy', 'History', 'Law', 'Search'],
-        equipment: ['classified detailed analysis on priority targets', 'large volumes of surveillance data'],
-    },
-    {
-        id: 'complex_caci_signals',
-        name: 'Contract Signals Analyst',
-        baseProfession: 'Computer Scientist or Engineer',
-        organization: 'CACI / Booz Allen Hamilton',
-        summary: 'A contractor who decrypts intercepts and explains their implications to people who need a plain-language answer.',
-        role: [
-            'Translates intercepted technical data into actionable meaning.',
-            'Most often supports NSA-style work but may bounce across agencies and contracts.',
-            'Combines technical skill with the ability to communicate under classified conditions.',
-        ],
-        suggestedBonusSkills: ['Art (Writing)', 'Bureaucracy', 'Foreign Language', 'HUMINT'],
-        equipment: ['classified project data and possibly legacy data from earlier contracts'],
-    },
-    {
-        id: 'complex_caci_forensics',
-        name: 'Contract Digital Forensics Analyst',
-        baseProfession: 'Computer Scientist or Engineer',
-        organization: 'CACI / Booz Allen Hamilton',
-        summary: 'A recovered-data specialist turning damaged or compromised devices back into evidence.',
-        role: [
-            'Recovers information from computers and storage devices.',
-            'Frequently supports FBI, Marshals, DEA, or CIA work.',
-            'Lives in the intersection of intrusion tracing, evidence handling, and persistence.',
-        ],
-        suggestedBonusSkills: ['Accounting', 'Forensics', 'HUMINT', 'Science (Statistics)'],
-        equipment: ['specialized recovery and intrusion-tracing software', 'broad forensic computing toolkit'],
-    },
-    {
-        id: 'complex_caci_interrogator',
-        name: 'Contract Counterintelligence Interrogator',
-        baseProfession: 'Foreign Service Officer',
-        organization: 'CACI / Booz Allen Hamilton',
-        summary: 'A contractor interrogator packaging detainee information for operational use without mistaking cruelty for skill.',
-        role: [
-            'Extracts useful information from detainees for follow-on operations.',
-            'Usually comes from military or intelligence backgrounds.',
-            'Relies on behavioral knowledge, pharmaceuticals, and pressure rather than cartoon torture myths.',
-        ],
-        suggestedBonusSkills: ['Firearms', 'HUMINT', 'Persuade', 'Pharmacy'],
-        equipment: ['pharmaceutical aids for questioning', 'behavioral anthropology and microexpression references'],
-    },
-    {
-        id: 'complex_rand_army_fellow',
-        name: 'RAND Army Fellow Analyst',
-        baseProfession: 'Intelligence Analyst',
-        organization: 'RAND Corporation',
-        summary: 'An active-duty Army fellow embedded in RAND to translate military reality into research value.',
-        role: [
-            'Brings operational Army expertise into think-tank research projects.',
-            'Acts as a bridge between theory and how the Army actually functions.',
-            'Helps research stay grounded in real institutional behavior and equipment.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'Military Science', 'Navigate', 'Science (Ballistics)'],
-        equipment: ['strategy and tactics library', 'engineering analysis of military hardware'],
-    },
-    {
-        id: 'complex_rand_drug_policy',
-        name: 'RAND Drug Policy Researcher',
-        baseProfession: 'Scientist',
-        organization: 'RAND Corporation',
-        summary: 'A policy researcher studying substance use and addiction to guide strategy and legislation.',
-        role: [
-            'Analyzes drug and alcohol use from a policy perspective.',
-            'Connects empirical research to decision-making rather than only academic publication.',
-            'Needs comfort with controversial conclusions if the evidence points there.',
-        ],
-        suggestedBonusSkills: ['Criminology', 'Law', 'Science (Mathematics)', 'Pharmacy'],
-        equipment: ['research access to drug-policy data and analysis resources'],
-    },
-    {
-        id: 'complex_rand_paf',
-        name: 'RAND Project Air Force Researcher',
-        baseProfession: 'Scientist',
-        organization: 'RAND Corporation Project AIR FORCE',
-        summary: 'A defense researcher evaluating Air Force weapons, doctrine, and future threat expectations.',
-        role: [
-            'Studies how Air Force assets and technologies perform and how they should evolve.',
-            'Turns technical, doctrinal, and strategic evidence into policy-relevant analysis.',
-            'Works in the meeting space between defense science and practical force planning.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'Craft', 'Military Science (Air)', 'SIGINT'],
-        equipment: ['technical manuals and journals on current project fields'],
-    },
-    {
-        id: 'complex_rand_math',
-        name: 'RAND Theoretical Mathematician',
-        baseProfession: 'Scientist',
-        organization: 'RAND Corporation',
-        summary: 'A model-builder and theorem-prover using abstraction to explain real-world strategic and technical problems.',
-        role: [
-            'Develops mathematical models to explain, predict, or structure difficult phenomena.',
-            'Works in abstraction but toward practical outcomes.',
-            'Needs comfort with deep theory and the patience to turn it into policy-grade insight.',
-        ],
-        suggestedBonusSkills: ['Bureaucracy', 'History', 'Science (Systems Theory)', 'Science (Quantum Theory)'],
-        equipment: ['broad library on mathematics and quantum theory', 'theory-modeling software and specialist applications'],
-    },
+const makeInfoId = (name: string) =>
+  `complex_profession_${name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')}`;
+
+const seed = (
+  name: string,
+  baseProfession: string,
+  organization: string,
+  description: string,
+  bonusSkills: string[],
+  equipment: string,
+  notes: string[],
+  overrides: Partial<ComplexProfessionSeed> = {}
+): ComplexProfessionSeed => ({
+  name,
+  baseProfession,
+  organization,
+  description,
+  bonusSkills,
+  equipment,
+  notes,
+  ...overrides,
+});
+
+const joinHumanList = (items: string[]): string => {
+  if (items.length === 0) return '';
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+};
+
+const COMPLEX_PROFESSION_SEEDS: ComplexProfessionSeed[] = [
+  seed('Border Protection (Preclearance or Portal Monitoring)', 'Federal Agent', 'Customs and Border Protection', 'Officers who man ports of entry, screen travelers and cargo, and hold the line against smugglers and traffickers in some of the most tense border environments in the country.', ['Alertness', 'Bureaucracy', 'HUMINT', 'Persuade'], 'Federal-agent tradecraft and border-inspection gear, with ready access to point-of-entry systems and manifests.', ['These officers are the visible last checkpoint before entry into the United States.', 'The role emphasizes high-volume interviews, document review, and reading intent under pressure.']),
+  seed('Marine Interdiction', 'Federal Agent', 'CBP Air and Marine Operations', 'Boarding specialists who close with suspicious vessels from smaller craft and conduct interdiction actions at sea.', ['Alertness', 'Athletics', 'Search', 'SIGINT'], 'Federal-agent equipment plus water-survival gear and boarding tools.', ['Combines maritime boarding discipline, Spanish-language work, and close-quarters suspect control.'], {
+    bonds: 2,
+  }),
+  seed('Detection Canine Program', 'Federal Agent', 'CBP Office of Field Operations', 'K9 officers and handlers who identify contraband, hidden people, explosives, narcotics, and other smuggled materials.', ['Alertness', 'Craft (Dog Training)', 'Science (Veterinary Science)', 'Search'], 'Federal-agent equipment, a working canine, dog-handling gear, and veterinary supplies.', ['Canine teams travel widely and are in constant demand across points of entry and supporting missions.'], {
+    bonds: 2,
+  }),
+  seed('U.S. Border Patrol', 'Federal Agent', 'Customs and Border Protection', 'Hard-traveling interdiction and surveillance officers who operate out of vehicles and austere sites to identify crossings, patterns, and contraband routes.', ['Athletics', 'Drive', 'Navigate', 'Survival'], 'Federal-agent equipment and broad access to transport assets suitable for remote patrol work.', ['The role leans heavily on patience, field judgement, and reading terrain like a hunter.']),
+  seed('Border Patrol Search, Trauma and Rescue Unit (BORSTAR)', 'Nurse or Paramedic', 'CBP Special Operations Group', 'Specialists who bring field medicine, trauma response, and technical search-and-rescue capability to dangerous remote operations.', ['Firearms', 'First Aid', 'Medicine', 'Survival'], 'Portable trauma supplies, extensive medical caches, and remote-rescue gear.', ['BORSTAR supports BORTAC and other federal teams in remote wilderness environments.'], {
+    bonds: 2,
+  }),
+  seed('Border Patrol Tactical Unit (BORTAC)', 'Special Operator', 'CBP Special Operations Group', 'CBP’s self-sufficient tactical arm, built for mobile direct action in both urban and remote terrain, including crisis deployments and combat-zone work.', ['Firearms', 'Navigate', 'Search', 'Survival'], 'Special-operator gear adapted for austere tactical deployments and prolonged field operations.', ['BORTAC deploys worldwide at short notice and is designed to operate for days without support.'], {
+    bonds: 2,
+  }),
+  seed('National Air Security Operations', 'Pilot or Sailor', 'CBP Air and Marine Operations', 'Operators of long-range patrol aircraft, surveillance planes, and unmanned systems that watch borders, maritime approaches, and smuggling corridors.', ['Alertness', 'SIGINT', 'Pilot (Airplane or Drone)', 'Craft (Electronics)'], 'Flight manuals, checklists, and access to patrol aircraft or drone-control spaces.', ['This role is the aviation and sensor-heavy counterpart to ground and maritime interdiction teams.']),
+  seed('Tactical Canine Program', 'Federal Agent', 'ATF Special Response Teams', 'Handlers who pair with working dogs to track hidden or fleeing suspects and fight in close coordination with their animal partner.', ['Craft (Dog Training)', 'Melee Weapons', 'Search', 'Survival'], 'Federal-agent equipment, a working-breed canine, handling gear, and limited veterinary supplies.', ['Pairs canine tracking with close-quarters response and suspect apprehension.']),
+  seed('Tactical Medic Program', 'Federal Agent', 'ATF Special Response Teams', 'Special agents who specialize in combat trauma care during high-risk warrant service and tactical operations.', ['Athletics', 'Demolitions', 'Firearms', 'HUMINT'], 'Federal-agent equipment plus extensive portable first-aid and trauma gear.', ['Balances trauma medicine with tactical law enforcement and mobility.'], {
+    bonds: 1,
+  }),
+  seed('Office of Field Operations and Investigation', 'Federal Agent', 'Bureau of Alcohol, Tobacco, Firearms and Explosives', 'Case-building ATF investigators who chase illegal weapons dealers, traffickers, and explosive offenses into violent criminal ecosystems.', ['Criminology', 'Forensics', 'Firearms', 'Law'], 'Federal-agent equipment and ATF case access, labs, and tracing support.', ['This is the core ATF investigative track, defined by heavy caseloads and high-risk encounters.']),
+  seed('Criminal Investigative Analyst', 'Intelligence Analyst', 'ATF', 'Behavioral and geographic profilers who model offender tendencies, motives, and likely target areas from scenes, evidence, and witness testimony.', ['Criminology', 'Forensics', 'Law', 'Psychotherapy'], 'Access to ATF and FBI data stores, behavioral-science research, and criminal-pattern files.', ['ATF is distinctive among federal agencies for using geographic profilers.']),
+  seed('Tactical Operations', 'Special Operator', 'ATF Special Response Teams', 'High-risk ATF tactical operators built for violent warrant service, manhunts, and close support to investigations where initiative decides survival.', ['Alertness', 'Demolitions', 'Firearms', 'Search'], 'Tactical-entry gear, breaching tools, and standard SRT assault equipment.', ['Built for high-risk warrant service, manhunts, and rapid tactical response.']),
+  seed('Explosives Specialist', 'Federal Agent', 'ATF Office of Enforcement Programs', 'Certified specialists in explosive materials, bomb-scene analysis, render-safe procedures, and how the commercial explosives industry really works.', ['Criminology', 'Demolitions', 'Forensics', 'Science (Chemistry or Physics)'], 'Federal-agent equipment, blast-protection gear, diagnostic tools, chemical and electronic testing gear, and remotely operated approaches for suspect devices.', ['Some specialists also qualify as Explosive Enforcement Officers for kinetic defusal support.'], {
+    bonds: 1,
+  }),
+  seed('Protective Intelligence and Assessment Division', 'Intelligence Analyst', 'U.S. Secret Service', 'Analysts who fuse open-source and classified reporting into threat files focused on attacks against VIPs and other protected persons.', ['Computer Science', 'Criminology', 'HUMINT', 'SIGINT'], 'Classified reporting from across the intelligence community and threat-assessment support systems.', ['PID sits behind the visible protection mission, watching for patterns that suggest an attack is developing.']),
+  seed('Counter Assault Team', 'Special Operator', 'U.S. Secret Service Special Operations Division', 'A uniquely defensive tactical team trained to suppress threats long enough to move the protectee out alive.', ['Alertness', 'Criminology', 'Firearms', 'Law'], 'High-end protective tactical gear, evacuation-focused weapons loadouts, and mission vehicles supporting VIP escape.', ['The role is not about winning a firefight in place; it is about breaking contact so the protectee survives.'], {
+    bonds: 1,
+  }),
+  seed('Personal Protective Detail Division', 'Federal Agent', 'U.S. Secret Service', 'Bodyguards and site-control specialists assigned to the most visible and politically sensitive VIP protection missions in the U.S. government.', ['Athletics', 'First Aid', 'Military Science (Land)', 'Search'], 'Federal-agent equipment, low-visibility protective gear, and the logistics package needed for advance work and site control.', ['Blends bodyguard work, site control, and advance coordination.'], {
+    bonds: 1,
+  }),
+  seed('Financial Administrative, Professional and Technical Support', 'Lawyer or Business Executive', 'U.S. Secret Service', 'The bureaucratic and technical backbone of the Secret Service financial-crimes mission, including accountants, analysts, and digital-forensics specialists.', ['Accounting', 'Computer Science', 'Criminology', 'SIGINT'], 'Broad access to financial-crimes reporting, digital evidence, and interagency investigative products.', ['APT specialists often perform much of the deep technical work that makes big USSS financial cases possible.']),
+  seed('Search and Rescue Team', 'Firefighter', 'U.S. Coast Guard', 'Rescuers who confront brutal seas, bad weather, and failing machinery head-on to save lives at the edge of survivability.', ['Alertness', 'First Aid', 'Navigate', 'Swim'], 'Portable rescue gear, thermal and water-survival suits, and specialist maritime kits.', ['Centers on repair skills, meteorology, navigation, and rescue under extreme conditions.'], {
+    bonds: 2,
+  }),
+  seed('Office of Response Policy (CG-5R)', 'Program Manager', 'U.S. Coast Guard', 'Counterterrorism planners and policy hands who build joint programs and coordinate Coast Guard participation in national-security response missions.', ['Accounting', 'Bureaucracy', 'Persuade', 'Military Science (Sea)'], 'Classified terrorism and military-operations files and an extensive Coast Guard/military contact network.', ['CG-5R is the policy-side bridge between Coast Guard assets and broader national-security missions.']),
+  seed('Office of Investigations and Casualty Analysis', 'Anthropologist or Historian', 'U.S. Coast Guard Investigative Service', 'Analysts who build detailed casualty and death reviews from Coast Guard incidents, disasters, and complex operational failures.', ['Craft (Electrician or Mechanic)', 'Forensics', 'HUMINT', 'Search'], 'A deep physical and digital library of disaster, maritime, crash, flood, and storm history.', ['This profile is more analytical and historical than kinetic, but still closely tied to operational consequences.']),
+  seed('Helicopter Interdiction Tactical Squadron (HITRON)', 'Pilot or Sailor', 'U.S. Coast Guard', 'Armed helicopter crews and sharpshooters trained to disable hostile boats during interdiction missions.', ['Alertness', 'Craft (Mechanic)', 'Firearms', 'Pilot (Helicopter)'], 'Specialized helicopter crew gear and a precision anti-vessel rifle package with advanced optics.', ['HITRON combines aviation, mechanical reliability, and precision shooting against moving marine targets.'], {
+    bonds: 2,
+  }),
+  seed('Tactical Law Enforcement Team (TACLET)', 'Federal Agent', 'U.S. Coast Guard', 'Boarding and interdiction teams deployed on U.S. and allied naval vessels to stop smugglers, pirates, and other maritime law-enforcement targets.', ['Alertness', 'Firearms', 'Military Science (Sea)', 'Pilot (Boat)'], 'Federal-agent tools plus boat-survival gear and ship-boarding support equipment.', ['This is a maritime interdiction and armed-boarding role with a strong bilingual and HUMINT component.'], {
+    bonds: 2,
+  }),
+  seed('Maritime Safety and Security Team (MSST)', 'Federal Agent', 'U.S. Coast Guard', 'Port-focused security teams built for high-threat interdiction, armed patrol, and protecting major maritime infrastructure.', ['Alertness', 'Forensics', 'HUMINT', 'Stealth'], 'Federal-agent equipment plus water-survival gear and armed patrol-boat support.', ['MSST sits between ordinary port security and the more elite maritime direct-action mission sets.'], {
+    bonds: 1,
+  }),
+  seed('Maritime Security Response Team (MSRT)', 'Special Operator', 'U.S. Coast Guard', 'The Coast Guard’s maritime SWAT equivalent, centered on tactical boarding, ship seizure, and response to terrorists or hostage-takers afloat.', ['Alertness', 'Athletics', 'Firearms', 'Law'], 'Special-operator equipment plus maritime entry, restraint, and suspect-control tools.', ['Focused on tactical boarding and direct-action response against hostile maritime threats.'], {
+    bonds: 1,
+  }),
+  seed('National Strike Force', 'Scientist', 'U.S. Coast Guard', 'Technical specialists who respond to oil discharges, hazardous-material releases, suspected WMD events, and other environmental disasters.', ['Bureaucracy', 'Science (Chemistry)', 'Science (Environmental)', 'Science (Meteorology)'], 'Environmental and chemical monitoring gear and technical response equipment.', ['NSF is the Coast Guard’s science-heavy emergency response profile.']),
+  seed('Interagency Threat Assessment and Coordination Group', 'Intelligence Analyst', 'National Counterterrorism Center', 'Interagency analysts who try to move critical threat data across bureaucratic seams that rarely cooperate as smoothly as policy says they should.', ['Bureaucracy', 'Criminology', 'Foreign Language (choose one)', 'HUMINT'], 'Extensive NCTC intelligence holdings and badges to major partner headquarters.', ['Functions at the seam between intelligence analysis and operational coordination.']),
+  seed('Joint Counterterrorism Assessment Team (JCAT)', 'Intelligence Analyst', 'National Counterterrorism Center', 'Prestige task-force staff who help set threat priorities and translate intelligence-community concern into operational focus.', ['Bureaucracy', 'Foreign Language (choose one)', 'HUMINT', 'Law'], 'NCTC reporting, interagency access, and broad terrorism-analysis holdings.', ['The source lists several valid profession families for JCAT; this import uses the analyst track for mechanics while preserving the broader options in the dossier.'], {
+    professionText: 'Foreign Service Officer, Intelligence Analyst, Intelligence Case Officer, or Federal Agent.',
+  }),
+  seed('Near East Desk, Analysis', 'Intelligence Analyst', 'National Counterterrorism Center', 'Desk analysts focused on terrorist threats emerging from the Middle East and North Africa, synthesizing reporting into products other agencies can actually use.', ['Bureaucracy', 'Criminology', 'Foreign Language (Arabic, Berber, French, Kurdish, Persian, or Urdu)', 'History'], 'NCTC intelligence stores and access to partner-headquarters spaces.', ['These analysts are downstream from many agencies but must still turn scattered reporting into coherent warning.']),
+  seed('Office of Foreign Naval Analysis, Nimitz Operational Center', 'Computer Scientist or Engineer', 'Office of Naval Intelligence', 'Technical analysts who scrutinize foreign ships, missiles, aircraft, and naval systems for capability, vulnerability, and likely operational effect.', ['Computer Science', 'Craft (Mechanic or Electrician)', 'Science (Chemistry, Physics, or Materials)', 'Military Science (Sea)'], 'Imagery from NGA and NRO plus technical schematics for naval and aerospace systems from around the world.', ['This role blends hard engineering interpretation with operational naval relevance.']),
+  seed('Maritime Domain Awareness—PACOM', 'Intelligence Analyst', 'Office of Naval Intelligence', 'Analysts who track foreign naval assets across the Pacific and Indian Oceans and infer mission, payload, and intent from movement patterns.', ['Alertness', 'Foreign Language (Chinese, Hindi, or Russian)', 'Military Science (Sea)', 'Search'], 'Fresh ship-tracking intelligence from human and overhead sources, including NRO and NGA products.', ['ONI uses this work to keep the fleet ahead of rival powers and hidden deployments.']),
+  seed('Cryptoanalysis Unit, Operations Directorate', 'Computer Scientist or Engineer', 'National Security Agency', 'Technical specialists who design algorithms to break foreign encryption and turn protected signals into readable intelligence.', ['Computer Science', 'Craft (Microelectronics)', 'Science (Mathematics)', 'SIGINT'], 'Deep technical libraries in mathematics, computing, and adjacent hard sciences.', ['Emphasizes codebreaking, analytics, engineering, and language support.'], {
+    bonds: 3,
+  }),
+  seed('Tailored Access Operations Unit (TAO)', 'Computer Scientist or Engineer', 'National Security Agency', 'Cyber-espionage operators who penetrate foreign systems, recover data, and build access paths others can exploit later.', ['Bureaucracy', 'Computer Science', 'Foreign Language', 'SIGINT'], 'Hacking tradecraft, disguise material, recovery hardware, and technical manuals for implanted or recovered surveillance systems.', ['Focuses on intrusion tradecraft, persistence, and recovering data from foreign systems.'], {
+    bonds: 2,
+  }),
+  seed('Remote Device Activities Unit', 'Computer Scientist or Engineer', 'National Security Agency', 'Field-capable surveillance specialists who install clandestine collection devices and retrieve intelligence gathered from remote systems.', ['Alertness', 'Craft (Electrician)', 'Craft (Locksmithing)', 'Disguise'], 'Clandestine technical gear for entry, installation, and recovery of remote-surveillance packages.', ['Centers on clandestine installation, technical entry, and remote collection recovery.']),
+  seed('Counterintelligence Investigator, Q Directorate', 'Federal Agent', 'National Security Agency', 'Internal investigators who examine security risks, suspicious activity, and vulnerabilities across NSA personnel, contractors, and partner networks.', ['Computer Science', 'Foreign Language', 'SIGINT', 'Stealth'], 'Federal-agent tools plus internal security access to NSA personnel, contractor, and briefings systems.', ['This role sits at the intersection of insider-threat work, security education, and sensitive internal investigations.']),
+  seed('Defense Clandestine Service', 'Intelligence Case Officer', 'Defense Intelligence Agency', 'Overseas clandestine operators who gather intelligence on foreign militaries and work in close partnership with SOCOM and other sensitive operators.', ['Bureaucracy', 'Foreign Language', 'HUMINT', 'Military Science (choose one)'], 'Special-operator style field gear concealed within a cover-friendly clandestine package.', ['DCS officers train alongside CIA personnel and are expected to stay effective around kinetic missions.']),
+  seed('Directorate for Analysis, Americas Division', 'Intelligence Analyst', 'Defense Intelligence Agency', 'Regional analysts focused on the militaries of Central and South America and the Caribbean, especially as their capabilities affect U.S. interests nearby.', ['History', 'Foreign Language', 'HUMINT', 'Military Science (choose one)'], 'Classified military reporting and a strong library of biographies, geography, and regional military history.', ['Keeps a close eye on the region because proximity makes U.S. interests part of the picture.']),
+  seed('Defense Attaché', 'Soldier or Marine', 'Defense Intelligence Agency', 'Embassy-based military representatives who gather intelligence, recruit sources, liaise with host militaries, and represent the U.S. uniformed services abroad.', ['Bureaucracy', 'Foreign Language', 'HUMINT', 'Law'], 'Embassy access, an armored SUV and driver, and diplomatic credentials.', ['The book positions this as a do-everything overseas military-intelligence representative role.']),
+  seed('InnoVision Directorate', 'Computer Scientist or Engineer', 'National Geospatial-Intelligence Agency', 'Researchers who explore new predictive and expert systems for gathering, processing, and exploiting geospatial intelligence.', ['Bureaucracy', 'Craft (Engineering or Microengineering)', 'SIGINT', 'Science (Chemistry, Geology, or Physics)'], 'Access to a program budget and experimental R&D channels.', ['The source allows either scientist or computer-science lineage; this import uses the engineering track mechanically.']),
+  seed('Analysis Directorate', 'Intelligence Analyst', 'National Geospatial-Intelligence Agency', 'Analysts who turn imagery and geospatial data into detailed predictive reporting and decision-ready assessments.', ['Accounting', 'Bureaucracy', 'SIGINT', 'Science (Cartography or Mathematics)'], 'A specialist library of modeling, statistics, quantum mechanics, and game-theory material.', ['This is the core analytic reporting arm behind NGA’s geospatial products.']),
+  seed('Imagery Intelligence Systems Directorate', 'Intelligence Analyst', 'National Reconnaissance Office', 'Visual-analysis and systems-improvement specialists who make satellite and drone imagery more useful, more readable, and more operationally decisive.', ['Art (Drafting or Mapmaking)', 'Computer Science', 'Science (Engineering or Geography)', 'SIGINT'], 'Classified map and photographic records stretching back decades.', ['The role sits at the heart of turning raw overhead collection into something humans can use.']),
+  seed('Advanced Systems and Technology Directorate', 'Scientist', 'National Reconnaissance Office', 'R&D staff pushing exotic sensing and communications technologies into practical remote-intelligence collection programs.', ['Art (Graphic Design)', 'Bureaucracy', 'Computer Science', 'Science (Chemistry, Physics, or Geology)'], 'Standing access to universities, think tanks, and corporate labs doing relevant advanced work.', ['AS&T is explicitly open to unconventional ideas, wherever they originate.']),
+  seed('Park Ranger', 'Police Officer', 'National Park Service', 'Generalist rangers who stand on the front line of park law enforcement, visitor safety, and practical protection of immense and often isolated terrain.', ['Athletics', 'Navigate', 'Science (Ecology)', 'Survival'], 'Federal-agent style field gear suitable for extended park and wilderness work.', ['The role is a true jack-of-all-trades law-enforcement profile in austere settings.']),
+  seed('Biological Resources Division', 'Scientist', 'National Park Service', 'Scientists and ecologists who preserve park ecosystems and advise on practical methods of protecting natural and historical resources.', ['History', 'Law', 'Search', 'Survival'], 'Scientific field gear matched to specialty plus camping and backcountry equipment.', ['Supports both scientific stewardship and policy advice for protected resources.']),
+  seed('Wildland Fire Division', 'Firefighter', 'National Park Service', 'NPS fire-management personnel ranging from hand crews to elite hotshots, fighting some of the largest and ugliest fires in the world.', ['Athletics', 'First Aid', 'Survival', 'Swim'], 'Rugged wildfire PPE, tools, pumps, shelters, ropes, radios, and personal medical kits.', ['Demands long deployments, extreme conditions, and close teamwork.']),
+  seed('Interpretive Ranger', 'Anthropologist or Historian', 'National Park Service', 'Public-facing rangers who educate visitors while also protecting sites, history, and the people moving through them.', ['Firearms', 'First Aid', 'Medicine', 'Survival'], 'Uniform, badge, camping tools, and a practical library on site history, ecology, and survival.', ['Combines public education, site protection, and broad field competence.'], {
+    bonds: 2,
+  }),
+  seed('Investigative Services Branch', 'Federal Agent', 'National Park Service', 'Protection rangers with extra training to investigate crimes in remote, under-resourced, and logistically miserable environments.', ['Athletics', 'Navigate', 'Stealth', 'Survival'], 'Federal-agent equipment adapted for backcountry crime scenes and self-supported investigative work.', ['ISB agents often carry their own gear through wilderness at night, in bad weather, with little backup.']),
+  seed('Federal Archeology Program', 'Anthropologist or Historian', 'National Park Service', 'Federal archaeologists who identify, preserve, restore, and interpret historically significant sites and artifacts.', ['Archeology', 'Navigate', 'Search', 'Survival'], 'Aging books, field notebooks, and camping gear.', ['This profile is explicitly grounded in recovery, preservation, and interpretation of national heritage.']),
+  seed('Urban Search and Rescue', 'Firefighter', 'Federal Emergency Management Agency', 'Rescuers focused on finding, extricating, and medically stabilizing trapped victims in collapse, trench, mine, and transportation disasters.', ['Alertness', 'First Aid', 'Search', 'Survival'], 'Extensive portable and airliftable search-and-rescue equipment.', ['US&R is one of FEMA’s most direct and physically demanding operational tracks.']),
+  seed('Office of Mitigation Insurance', 'Program Manager', 'Federal Emergency Management Agency', 'Mitigation specialists who build financial and planning capacity so communities can prepare for, survive, and recover from disasters.', ['Bureaucracy', 'Craft (Architecture)', 'Science (Meteorology or Statistics)', 'Survival'], 'Control of a project budget and access to program data and disaster-mitigation research.', ['This role is more quietly strategic than field-forward, but it shapes how communities weather catastrophe.']),
+  seed('National Disaster Medical System Rapid Deployment Force', 'Nurse or Paramedic', 'Federal Emergency Management Agency', 'Field medical personnel expected to be among the earliest responders once a disaster is declared.', ['First Aid', 'HUMINT', 'Psychotherapy', 'Survival'], 'Portable, airliftable medical supplies and survival gear.', ['Works at the front edge of disaster medicine and rapid deployment.']),
+  seed('Kennedy Emergency Response Team', 'Special Operator', 'NASA', 'NASA’s SWAT-equivalent security arm at Kennedy Space Center, trained for vertical insertion, crowd control, facility defense, and VIP protection.', ['Athletics', 'Alertness', 'Dodge', 'Firearms'], 'Special-operator tradecraft and the specialized tactical kit required for launch infrastructure and volatile compounds.', ['ERT works in environments where ordinary tactical errors can trigger catastrophic secondary consequences.']),
+  seed('Space Communications and Navigation', 'Scientist', 'NASA', 'Operators and analysts who manage NASA’s communication architecture across deep-space, near-earth, and space-network systems.', ['Bureaucracy', 'Computer Science', 'Science (Astronomy, Chemistry, Engineering, Geology, Mathematics, or Physics)', 'SIGINT'], 'A substantial library and access to astronomical data and related research.', ['SCaN is the connective tissue that keeps NASA missions in communication.']),
+  seed('Flight Research, Test, and Engineering Directorate', 'Scientist', 'NASA Armstrong Flight Research Center', 'Aeronautical engineers and systems professionals who build and test experimental and next-generation flight systems.', ['Bureaucracy', 'Craft (Engineering)', 'Craft (Mechanic)', 'Science (Aeronautics)'], 'Engineering trade tools and direct access to aeronautical research programs.', ['Uses test programs, engineering, and field research to evaluate next-generation systems.']),
+  seed('Astronaut Corps Pilot', 'Pilot or Sailor', 'NASA', 'An elite astronaut-pilot profile built for spacecraft, remote systems, and high-stakes mission execution where failure is spectacular and unforgiving.', ['Heavy Machinery', 'Science (Biology)', 'Science (Mathematics)', 'Science (Meteorology)'], 'Hardened tools, launch-site and training-facility access, and mission-specific technical support.', ['An elite selection track centered on flight, navigation, physics, and spacecraft operation.'], {
+    bonds: 2,
+  }),
+  seed('Project Orion Management', 'Program Manager', 'NASA', 'Managers overseeing the design, development, and testing of Orion spacecraft and the program structure needed to move it forward.', ['Accounting', 'Bureaucracy', 'Craft (Engineering)', 'Science (Physics)'], 'Control of a project budget and the leverage that comes with it.', ['Orion management is about turning a huge, failure-intolerant technical effort into something that can actually ship.']),
+  seed('Tactical Technologies Office', 'Program Manager', 'DARPA', 'Program leaders pushing the edge of military vehicles, weapons, body armor, exoskeletons, lasers, and other disruptive tactical technologies.', ['Accounting', 'Bureaucracy', 'Science (Engineering)', 'Science (choose one)'], 'Budgetary control and one buggy, impractical, potentially transformative technology or codebase.', ['TTO is where DARPA funds things other organizations are not brave enough to touch yet.']),
+  seed('Microsystems Technology Office', 'Program Manager', 'DARPA', 'Program staff exploring practical applications for advanced microelectronics, exotic power sources, and discoveries adjacent to quantum-scale engineering.', ['Bureaucracy', 'Computer Science', 'Science (Mathematics)', 'Science (Physics)'], 'Program budget control and one fragile concept machine or prototype.', ['Focuses on practical applications for microelectronics, exotic power sources, and quantum-adjacent engineering.']),
+  seed('SME Technology Contractor', 'Computer Scientist or Engineer', 'DARPA', 'Private-sector subject-matter experts brought in to support DARPA programs with technical depth and less restricted travel and procurement.', ['Bureaucracy', 'Computer Science', 'Craft (choose one)', 'Science (choose one)'], 'Private-company resources, up to unusual expense without review, and a relatively flexible travel budget.', ['This is the contractor-facing side of DARPA’s experimental ecosystem.']),
+  seed('Office of Secure Transportation Courier Program', 'Special Operator', 'National Nuclear Security Administration', 'Armed courier agents who escort nuclear materials and are trained to prevent anyone from taking control of the shipment, no matter what.', ['Alertness', 'Drive', 'HUMINT', 'Law'], 'Special-operator gear, radiological and chemical PPE, and access to hardened transport vehicles.', ['Convoy work is no-nonsense, fast-moving, and ready to escalate to deadly force immediately.']),
+  seed('NEST Search Group', 'Scientist', 'National Nuclear Security Administration', 'Scientists and medical professionals called to search for suspected nuclear threat devices in the field.', ['Alertness', 'Computer Science', 'Science (Chemistry or Physics)', 'SIGINT'], 'Radiological protective gear and advanced portable detection and surveillance gear.', ['The source explicitly allows scientist or physician backgrounds; this import uses the scientist chassis while preserving that note in the dossier.']),
+  seed('Joint Technical Operations Team', 'Firefighter', 'National Nuclear Security Administration', 'Technical teams that evaluate and neutralize suspected nuclear or radiological devices once located.', ['Alertness', 'Craft (Electronics)', 'Demolitions', 'Science (Nuclear Physics)'], 'Explosives-disposal gear, body armor, and remote-operated robots tied to demolitions work.', ['JTOT works closely with the FBI and EOD specialists during render-safe operations.']),
+  seed('Criminal Investigation Division', 'Federal Agent', 'Internal Revenue Service', 'IRS law-enforcement agents who turn financial data, forensic accounting, and digital evidence into high-conviction federal cases.', ['Accounting', 'Computer Science', 'Science (Mathematics)', 'SIGINT'], 'Federal-agent tradecraft plus a tax-law library and extraordinary latitude to access tax records.', ['CI is one of the most feared and respected federal investigative tracks because every criminal scheme leaves a tax trail.']),
+  seed('Office of Professional Responsibility', 'Lawyer or Business Executive', 'Internal Revenue Service', 'Standards and misconduct specialists who support investigations into tax practitioners who violate the law or professional obligations.', ['Accounting', 'Computer Science', 'Forensics', 'Law'], 'A substantial physical and electronic tax-law library plus historical corporate and personal returns.', ['OPR is an investigative support profile grounded in legal and financial process knowledge.']),
+  seed('Mobile Security Team', 'Special Operator', 'Constellis', 'Hand-picked private-sector responders who deploy into kidnapping, extortion, evacuation, piracy, and high-threat client-protection crises.', ['Computer Science', 'HUMINT', 'Persuade', 'Search'], 'Special-operator equipment for private contracting deployments and emergency response.', ['The role emphasizes professionalism, composure, and client-facing judgment as much as violence.']),
+  seed('Tactical Roleplayer', 'Soldier or Marine', 'Constellis', 'Opposition-force trainers who simulate hostile actors in realistic field exercises and high-threat training scenarios.', ['Disguise', 'HUMINT', 'Persuade', 'Stealth'], 'Regional clothing, a sidearm, and rendered-safe or training-only firearms.', ['The role is about believable behavior under pressure, not just range theatrics.']),
+  seed('Defensive Designated Marksman', 'Special Operator', 'Constellis', 'Mercenary precision shooters tasked with covering the team and the client in unstable and openly hostile environments.', ['Alertness', 'Craft (Gunsmith)', 'Firearms', 'Search'], 'SWAT-style kit and a sniper rifle with a full suite of precision and low-light sighting systems.', ['This is a contractor marksman profile optimized for overwatch and client survival.']),
+  seed('Protective Security Specialist', 'Police Officer', 'Constellis', 'Bodyguards who stay glued to the client and measure success entirely by the principal getting out alive.', ['Alertness', 'First Aid', 'Foreign Language', 'Stealth'], 'Low-visibility firearms, concealable carbines, and briefcase-deployable protection weapons.', ['The role prioritizes client survival over the operator’s own safety.']),
+  seed('Paramedic (P-PSS)', 'Nurse or Paramedic', 'Constellis', 'Medical specialists embedded with protective security teams to stabilize injuries and manage client medical issues during hostile travel.', ['Firearms', 'Melee Weapons', 'Search', 'Unarmed Combat'], 'SWAT-style kit plus watertight portable medical and triage equipment.', ['This role lives beside close protection, not behind it.']),
+  seed('All-source Socio-cultural Analyst', 'Media Specialist', 'Constellis', 'Regional and cultural specialists who help clients understand local social, political, and economic currents before those currents turn lethal.', ['Bureaucracy', 'Computer Science', 'Foreign Language (choose one)', 'Law'], 'An electronic library of journals, books, and current material for the region of expertise.', ['The role turns broad cultural fluency into practical risk understanding.']),
+  seed('Senior Research Scientist—Robotics & Autonomy', 'Computer Scientist or Engineer', 'Lockheed Martin', 'Researchers in advanced autonomy and artificial intelligence pushing at the edges of what machine systems can perceive and decide.', ['Anthropology', 'Science (Biology)', 'Science (Logic)', 'Science (Physics)'], 'A vast interdisciplinary digital library and advanced neural-network-connected computing resources.', ['Explores advanced autonomy and machine decision-making in Lockheed’s research environment.']),
+  seed('Engineer / Advanced Programs', 'Computer Scientist or Engineer', 'Lockheed Martin Skunk Works', 'Engineers on disruptive, next-generation, highly classified aerospace projects where unorthodox thinking is part of the job description.', ['Heavy Machinery', 'Military Science (Air)', 'Pilot (Aircraft)', 'Science (Materials)'], 'A strong engineering and materials-science library and access to highly sensitive program spaces.', ['The book frames this as a Skunk Works role steeped in military culture and hard security.']),
+  seed('Test Pilot / Advanced Programs', 'Pilot or Sailor', 'Lockheed Martin Skunk Works', 'Test pilots flying classified airframes under intense scrutiny, collecting data no one else in the world gets to see.', ['Computer Science', 'Heavy Machinery', 'Pilot (Aircraft)', 'Science (Physics)'], 'Technical manuals, huge stores of test data, and classified performance material for the assigned airframe.', ['You may fly something extraordinary, but the program owns it, not you.']),
+  seed('Systems Risk Analyst', 'Program Manager', 'Lockheed Martin', 'Analysts who map physical, cyber, and financial risk to projects and facilities, with a sharp eye toward espionage and access control.', ['Alertness', 'Criminology', 'SIGINT', 'Stealth'], 'Access across the program stack, from server logs to janitorial closets and badge-use records.', ['This is a security and governance role with unusually broad visibility into a program.']),
+  seed('Space Operations', 'Computer Scientist or Engineer', 'Lockheed Martin', 'Control-room staff who monitor satellites and rocket programs while modeling trajectories, systems behavior, and operational trends.', ['Navigate', 'Science (Astrophysics)', 'Science (Mathematics)', 'Science (Statistics)'], 'Modeling software, electrical-engineering references, control-room access, and the output of the relevant satellite program.', ['This profile sits where orbital data, predictive models, and classified mission operations intersect.']),
+  seed('Targeting Officer', 'Intelligence Analyst', 'CACI / Booz Allen Hamilton', 'Targeters who identify the people, relationships, and organizations inside arms trafficking, drug networks, terrorism, cyber threats, and counterintelligence problems.', ['Bureaucracy', 'History', 'Law', 'Search'], 'Access to classified high-value-target analyses and huge volumes of surveillance data.', ['Analyzes relationships and organizations across multiple threat networks.'], {
+    bonds: 3,
+  }),
+  seed('Contracting Signals Analyst', 'Computer Scientist or Engineer', 'CACI / Booz Allen Hamilton', 'Signals specialists who decrypt, interpret, and explain intercepted communications so decision-makers understand both content and implication.', ['Art (Writing)', 'Bureaucracy', 'Foreign Language', 'HUMINT'], 'Classified data for the current program and, often, archival access from earlier contracts.', ['These analysts often live inside NSA-facing work even when they do not wear an agency badge.']),
+  seed('Digital Forensics Analyst', 'Computer Scientist or Engineer', 'CACI / Booz Allen Hamilton', 'Technical forensics staff who recover, trace, and interpret hidden, lost, or deliberately destroyed digital evidence.', ['Accounting', 'Forensics', 'HUMINT', 'Science (Statistics)'], 'A wide range of intrusion-analysis, recovery, and tracing software.', ['This is the contractor expression of a very in-demand investigative specialty.']),
+  seed('Counterintelligence Interrogator', 'Foreign Service Officer', 'CACI / Booz Allen Hamilton', 'Former military intelligence personnel who question detainees, package what they learn, and rarely match their reputation for brutality.', ['Firearms', 'HUMINT', 'Persuade', 'Pharmacy'], 'Behavioral-analysis libraries and pharmaceuticals or medicines used to support questioning.', ['The role is most often contracted to the FBI, CIA, or DIA.']),
+  seed('Army Fellow Visiting Analyst', 'Intelligence Analyst', 'RAND Corporation', 'Active-duty Army officers brought into RAND research programs to supply practical expertise about how the Army really operates.', ['Bureaucracy', 'Military Science (Land)', 'Navigate', 'Science (Ballistics)'], 'Libraries on tactics, strategy, and the engineering analysis of military hardware.', ['This role is a bridge between abstract policy work and lived military reality.']),
+  seed('Drug Policy Researcher', 'Scientist', 'RAND Corporation', 'Researchers studying drugs and alcohol to inform policy with evidence rather than rhetoric.', ['Criminology', 'Law', 'Science (Mathematics)', 'Pharmacy'], 'Research libraries, policy data, and strong professional networks in both law-enforcement and pharmaceutical worlds.', ['Uses evidence-based research to inform policy and public-health decisions.']),
+  seed('Project Air Force Researcher', 'Scientist', 'RAND Corporation', 'Analysts who evaluate Air Force weapons, technology, and force application to anticipate the shape of future threats.', ['Bureaucracy', 'Craft (Mechanic or Microelectronics)', 'Military Science (Air)', 'SIGINT'], 'Technical manuals and journals covering physics, materials, electronics, and the current project domain.', ['This is a science-forward defense-analysis role rather than an operator track.']),
+  seed('R&D Theoretical Mathematician', 'Scientist', 'RAND Corporation', 'Theoretical mathematicians who build abstract models, prove theorems, and identify subtle patterns in complex systems and data.', ['Bureaucracy', 'History', 'Science (Systems Theory)', 'Science (Quantum Theory)'], 'Mathematics and quantum-physics libraries plus modeling software suites.', ['RAND explicitly wants unconventional thinkers, and this role embodies that.']),
 ];
 
-export const COMPLEX_PROFESSION_INFORMATION: Record<string, { short: string; long: string }> = Object.fromEntries(
-    COMPLEX_PROFESSION_SEEDS.map((seed) => [
-        seed.id,
-        {
-            short: seed.summary,
-            long: toMarkdown(seed),
-        },
-    ]),
-);
+const buildLongDescription = (entry: ComplexProfessionSeed): string => {
+  const dossier = ORGANIZATION_DOSSIERS[entry.organization] ?? ORGANIZATION_DOSSIERS.Default;
+  const skillLine = joinHumanList(entry.bonusSkills);
+  const lines = [
+    `## ${entry.name}`,
+    '',
+    `**Organization:** ${entry.organization}`,
+    '',
+    `**Organization Overview:** ${dossier.overview}`,
+    '',
+    `**Role Summary:** ${entry.description}`,
+    '',
+    `**How the Role Works:** This role emphasizes ${skillLine}. In practice, it combines the specific duties of ${entry.name.toLowerCase()} with the operating patterns of ${entry.organization.toLowerCase()}.`,
+    '',
+    `**Agency Reality:** ${dossier.operations}`,
+    '',
+    `**Friction and Pressure:** ${dossier.friction}`,
+    '',
+    `**Working Culture:** ${dossier.culture}`,
+    '',
+    `**Profession Basis:** ${entry.professionText ?? entry.baseProfession}.`,
+    '',
+    `**Suggested Bonus Skills:** ${entry.bonusSkills.join(', ')}.`,
+    '',
+    `**Equipment and Access:** ${entry.equipment}`,
+  ];
+
+  if (entry.bonds !== undefined) {
+    lines.push('', `**Starting Bonds:** ${entry.bonds}.`);
+  }
+
+  if (entry.professionalSkills && entry.professionalSkills.length > 0) {
+    lines.push('', '**Professional Skills:**');
+    for (const skill of entry.professionalSkills) {
+      lines.push(`- ${skill}`);
+    }
+  }
+
+  if (entry.notes.length > 0) {
+    lines.push('', '**Operational Notes:**');
+    for (const note of entry.notes) {
+      lines.push(`- ${note}`);
+    }
+  }
+
+  return lines.join('\n');
+};
+
+export const COMPLEX_PROFESSION_INFORMATION: Record<string, { short: string; long: string }> =
+  Object.fromEntries(
+    COMPLEX_PROFESSION_SEEDS.map((entry) => [
+      makeInfoId(entry.name),
+      {
+        short: `${entry.organization}: ${entry.description}`,
+        long: buildLongDescription(entry),
+      },
+    ])
+  );
+
+export function buildComplexProfessions(baseProfessions: Profession[]): Profession[] {
+  const baseByName = new Map(baseProfessions.map((profession) => [profession.name, profession]));
+
+  return COMPLEX_PROFESSION_SEEDS.map((entry) => {
+    const baseName = BASE_PROFESSION_ALIASES[entry.baseProfession] ?? entry.baseProfession;
+    const baseProfession = baseByName.get(baseName);
+
+    if (!baseProfession) {
+      throw new Error(`Base profession not found for Complex role "${entry.name}": ${entry.baseProfession}`);
+    }
+
+    return {
+      ...baseProfession,
+      name: entry.name,
+      description: entry.description,
+      infoId: makeInfoId(entry.name),
+      source: 'The Complex',
+      page: entry.page,
+      professionalSkills: entry.professionalSkills ?? baseProfession.professionalSkills,
+      choiceGroups: entry.choiceGroups ?? baseProfession.choiceGroups,
+      bonds: entry.bonds ?? baseProfession.bonds,
+      bonusSkillAdvancements: entry.bonusSkillAdvancements ?? baseProfession.bonusSkillAdvancements,
+      equipmentKit: entry.equipmentKit ?? baseProfession.equipmentKit,
+      specialTrainings: entry.specialTrainings ?? baseProfession.specialTrainings,
+      isDepartment: false,
+      eligibleProfessions: undefined,
+    };
+  });
+}

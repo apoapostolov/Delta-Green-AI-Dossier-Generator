@@ -1,6 +1,7 @@
 // This file is repurposed to hold Profession data for Delta Green.
 import type { Profession } from '../types';
-import { buildComplexProfessions } from './complex-professions';
+import { attachCoreProfessionInfoIds, buildCoreProfessionInformation } from './core-profession-dossiers';
+import { buildComplexProfessions } from './complex-profession-dossiers';
 
 const BASE_PROFESSIONS: Profession[] = [
     {
@@ -840,7 +841,11 @@ const BASE_PROFESSIONS: Profession[] = [
     }
 ];
 
+const BASE_PROFESSIONS_WITH_INFO = attachCoreProfessionInfoIds(BASE_PROFESSIONS);
+
+export const CORE_PROFESSION_INFORMATION = buildCoreProfessionInformation(BASE_PROFESSIONS_WITH_INFO);
+
 export const PROFESSIONS: Profession[] = [
-    ...BASE_PROFESSIONS,
-    ...buildComplexProfessions(BASE_PROFESSIONS),
+    ...BASE_PROFESSIONS_WITH_INFO,
+    ...buildComplexProfessions(BASE_PROFESSIONS_WITH_INFO),
 ];

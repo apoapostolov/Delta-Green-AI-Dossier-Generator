@@ -10,6 +10,7 @@ import { QuickAssignModal } from './skills/QuickAssignModal';
 import { SKILL_PACKAGES } from '../data/skill-packages-data';
 import { SpecialTrainingsManager } from './skills/SpecialTrainingsManager';
 import { AiDistributionModal } from './skills/AiDistributionModal';
+import { AIIcon } from './icons/AIIcon';
 
 interface SkillsTabProps {
     selectedProfession: Profession | null;
@@ -163,8 +164,6 @@ export const SkillsTab: React.FC<SkillsTabProps> = (props) => {
                 onBonusSkillsReset={props.onBonusSkillsReset}
                 groupSkills={groupSkills}
                 onGroupToggle={() => setGroupSkills(prev => !prev)}
-                onOpenAiDistribution={() => setIsAiDistributionModalOpen(true)}
-                disableAiDistribution={!selectedProfession || props.availableAdvancements <= 0 || isAiDistributionRunning}
             />
 
             {!selectedProfession ? (
@@ -186,12 +185,21 @@ export const SkillsTab: React.FC<SkillsTabProps> = (props) => {
                     <p className="text-gray-400">
                         Assign {selectedProfession?.bonusSkillAdvancements || 8} bonus advancements (+20% each). You have <span className="font-bold text-green-300">{props.availableAdvancements}</span> remaining.
                     </p>
-                    <button 
-                        onClick={() => setIsQuickAssignModalOpen(true)} 
-                        className="bg-sky-700 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors"
-                    >
-                        Quick Assign
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setIsAiDistributionModalOpen(true)}
+                            disabled={!selectedProfession || props.availableAdvancements <= 0 || isAiDistributionRunning}
+                            className="flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-600 disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors"
+                        >
+                            <AIIcon className="h-4 w-4" /> AI Distribution
+                        </button>
+                        <button 
+                            onClick={() => setIsQuickAssignModalOpen(true)} 
+                            className="bg-sky-700 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors"
+                        >
+                            Quick Assign
+                        </button>
+                    </div>
                 </div>
 
                 {groupSkills ? (

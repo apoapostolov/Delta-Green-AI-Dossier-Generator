@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     project so DG now supports Settings-based provider/model selection, `.env`
     loading, AI skill distribution for DG bonus advancements, and restored
     save/load coverage for the new state.
+-   Added separate instant filter inputs for the Profession and Department
+    lists so each tab preserves its own search text while switching between
+    groups.
+-   Removed the redundant Equipment Packs block from the Equipment tab so the
+    DG-native Tools of the Trade workflow remains the single kit-selection
+    path.
+-   Moved the AI Distribution button in the Skills tab so it sits immediately
+    to the left of Quick Assign and uses a blue action style.
+-   Improved the AI Item Generation prompt viewer with descriptive tab names
+    and live prompt previews that show placeholder adlibs even before an item
+    has been generated.
 
 ### Added
 
@@ -23,7 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   **Enhanced Dossier Prompt**: The dossier generation prompt now includes the agent's era, nationality, profession, rank, reporting structure, and top three skills for a more context-aware narrative.
 -   **Historical Context in Dossier**: The AI is now instructed to ground the agent's dossier in real-world political, geopolitical, or clandestine events from a specific year within their operational era.
 -   **Dossier Prompt Preview**: The AI prompt for the Career Dossier can now be viewed in the UI before the career is simulated.
--   **The Complex Profession Import**: Added a first-pass backport of The Complex profession set as selectable Tab 1 professions, with repaired Markdown dossier text sourced from the OCR dumps and exposed through the profession `(?)` modal.
+-   **The Complex Profession Import**: Added a first-pass backport of The Complex profession set as selectable Tab 1 professions, with repaired Markdown dossier text exposed through the profession `(?)` modal.
+-   **The Complex Dossier Cleanup**: Removed import-process wording from the Complex profession dossiers and replaced it with cleaner in-world agency text and source labels.
+-   **The Complex Dossier Expansion**: Reworked the Complex profession dossier tab to include richer organization primers, operational context, friction, and culture notes drawn from the book material instead of dry import metadata.
+-   **Core Profession Dossiers**: Added full educational dossier tabs for the main Agent's Handbook professions, including role context, skill patterns, career shape, and field use.
 
 ### Changed
 

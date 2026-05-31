@@ -1,6 +1,10 @@
-import { COMPLEX_PROFESSION_INFORMATION } from './complex-professions';
+import { CORE_PROFESSION_INFORMATION } from './profession-data';
+import { COMPLEX_PROFESSION_INFORMATION } from './complex-profession-dossiers';
 
 export const INFORMATION_DATA: Record<string, { short: string; long: string }> = {
+    ...CORE_PROFESSION_INFORMATION,
+    ...COMPLEX_PROFESSION_INFORMATION,
+
     // --- TOP LEVEL CONCEPTS ---
     'ataglance_overview': {
         short: 'A quick guide to the modal’s At a Glance questions: what arrest powers actually confer, when weapons are expected versus unusual, how official funds and travel credit work, and what “operational budget/restricted items” covers—gear, data access, and approvals.',
@@ -227,7 +231,6 @@ ICE is its own worst enemy. Low morale is a continuing problem due to residual c
 You have a huge backlog of work and can get overwhelmed by bureaucracy. A solid supervisor is key to insulating you from this. As a new agent, you likely worked near the border on smuggling and contraband cases. Later, you might move to an interior office to focus on document fraud, narcotics, or child pornography.`
     },
 
-    ...COMPLEX_PROFESSION_INFORMATION,
     'info_ice_hsi_ops': {
         short: "The operational arms of Homeland Security Investigations.",
         long: `### HSI Operations

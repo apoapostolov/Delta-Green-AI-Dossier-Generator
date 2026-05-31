@@ -9,21 +9,21 @@ import { PromptInfoModal } from './PromptInfoModal';
 import { RestrictedRequisitionModal } from './gear/RestrictedRequisitionModal';
 import { TerminalConsequenceDisplay } from './gear/TerminalConsequenceDisplay';
 import { ToolsOfTheTrade } from './gear/ToolsOfTheTrade';
-import { EquipmentPacks } from './gear/EquipmentPacks';
 import { ItemDetailModal } from './gear/ItemDetailModal';
 import { RULES_TEXT } from '../data/item-creation-rules';
 import { useAiRuntime } from '../hooks/useAiRuntime';
 import { parseJsonLike } from '../lib/ai/json';
-import { EQUIPMENT_PACKS } from '../data/equipment-pack-data';
 
 // --- AI PROMPT ENGINEERING FOR CUSTOM ITEMS ---
 
 const buildPhase1Prompt = (itemName: string, itemDescription: string): string => {
     const allSections = [...new Set(ITEMS.map(i => i.section))];
+    const normalizedName = itemName.trim() || '[Item Name]';
+    const normalizedDescription = itemDescription.trim() || '[Describe the item concept here.]';
     return `You are an expert game designer for the Delta Green role-playing game. Your first task is to analyze an item concept and categorize it.
 
-Item Name: "${itemName}"
-Description: "${itemDescription || 'No description provided.'}"
+Item Name: "${normalizedName}"
+Description: "${normalizedDescription}"
 
 1.  **Categorize**: Determine the most appropriate item "section" from this list: ${allSections.join(', ')}.
 2.  **Analyze**: Based on the name and description, identify keywords that describe the item's function and relevant game mechanics.
@@ -41,12 +41,15 @@ Example for a "Neural-Inhibitor Grenade":
 };
 
 const buildPhase2Prompt = (itemName: string, itemDescription: string, section: string, decadeDisplayName: string, rulesContent: string): string => {
+    const normalizedName = itemName.trim() || '[Item Name]';
+    const normalizedDescription = itemDescription.trim() || '[Describe the item concept here.]';
+    const normalizedSection = section.trim() || '[Determined Section]';
     return `You are an expert game designer for the Delta Green RPG. Your task is to generate a balanced and thematic item based on the provided concept and rules.
 
 **User Input (Item Concept):**
-- Name: "${itemName}"
-- Description: "${itemDescription || 'No description provided.'}"
-- Determined Section: "${section}"
+- Name: "${normalizedName}"
+- Description: "${normalizedDescription}"
+- Determined Section: "${normalizedSection}"
 
 **Input Processing Instructions:**
 1.  **Normalize Name:** Clean up the user-provided name. This includes fixing any obvious spelling or capitalization errors and applying Title Case (e.g., "portable emf detector" becomes "Portable EMF Detector").
@@ -115,10 +118,19 @@ export const GearTab: React.FC<GearTabProps> = ({ kitInventory, inventory, owned
     const decadeConfig = useMemo(() => aggregatedData.DECADES.find(d => d.name === ai.decade), [aggregatedData.DECADES, ai.decade]);
     const decadeDisplayName = decadeConfig?.displayName || 'Modern era';
 
+    const prompt1Preview = useMemo(
+        () => buildPhase1Prompt(customItemName, customItemDescription),
+        [customItemName, customItemDescription],
+    );
+    const prompt2Preview = useMemo(
+        () => buildPhase2Prompt(customItemName, customItemDescription, '[Determined Section]', decadeDisplayName, RULES_TEXT),
+        [customItemName, customItemDescription, decadeDisplayName],
+    );
+
     const promptTabs = useMemo(() => [
-        { id: 'prompt-1', label: 'Prompt 1', content: phase1Prompt || 'Generate an item once to view the first prompt.' },
-        { id: 'prompt-2', label: 'Prompt 2', content: phase2Prompt || 'Generate an item once to view the second prompt.' },
-    ], [phase1Prompt, phase2Prompt]);
+        { id: 'prompt-1', label: 'Item Analysis Prompt', content: phase1Prompt || prompt1Preview },
+        { id: 'prompt-2', label: 'Item Generation Prompt', content: phase2Prompt || prompt2Preview },
+    ], [phase1Prompt, phase2Prompt, prompt1Preview, prompt2Preview]);
 
     const handleGetItem = (item: DGItem) => {
         setAcquisitionInProgress(item.name);
@@ -214,26 +226,6 @@ export const GearTab: React.FC<GearTabProps> = ({ kitInventory, inventory, owned
         setPhase2Prompt(null);
     };
 
-    const handleAddEquipmentPack = useCallback((packName: string) => {
-        const pack = EQUIPMENT_PACKS.find((entry) => entry.name === packName);
-        if (!pack) return;
-
-        let addedCount = 0;
-        pack.items.forEach((itemName) => {
-            const item = ITEMS.find((entry) => entry.name === itemName);
-            if (!item) return;
-            addedCount += 1;
-            onDrop({
-                dataTransfer: { getData: () => JSON.stringify(item) },
-                preventDefault: () => {},
-            } as unknown as React.DragEvent<HTMLDivElement>);
-        });
-
-        if (addedCount > 0) {
-            setToastMessage(`${pack.name} added to inventory build.`, 'success');
-        }
-    }, [onDrop, setToastMessage]);
-
     const filteredItems = useMemo(() => {
         const allItems = [...new Set(ITEMS.map(item => item.name))].map(name => ITEMS.find(item => item.name === name)!);
         if (!filterText) return allItems;
@@ -260,7 +252,6 @@ export const GearTab: React.FC<GearTabProps> = ({ kitInventory, inventory, owned
             {/* --- DESKTOP VIEW --- */}
             <div className="hidden lg:grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
-                    <EquipmentPacks onAddPack={handleAddEquipmentPack} />
                     <EquipmentList items={filteredItems} filterText={filterText} onFilterChange={setFilterText} isUnderReview={isUnderReview} height="auto" fullyFailedItems={fullyFailedItems} />
                     <CustomItemCreator itemName={customItemName} onItemNameChange={setCustomItemName} description={customItemDescription} onDescriptionChange={setCustomItemDescription} onGenerate={handleGenerateCustomItem} isGenerating={isGeneratingCustomItem} generationPhase={generationPhase} generatedItem={generatedCustomItem} onAccept={handleAcceptGeneratedItem} onScrap={handleScrapGeneratedItem} onShowPrompt={() => setIsCustomItemPromptModalVisible(true)} decadeDisplayName={decadeDisplayName} />
                 </div>
@@ -279,7 +270,6 @@ export const GearTab: React.FC<GearTabProps> = ({ kitInventory, inventory, owned
 
                 {mobileTab === 'list' && (
                     <div className="space-y-6">
-                        <EquipmentPacks onAddPack={handleAddEquipmentPack} />
                         <EquipmentList items={filteredItems} filterText={filterText} onFilterChange={setFilterText} isUnderReview={isUnderReview} onItemClick={setModalItem} fullyFailedItems={fullyFailedItems} />
                     </div>
                 )}
