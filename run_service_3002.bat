@@ -9,7 +9,7 @@ if %ERRORLEVEL% NEQ 0 (
   exit /b
 )
 
-set "TASK_NAME=DG_Dossier_Dev_3000"
+set "TASK_NAME=DG_Dossier_Dev_3002"
 
 schtasks /Query /TN "%TASK_NAME%" >NUL 2>&1
 if %ERRORLEVEL% EQU 0 (
@@ -17,7 +17,7 @@ if %ERRORLEVEL% EQU 0 (
   schtasks /Delete /TN "%TASK_NAME%" /F >NUL 2>&1
 )
 
-set "TR_CMD=cmd /c cd /d \"%~dp0\" ^&^& npm run dev -- --port 3000 --host --strictPort"
+set "TR_CMD=cmd /c cd /d \"%~dp0\" ^&^& npm run dev -- --port 3002 --host --strictPort"
 schtasks /Create /TN "%TASK_NAME%" /TR "%TR_CMD" /SC ONLOGON /RL HIGHEST /F >NUL 2>&1
 if %ERRORLEVEL% NEQ 0 (
   echo Failed to create scheduled task. Please run this script in a user session with permission to create tasks.
@@ -26,7 +26,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 schtasks /Run /TN "%TASK_NAME%" >NUL 2>&1
 if %ERRORLEVEL% EQU 0 (
-  echo Service task "%TASK_NAME%" created and started on port 3000.
+  echo Service task "%TASK_NAME%" created and started on port 3002.
 ) else (
   echo Service task "%TASK_NAME%" created. It will start on next logon.
 )

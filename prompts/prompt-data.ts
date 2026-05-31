@@ -1,5 +1,5 @@
-import type { Nationality, ThemeConfig, Emotion, Theme, DecadeConfig, AttributeSet, Attribute, Department, BondType, DamagedVeteranOption, Disorder, Profession } from './types';
-import { ATTRIBUTE_SCORE_DESCRIPTORS, BOND_STRENGTH_DESCRIPTORS } from './attribute-descriptors';
+import type { Nationality, ThemeConfig, Emotion, Theme, DecadeConfig, AttributeSet, Attribute, Department, BondType, DamagedVeteranOption, Disorder, Profession } from '../types';
+import { ATTRIBUTE_SCORE_DESCRIPTORS, BOND_STRENGTH_DESCRIPTORS } from '../data/attribute-descriptors';
 
 const getDescriptorsForAttributes = (attributes: AttributeSet): string => {
     const descriptors: string[] = [];

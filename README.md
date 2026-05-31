@@ -64,6 +64,12 @@ For detailed information about the save/load implementation, see:
 -   **Build**: Vite (via an `importmap` in `index.html` for a no-build-step development environment)
 -   **Testing**: Vitest with React Testing Library
 
+## Project Layout
+
+-   `data/`: core Delta Green data tables and structured rules
+-   `prompts/`: AI prompt builders and prompt composition helpers
+-   `config/`: presentation configuration such as emotional portrait prompts
+
 ## Development
 
 ### Running the Application
@@ -72,6 +78,8 @@ For detailed information about the save/load implementation, see:
 npm install
 npm run dev
 ```
+
+The Vite dev server listens on `http://localhost:3002/`.
 
 ### Running Tests
 

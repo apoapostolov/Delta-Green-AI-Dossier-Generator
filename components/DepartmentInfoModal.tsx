@@ -2,7 +2,7 @@
 // This resolves multiple import and syntax errors.
 import React, { useState } from 'react';
 import type { Department } from '../types';
-import { INFORMATION_DATA } from '../information-data';
+import { INFORMATION_DATA } from '../data/information-data';
 import { MarkdownDisplay } from './MarkdownDisplay';
 
 interface DepartmentInfoModalProps {

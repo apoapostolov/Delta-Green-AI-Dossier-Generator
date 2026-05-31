@@ -1,7 +1,7 @@
 
 
 import React, { useState } from 'react';
-import { EQUIPMENT_KITS } from '../../equipment-kit-data';
+import { EQUIPMENT_KITS } from '../../data/equipment-kit-data';
 import { Tooltip } from '../Tooltip';
 
 interface ToolsOfTheTradeProps {

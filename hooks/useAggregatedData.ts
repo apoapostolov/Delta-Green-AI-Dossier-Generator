@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { Profession, Skill, ThemeConfig, SourceID, Nationality, WeightedNationality, DecadeConfig, Department, BondType, Disorder, SpecialTraining, DGItem } from '../types';
 import { thirdPartyData } from '../third-party/manifest';
-import { SKILL_SPECIALIZATIONS } from '../skill-specializations-data';
+import { SKILL_SPECIALIZATIONS } from '../data/skill-specializations-data';
 
 export interface AggregatedData {
     PROFESSIONS: Profession[];

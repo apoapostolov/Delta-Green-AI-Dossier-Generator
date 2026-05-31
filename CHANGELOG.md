@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Reorganized the flat data, prompt, and configuration modules into `data/`,
+    `prompts/`, and `config/` folders so the project root stays cleaner.
+-   Updated the Vite dev server and launcher scripts to use port `3002`.
+
 ### Added
 
 -   **1950s Era**: Extended the selectable operational eras back to the 1950s, with thematic prompts for the Red Scare period.

@@ -18,7 +18,7 @@ Each item is a JSON object with several key properties. Not all properties apply
 
 ### `section: string`
 **Purpose:** Categorizes the item for organization in lists and equipment kits.
-**Guidelines:** Use an existing section from `item-data.ts` whenever possible to maintain consistency (e.g., "Firearms," "Surveillance," "Emergency and Survival"). If a new category is truly necessary, make it broad and descriptive.
+**Guidelines:** Use an existing section from `item-data/index.ts` whenever possible to maintain consistency (e.g., "Firearms," "Surveillance," "Emergency and Survival"). If a new category is truly necessary, make it broad and descriptive.
 
 ### `name: string`
 **Purpose:** The full, descriptive name of the item.
@@ -31,7 +31,7 @@ Each item is a JSON object with several key properties. Not all properties apply
 ### `skill: string`
 **Purpose:** The skill used to operate the item effectively.
 **Guidelines:**
--   Must match a `name` from `skills-data.ts` exactly.
+-   Must match a `name` from `data/skills-data.ts` exactly.
 -   For simple actions, a stat-based check like `DEXx5` can be used.
 -   This links the item directly to character proficiency.
 

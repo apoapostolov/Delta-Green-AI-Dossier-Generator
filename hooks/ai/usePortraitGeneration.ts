@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { GoogleGenAI, Type, Modality } from '@google/genai';
 import type { ThemeConfig, Emotion, DecadeConfig, ToastType, DistinguishingFeatures, Attribute } from '../../types';
 import { cropImage } from '../../utils/image';
-import { getHeadshotPrompt, getEmotionalPortraitPrompt, getPhysicalDescriptionPrompt, getDistinguishingFeaturesPrompt } from '../../prompt-data';
+import { getHeadshotPrompt, getEmotionalPortraitPrompt, getPhysicalDescriptionPrompt, getDistinguishingFeaturesPrompt } from '../../prompts/prompt-data';
 
 export const usePortraitGeneration = (
     showToast: (msg: string, type?: ToastType) => void,

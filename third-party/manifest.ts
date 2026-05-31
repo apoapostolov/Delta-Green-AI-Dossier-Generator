@@ -1,17 +1,17 @@
 import type { Source, SourceID, Profession, Skill, ThemeConfig, WeightedNationality, DecadeConfig, Department, BondType, Disorder, SpecialTraining, DGItem } from '../types';
 
 // Delta Green Data Imports
-import { PROFESSIONS } from '../profession-data';
-import { SKILLS } from '../skills-data';
-import { THEMES } from '../theme-data';
-import { NATIONALITIES } from '../nationality-data';
-import { DECADES } from '../decades-data';
-import { BONDS } from '../bonds-data';
-import { DISORDERS } from '../disorders-data';
+import { PROFESSIONS } from '../data/profession-data';
+import { SKILLS } from '../data/skills-data';
+import { THEMES } from '../data/theme-data';
+import { NATIONALITIES } from '../data/nationality-data';
+import { DECADES } from '../data/decades-data';
+import { BONDS } from '../data/bonds-data';
+import { DISORDERS } from '../data/disorders-data';
 import { DEPARTMENTS } from '../departments-data/index';
-import { SPECIAL_TRAININGS } from '../special-trainings-data';
+import { SPECIAL_TRAININGS } from '../data/special-trainings-data';
 import { SHEET_CONFIG } from './sheet-config';
-import { PDF_FIELD_MAP } from '../pdf-form-fields';
+import { PDF_FIELD_MAP } from '../data/pdf-form-fields';
 import { ITEMS } from '../item-data';
 
 // --- Single Source of Truth for available sources ---

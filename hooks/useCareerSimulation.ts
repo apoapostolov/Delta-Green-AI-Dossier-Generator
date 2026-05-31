@@ -3,7 +3,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { runSimulation } from '../sim/runClient';
 import type { SimResult, CareerState } from '../sim/types';
 import type { Profession, ExperienceLevel, ProfessionGroup, Department, ToastType } from '../types';
-import { getCareerNarrativePrompt, getInjuryReportPrompt, getEducationAndVitalsPrompt } from '../prompt-data';
+import { getCareerNarrativePrompt, getInjuryReportPrompt, getEducationAndVitalsPrompt } from '../prompts/prompt-data';
 
 // Helper functions (moved from useAIGeneration)
 const mapProfessionToStartState = (group: ProfessionGroup): CareerState => {

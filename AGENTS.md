@@ -26,10 +26,10 @@ Describe **what** the code does, not which planning ticket it belongs to.
 ## Strict Server Startup Procedure (Mandatory)
 
 1. Verify Node version: `node -v`
-2. Start the dev server: `npm run dev` (Vite default port 3000)
+2. Start the dev server: `npm run dev` (Vite default port 3002)
 3. Confirm it's listening:
-   - `curl -I http://localhost:3000/`
-   - `netstat -ano | findstr :3000`
+   - `curl -I http://localhost:3002/`
+   - `netstat -ano | findstr :3002`
 
 ## Documentation Workflow (Mandatory)
 

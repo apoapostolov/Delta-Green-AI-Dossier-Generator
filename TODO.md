@@ -1,9 +1,6 @@
 # TODO.md
 
-## P0 - Setup and hygiene
-- [ ] Review copied code for any residual planning labels and remove them.
-- [ ] Ensure `package.json` dependencies are accurate and update README accordingly.
-- [ ] Verify `.gitignore` includes agent/log files (if they are added later).
-
-## Execution Order
-1. Setup and hygiene
+## Local Follow-Up
+- [ ] Run the Vite dev server on port `3002` and confirm the browser opens there.
+- [ ] Scan for any remaining root-level data or prompt imports that should move into `data/`, `config/`, or `prompts/`.
+- [ ] Review the newly added documentation defaults for any Delta Green-specific wording that still needs localization.

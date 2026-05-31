@@ -5,8 +5,8 @@ import { useNameGeneration } from './ai/useNameGeneration';
 import { usePortraitGeneration } from './ai/usePortraitGeneration';
 import { useBackstoryGeneration } from './ai/useBackstoryGeneration';
 import { useCareerSimulation, getYearFromDecade } from './useCareerSimulation';
-import { getPortraitPrompt } from '../prompt-data';
-import { THEMES } from '../theme-data';
+import { getPortraitPrompt } from '../prompts/prompt-data';
+import { THEMES } from '../data/theme-data';
 import { buildPrompt, getDossierPromptTemplate } from '../narrative/build';
 // FIX: Import useTraitsGeneration to provide character traits.
 import { useTraitsGeneration } from './ai/useTraitsGeneration';

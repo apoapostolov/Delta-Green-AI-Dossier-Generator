@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { GoogleGenAI, Type } from '@google/genai';
 import type { CharacterTraits, Theme, ToastType } from '../../types';
-import { getTraitsPrompt } from '../../prompt-data';
+import { getTraitsPrompt } from '../../prompts/prompt-data';
 import type { AggregatedData } from '../useAggregatedData';
 
 export const useTraitsGeneration = (

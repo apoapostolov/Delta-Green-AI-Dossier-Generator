@@ -7,7 +7,7 @@ import { ChoiceSkillsSelector } from './skills/ChoiceSkillsSelector';
 import { SkillRow } from './skills/SkillRow';
 import { SKILL_GROUPS } from './skills/skill-utils';
 import { QuickAssignModal } from './skills/QuickAssignModal';
-import { SKILL_PACKAGES } from '../skill-packages-data';
+import { SKILL_PACKAGES } from '../data/skill-packages-data';
 import { SpecialTrainingsManager } from './skills/SpecialTrainingsManager';
 
 interface SkillsTabProps {

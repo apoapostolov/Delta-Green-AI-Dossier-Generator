@@ -23,7 +23,7 @@ if not "%~1"=="" (
 
 rem Default: run dev server
 echo [run] Starting Delta Green AI Dossier Generator dev server...
-echo [run] Opening browser at http://localhost:3000/
+echo [run] Opening browser at http://localhost:3002/
 timeout /t 2 >nul
-start http://localhost:3000/
+start http://localhost:3002/
 npm run dev

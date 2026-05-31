@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Profession, Department } from '../types';
-import { INFORMATION_DATA } from '../information-data';
+import { INFORMATION_DATA } from '../data/information-data';
 import { MarkdownDisplay } from './MarkdownDisplay';
 
 interface ProfessionInfoModalProps {

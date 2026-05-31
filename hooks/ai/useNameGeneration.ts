@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { GoogleGenAI, Type } from '@google/genai';
 import type { Nationality, DecadeConfig, ToastType } from '../../types';
-import { getNameAndCodenamePrompt, getNamePrompt, getCodenamePrompt } from '../../prompt-data';
+import { getNameAndCodenamePrompt, getNamePrompt, getCodenamePrompt } from '../../prompts/prompt-data';
 import type { AggregatedData } from '../useAggregatedData';
 
 export const useNameGeneration = (

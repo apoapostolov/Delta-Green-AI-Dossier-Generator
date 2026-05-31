@@ -5,7 +5,7 @@ import type { AggregatedData } from './useAggregatedData';
 import { useAIGeneration } from './useAIGeneration';
 import type { SimResult } from '../sim/types';
 // FIX: Import equipment data to calculate kit inventory.
-import { EQUIPMENT_KITS } from '../equipment-kit-data';
+import { EQUIPMENT_KITS } from '../data/equipment-kit-data';
 import { ITEMS } from '../item-data';
 
 export interface Character {

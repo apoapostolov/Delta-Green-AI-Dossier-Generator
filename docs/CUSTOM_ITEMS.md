@@ -1,6 +1,6 @@
 # New Custom Items
 
-The following items were created to fulfill the requirements for the "Tools of the Trade" equipment kits and have been added to `item-data.ts`.
+The following items were created to fulfill the requirements for the "Tools of the Trade" equipment kits and have been added to `item-data/index.ts`.
 
 ## General & Agency Gear
 

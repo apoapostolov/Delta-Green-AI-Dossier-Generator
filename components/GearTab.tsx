@@ -11,7 +11,7 @@ import { RestrictedRequisitionModal } from './gear/RestrictedRequisitionModal';
 import { TerminalConsequenceDisplay } from './gear/TerminalConsequenceDisplay';
 import { ToolsOfTheTrade } from './gear/ToolsOfTheTrade';
 import { ItemDetailModal } from './gear/ItemDetailModal';
-import { RULES_TEXT } from '../item-creation-rules';
+import { RULES_TEXT } from '../data/item-creation-rules';
 
 // --- AI PROMPT ENGINEERING FOR CUSTOM ITEMS ---
 

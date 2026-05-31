@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { GoogleGenAI, Type } from '@google/genai';
 import type { BondType, DecadeConfig, Nationality, ToastType } from '../../types';
-import { getBondGenerationPrompt } from '../../prompt-data';
+import { getBondGenerationPrompt } from '../../prompts/prompt-data';
 
 export const useBondGeneration = (showToast: (msg: string, type?: ToastType) => void) => {
     const [isGeneratingBond, setIsGeneratingBond] = useState(false);

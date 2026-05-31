@@ -25,9 +25,9 @@ fi
 
 # Default: run dev server
 echo "[run] Starting Delta Green AI Dossier Generator dev server..."
-echo "[run] Opening browser at http://localhost:3000/"
+echo "[run] Opening browser at http://localhost:3002/"
 sleep 2
 if command -v xdg-open &> /dev/null; then
-    xdg-open http://localhost:3000/
+    xdg-open http://localhost:3002/
 fi
 npm run dev
