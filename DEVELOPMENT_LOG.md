@@ -33,6 +33,14 @@ Project imported from existing worktree and standard management docs added.
   an unrelated area, and the newly added documentation templates may need
   further local wording adjustments later.
 
+# 2026-05-31 - Reworked release-note voice
+
+- Rewrote the 1.0.0 and 1.1.0 changelog sections to emphasize user value, new capabilities, and product impact instead of implementation detail.
+- Kept the release history accurate while making the language more approachable and marketing-friendly.
+- Updated files:
+  - CHANGELOG.md
+  - DEVELOPMENT_LOG.md
+
 ## 2026-05-31 - Backport provider-aware AI runtime and DG skill distribution
 
 - Context: the Delta Green branch was still using Gemini-only direct calls,
@@ -336,3 +344,11 @@ Project imported from existing worktree and standard management docs added.
     summary for The Complex's 82 professions, and reframed the feature bullets
     to describe what is now available.
 - Validation: changelog review only; no code path changed in this step.
+
+## 2026-05-31 - Reworked release-note voice
+
+- Rewrote the 1.0.0 and 1.1.0 changelog sections to emphasize user value, new capabilities, and product impact instead of implementation detail.
+- Kept the release history accurate while making the language more approachable and marketing-friendly.
+- Updated files:
+  - CHANGELOG.md
+  - DEVELOPMENT_LOG.md

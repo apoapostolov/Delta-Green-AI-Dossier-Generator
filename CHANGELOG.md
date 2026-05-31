@@ -7,89 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2026-05-31
 
-### Changed
-
--   Reorganized the flat data, prompt, and configuration modules into `data/`,
-    `prompts/`, and `config/` folders so the project root stays cleaner.
--   Updated the Vite dev server and launcher scripts to use port `3002`.
--   The AI runtime now supports Settings-based provider/model selection,
-    `.env` loading, AI skill distribution for Delta Green bonus
-    advancements, and save/load coverage for the new AI state.
--   Added separate instant filter inputs for the Profession and Department
-    lists so each tab preserves its own search text while switching between
-    groups.
--   Removed the redundant Equipment Packs block from the Equipment tab so the
-    DG-native Tools of the Trade workflow remains the single kit-selection
-    path.
--   Moved the AI Distribution button in the Skills tab so it sits immediately
-    to the left of Quick Assign and uses a blue action style.
--   Improved the AI Item Generation prompt viewer with descriptive tab names
-    and live prompt previews that show placeholder adlibs even before an item
-    has been generated.
--   Updated Bio nationality generation so a fresh attribute roll auto-picks a
-    non-generic nationality instead of leaving the default placeholder in
-    place.
--   Replaced the Identity Details reroll icons with the AI-stars glyph so the
-    name and codename generators better match the rest of the AI-assisted UI.
--   Added the missing CIA agency dossier entry so the CIA SAD Complex
-    professions now resolve correctly in the Dossier tab.
--   Added career rank ladders for the CIA SAD Complex professions so their
-    Career History displays no longer fall back to incomplete metadata.
--   Rebalanced AI prompt routing so name generation, bio data, traits, bonds,
-    and Career History stay on the simple model, while AI item creation,
-    AI distribution, and dossier-style narrative generation use the creative
-    model.
-
 ### Added
 
--   **The Complex Profession Suite**: Added 82 new professions spanning law enforcement, defense, intelligence, research, treasury, and private-sector careers.
--   **Repaired Complex Dossiers**: Every Complex profession now ships with readable in-world dossier prose, organization primers, and source-aware context that feels native to the book.
--   **Career History Ready**: The new professions carry rank ladders, starting bonds, bonus advancements, equipment kits, and special trainings so they plug directly into Dossier and Career History flow.
--   **Unified Metadata Coverage**: The Complex roles now participate in search, selection, save/load, PDF generation, and dossier lookup the same way core professions do.
--   **Expanded Agency Coverage**: Intelligence, law enforcement, defense, research, public safety, treasury, and private-sector roles now provide much broader character-building variety.
--   **1950s Era**: Extended the selectable operational eras back to the 1950s, with thematic prompts for the Red Scare period.
--   **Enhanced Dossier Prompt**: The dossier generation prompt now includes the agent's era, nationality, profession, rank, reporting structure, and top three skills for a more context-aware narrative.
--   **Historical Context in Dossier**: The AI is now instructed to ground the agent's dossier in real-world political, geopolitical, or clandestine events from a specific year within their operational era.
--   **Dossier Prompt Preview**: The AI prompt for the Career Dossier can now be viewed in the UI before the career is simulated.
+   - **The Complex Profession Suite**: Added 82 new professions across law enforcement, intelligence, defense, research, treasury, public safety, and private-sector careers.
+   - **Book-Style Dossiers**: Every new profession now includes readable, educational dossier text that explains how the role works, how it fits its organization, and what kind of agent it produces.
+   - **Career History Ready**: The new professions ship with rank ladders, starting bonds, bonus advancements, equipment expectations, and special trainings so they flow naturally into the Dossier and Career History views.
+   - **Broader Character Variety**: The roster now covers many more kinds of agents, from field operators and analysts to specialists, investigators, and support personnel.
+   - **Deeper Historical Play**: Operational eras now reach back to the 1950s, making Red Scare-era characters and settings available for the first time.
+   - **Smarter Dossier Generation**: Career dossiers now have enough context to reflect era, nationality, profession, rank, reporting structure, and top skills in a more grounded way.
+   - **Cleaner AI Workflow**: AI-assisted generation now includes provider and model selection, better prompt routing, and a more reliable settings flow for players who use it.
+   - **Improved Search and Filtering**: The Profession and Department lists now keep their own search text, making the expanded roster easier to navigate.
+   - **Tighter Core UI**: The equipment, skills, identity, and item-creation workflows were refined so the app feels more coherent and easier to use.
 
 ### Changed
 
--   **Finalized Dossier Generation**: The "Regenerate Dossier" button has been removed. Once generated, an agent's dossier is final.
--   **Rebalanced Promotion System**: Promotion chance is now more challenging at higher ranks. The base chance starts at 3% per year and is reduced by 20% for each subsequent rank, emphasizing performance-based advancement for senior agents.
--   **Updated Weird Event Mechanics**: The sanity impact of "Weird Events" has been re-tuned:
-    -   **Success**: 0 SAN loss (previously -1).
-    -   **Failure**: -1 SAN loss (previously -1d4).
-    -   **Critical Success**: +1 SAN gain (new).
-    -   **Critical Failure**: -1d4 SAN loss (new).
+   - **Finalized Dossier Generation**: Once a dossier is generated, it becomes the settled record for that agent.
+   - **More Meaningful Promotion Pace**: Higher ranks are now harder to reach, making advancement feel more earned and less automatic.
+   - **Refined Weird Events**: Strange career events now land with cleaner outcomes, clearer reward states, and a more dramatic failure curve.
 
 ## [1.0.0] - 2024-06-01
 
 ### Added
 
--   **Massive Career Simulation Expansion**: Increased the number of possible career and personal life events by over 4x for all professions.
--   **"Weird Events" System**: Implemented a new mechanic where agents have an annual, SAN-draining chance to experience a strange, unsettling event. The probability is tied to their Unnatural skill.
--   **Realistic Promotion System**: Added a 6-rank career ladder for every profession with researched, real-world titles. Promotion chance is now dynamically calculated based on time-in-grade and performance.
--   **Career Danger Levels**: Categorized all professions as `casual`, `risky`, or `deadly`, with corresponding annual risks for permanent injury or death.
--   **AI-Generated Medical Reports**: When an agent suffers a permanent injury, the AI now generates a clinical, in-universe medical report detailing the long-term consequences.
--   **Career Progression UI**: Added a new visual panel on the Dossier tab to display the full rank ladder for the agent's profession, showing achieved, current, and unachieved ranks.
--   **Critical Success/Failure Mechanics**: Implemented critical successes (on rolls of 01 or doubles) and fumbles (on a roll of 100) for career checks, with unique mechanical and visual outcomes.
--   **Failed Promotion Tracking**: The simulation now tracks failed promotion attempts, and the UI displays this information on the Career Progression panel.
--   **Positive Sanity Events**: Added events (e.g., childbirth, commendations) that can restore small amounts of SAN, capped at the agent's starting maximum.
+   - **A Much Richer Career Simulation**: Expanded the number of possible career and personal life outcomes so professions feel more varied, more surprising, and more alive.
+   - **Weird Career Incidents**: Added unsettling annual events that can chip away at an agent's sanity and make long-term careers feel dangerous in a very Delta Green way.
+   - **Real Promotion Ladders**: Every profession now has a full rank progression with grounded titles and a more believable path upward.
+   - **Career Risk Profiles**: Professions are now grouped by danger level so the simulation can better reflect how hard, risky, or lethal a career really is.
+   - **Medical Fallout**: Permanent injuries now come with in-universe medical reporting so consequences feel concrete and memorable.
+   - **Career Progression Panel**: The Dossier tab now shows the full rank ladder, making it easy to see where an agent has been and where they can still go.
+   - **High-Stakes Career Checks**: Extreme successes and failures now create more dramatic outcomes during the simulation.
+   - **Promotion Tracking**: Failed promotion attempts are tracked and shown, giving players a clearer sense of how a career has unfolded.
+   - **Positive Life Events**: Not every major life event is a setback; some milestones can restore a bit of sanity and feel like real human wins.
 
 ### Changed
 
--   **Refactored AI Hooks**: Broke down the monolithic `useAIGeneration` hook into a smaller orchestrator and a new, dedicated `useCareerSimulation` hook for better modularity and separation of concerns.
--   **UI Polish for Stat Changes**: Redesigned the "pills" that indicate career-related changes to attributes and derived stats to be more visually appealing and integrated into their parent containers.
--   **Improved AI Prompts**: Significantly updated the AI prompts for career narratives to enforce a first-person perspective and provide better historical context, resulting in higher-quality "memories".
--   **Promotion Balancing**: Promotions are now less frequent and require a `Bureaucracy` skill check to succeed, making them feel more earned and challenging.
--   **Rebalanced Career Risks**: Adjusted the probabilities for catastrophic events in "deadly" careers to a 2% chance of permanent injury and a 1% chance of death annually.
--   **Tooltip Information**: Enhanced tooltips for attributes, stats, and skills to show the specific modifiers from each career event.
--   **Relocated Career Summary**: Moved the Career Progression panel from the Attributes tab to the Dossier tab for better contextual relevance.
+   - **Cleaner Simulation Architecture**: The career engine was split into smaller systems so the codebase could support more content without becoming harder to maintain.
+   - **Clearer Stat Feedback**: Career-related changes to attributes and derived stats were made easier to read and understand at a glance.
+   - **Better Narrative Output**: Career memories now read more like lived history, with stronger context and a more grounded voice.
+   - **More Meaningful Promotions**: Career advancement became harder to earn, which makes each promotion feel more important.
+   - **Balanced Career Hazards**: Dangerous professions now feel dangerous without becoming random chaos.
+   - **More Useful Tooltips**: Attribute, stat, and skill tooltips now explain the effect of each career outcome more clearly.
+   - **Improved Dossier Layout**: Career Progression now lives in the Dossier tab, where it fits naturally with the rest of an agent's story.
 
 ### Fixed
 
--   **Simulation Worker Errors**: Corrected multiple syntax and logic errors within the inlined simulation worker code that were causing crashes.
--   **SAN Gain Styling**: Ensured that positive SAN changes in the career timeline are correctly styled in green with a `+` prefix.
--   **Data Consistency**: Resolved a bug where SAN loss could be calculated inconsistently between the event log and the final summary.
--   **Promotion Event Display**: Removed old, generic "Promotion" events to ensure all promotions are handled by the dynamic system and correctly display the change in rank and title.
--   **TypeScript Errors**: Corrected various TypeScript type errors across multiple files, including `sim/worker.ts` and `components/draft/CareerTimeline.tsx`.
+   - **Simulation Stability**: Fixed several worker-level syntax and logic issues that could crash the career simulator.
+   - **Readable SAN Changes**: Positive sanity changes now display cleanly with the right styling and sign.
+   - **Consistent Event Summaries**: Event logs and final summaries now agree on sanity loss and other core outcomes.
+   - **Promotion Display Cleanup**: Generic promotion entries were removed so rank changes now display in a clearer, more specific way.
+   - **Type Safety Repairs**: TypeScript issues across the simulation and timeline layers were corrected.
