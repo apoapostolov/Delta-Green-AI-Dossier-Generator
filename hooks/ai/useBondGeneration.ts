@@ -1,10 +1,12 @@
 import { useState, useCallback } from 'react';
-import { GoogleGenAI, Type } from '@google/genai';
 import type { BondType, DecadeConfig, Nationality, ToastType } from '../../types';
 import { getBondGenerationPrompt } from '../../prompts/prompt-data';
+import { useAiRuntime } from '../useAiRuntime';
+import { parseJsonLike } from '../../lib/ai/json';
 
 export const useBondGeneration = (showToast: (msg: string, type?: ToastType) => void) => {
     const [isGeneratingBond, setIsGeneratingBond] = useState(false);
+    const { generateText } = useAiRuntime();
 
     const onGenerateBond = useCallback(async (
         bondType: BondType,
@@ -17,26 +19,8 @@ export const useBondGeneration = (showToast: (msg: string, type?: ToastType) => 
     ): Promise<{ name: string; description: string } | null> => {
         setIsGeneratingBond(true);
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const prompt = getBondGenerationPrompt(bondType, decadeConfig, nationality, agentName, agentGender, chaScore, chaCheckSuccess);
-
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: Type.OBJECT,
-                        properties: {
-                            name: { type: Type.STRING },
-                            description: { type: Type.STRING },
-                        },
-                        required: ["name", "description"],
-                    },
-                },
-            });
-
-            return JSON.parse(response.text.trim());
+            return parseJsonLike(await generateText({ prompt, json: true, purpose: 'simple' })) as { name: string; description: string };
         } catch (e) {
             console.error("Bond generation failed:", e);
             showToast("Could not generate bond details. Please try again.", 'error');
@@ -44,7 +28,7 @@ export const useBondGeneration = (showToast: (msg: string, type?: ToastType) => 
         } finally {
             setIsGeneratingBond(false);
         }
-    }, [showToast]);
+    }, [generateText, showToast]);
 
     return {
         isGeneratingBond,

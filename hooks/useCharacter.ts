@@ -1,12 +1,19 @@
 // FIX: Import React to use types like React.DragEvent.
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import type { Profession, AttributeSet, Attribute, Department, SkillValue, Bond, BondType, DGItem, DGItemExpense, SkillPackage, DamagedVeteranOption, Disorder, ToastType } from '../types';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import type { Profession, AttributeSet, Attribute, Department, SkillValue, Bond, BondType, DGItem, DGItemExpense, SkillPackage, DamagedVeteranOption, Disorder, ToastType, CharacterSaveData } from '../types';
 import type { AggregatedData } from './useAggregatedData';
 import { useAIGeneration } from './useAIGeneration';
 import type { SimResult } from '../sim/types';
 // FIX: Import equipment data to calculate kit inventory.
 import { EQUIPMENT_KITS } from '../data/equipment-kit-data';
 import { ITEMS } from '../item-data';
+import { useAiRuntime } from './useAiRuntime';
+import {
+    buildDgSkillDistributionPrompt,
+    normalizeDgSkillDistributionReview,
+    reconcileDgSkillDistributionReview,
+    type DgSkillDistributionReview,
+} from '../lib/ai/dg-skill-distribution';
 
 export interface Character {
     // Delta Green specific character data
@@ -27,6 +34,7 @@ const getExpenseModifier = (expense: DGItemExpense) => {
 
 
 export const useCharacter = (setToastMessage: (msg: string | null, type?: ToastType) => void, aggregatedData: AggregatedData) => {
+    const isHydratingRef = useRef(false);
     const [baseAttributes, setBaseAttributes] = useState<AttributeSet | null>(null);
     const [selectedProfession, setSelectedProfession] = useState<Profession | null>(null);
     const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
@@ -68,6 +76,9 @@ export const useCharacter = (setToastMessage: (msg: string | null, type?: ToastT
 
     // Special Trainings State
     const [selectedSpecialTrainings, setSelectedSpecialTrainings] = useState<Set<string>>(new Set());
+    const [pendingAiDistribution, setPendingAiDistribution] = useState<DgSkillDistributionReview | null>(null);
+    const [isAiDistributionRunning, setIsAiDistributionRunning] = useState(false);
+    const { generateText } = useAiRuntime();
 
     const fullyFailedItems = useMemo(() => {
         const failed = new Set<string>();
@@ -89,6 +100,10 @@ export const useCharacter = (setToastMessage: (msg: string | null, type?: ToastT
 
     // This effect will set the default special trainings when profession or department changes
     useEffect(() => {
+        if (isHydratingRef.current) {
+            isHydratingRef.current = false;
+            return;
+        }
         const professionTrainings = selectedProfession?.specialTrainings || [];
         const departmentTrainings = selectedDepartment?.specialTrainings || [];
         const defaultTrainings = new Set([...professionTrainings, ...departmentTrainings]);
@@ -815,6 +830,136 @@ export const useCharacter = (setToastMessage: (msg: string | null, type?: ToastT
         return { success, roll, target };
     }, [attributes, skills, setToastMessage]);
 
+    const handleAiSkillDistribution = useCallback(async (
+        description: string,
+        onStageChange?: (stage: 'analyzing' | 'distributing' | null) => void,
+    ) => {
+        if (!selectedProfession) {
+            throw new Error('Select a profession before using AI Distribution.');
+        }
+        if (availableAdvancements <= 0) {
+            throw new Error('No bonus advancements remain to distribute.');
+        }
+
+        const distributableSkills = Object.entries(skillsWithBonuses)
+            .filter(([skillName]) => skillName !== 'Unnatural')
+            .map(([skillName, current]) => {
+                const room = Math.max(0, Math.floor((80 - current) / 20));
+                return {
+                    name: skillName,
+                    current,
+                    isProfessional: selectedProfession.professionalSkills.some((skill) => skill.name === skillName)
+                        || Object.values(selectedChoiceSkills).flat().some((skill) => skill.name === skillName),
+                    isSuggested: selectedDepartment?.suggested_bonus_skills.includes(skillName) || false,
+                    maxAdditionalAdvancements: room,
+                };
+            })
+            .filter((skill) => skill.maxAdditionalAdvancements > 0)
+            .sort((left, right) => left.name.localeCompare(right.name));
+
+        if (distributableSkills.length === 0) {
+            throw new Error('No legal skills remain for AI distribution.');
+        }
+
+        setIsAiDistributionRunning(true);
+        setPendingAiDistribution(null);
+        onStageChange?.('analyzing');
+        const payload = {
+            profession: {
+                name: selectedProfession.name,
+                description: selectedProfession.description,
+                group: selectedProfession.group,
+            },
+            department: selectedDepartment ? {
+                name: selectedDepartment.name,
+                description: selectedDepartment.description,
+                suggestedBonusSkills: selectedDepartment.suggested_bonus_skills,
+            } : null,
+            description,
+            availableAdvancements,
+            specialTrainings: Array.from(selectedSpecialTrainings),
+            damagedVeteranOption,
+            skills: distributableSkills,
+        };
+
+        try {
+            onStageChange?.('distributing');
+            const rawReview = normalizeDgSkillDistributionReview(
+                await generateText({
+                    prompt: buildDgSkillDistributionPrompt(payload),
+                    json: true,
+                    purpose: 'creative',
+                }),
+            );
+            const { review, remaining } = reconcileDgSkillDistributionReview(rawReview, payload);
+            if (remaining > 0) {
+                review.analysis.cautions = [...review.analysis.cautions, `${remaining} advancement(s) could not be legally assigned and were left unspent.`];
+            }
+            setPendingAiDistribution(review);
+        } finally {
+            setIsAiDistributionRunning(false);
+            onStageChange?.(null);
+        }
+    }, [availableAdvancements, damagedVeteranOption, generateText, selectedChoiceSkills, selectedDepartment, selectedProfession, selectedSpecialTrainings, skillsWithBonuses]);
+
+    const applyPendingAiDistribution = useCallback(() => {
+        if (!pendingAiDistribution) return;
+        const additions = [...pendingAiDistribution.coreSkills, ...pendingAiDistribution.supplementalSkills, ...pendingAiDistribution.personalInterests];
+        setBonusSkillAdvancementsSpent((prev) => {
+            const next = { ...prev };
+            additions.forEach((item) => {
+                next[item.skill] = (next[item.skill] || 0) + item.improvements;
+            });
+            return next;
+        });
+        setSkillPackage(null);
+        setPendingAiDistribution(null);
+        setToastMessage('AI distribution applied.', 'success');
+    }, [pendingAiDistribution, setToastMessage]);
+
+    const clearPendingAiDistribution = useCallback(() => {
+        setPendingAiDistribution(null);
+    }, []);
+
+    const loadFromSaveData = useCallback((data: CharacterSaveData) => {
+        const saved = (data.characterData || {}) as Record<string, any>;
+        isHydratingRef.current = true;
+        setBaseAttributes(saved.baseAttributes || saved.attributes || null);
+        setSelectedProfession(saved.selectedProfession || null);
+        setSelectedDepartment(saved.selectedDepartment || null);
+        setBonds(saved.bonds || []);
+        setSelectedChoiceSkills(saved.selectedChoiceSkills || {});
+        setBonusSkillAdvancementsSpent(saved.bonusSkillAdvancementsSpent || {});
+        setUserCreatedSkills(saved.userCreatedSkills || []);
+        setConsumedGenericSkills(new Set(saved.consumedGenericSkills || []));
+        setSkillPackage(saved.skillPackage || null);
+        setSpecializationInheritedValues(saved.specializationInheritedValues || {});
+        setRollHistory(saved.rollHistory || []);
+        setCareerApplied(Boolean(saved.careerApplied));
+        setCareerAttributeChanges(saved.careerAttributeChanges || {});
+        setCareerSkillGains(saved.careerSkillGains || {});
+        setCareerSanChange(saved.careerSanChange || 0);
+        setCareerBondChange(saved.careerBondChange || 0);
+        setCareerMaxHpChange(saved.careerMaxHpChange || 0);
+        setIsDeceased(Boolean(saved.isDeceased));
+        _setDamagedVeteranOption(saved.damagedVeteranOption || null);
+        setHardExperienceSkills(saved.hardExperienceSkills || []);
+        setHardExperienceBondToRemove(saved.hardExperienceBondToRemove ?? null);
+        setAssignedDisorder(saved.assignedDisorder || null);
+        setForbiddenKnowledgeDisorder(saved.forbiddenKnowledgeDisorder || null);
+        setInventory(saved.inventory || []);
+        setOwnedItems(new Set(saved.ownedItems || []));
+        setFindFailedItems(new Set(saved.findFailedItems || []));
+        setRequisitionFailedItems(new Set(saved.requisitionFailedItems || []));
+        setIsUnderReview(Boolean(saved.isUnderReview));
+        setTerminalConsequence(saved.terminalConsequence || null);
+        setActiveKitName(saved.activeKitName || null);
+        setSelectedSpecialTrainings(new Set(saved.selectedSpecialTrainings || []));
+        setPendingAiDistribution(saved.pendingAiDistribution || null);
+        ai.hydrate(saved.ai || null);
+        setToastMessage('Character loaded.', 'success');
+    }, [ai, setToastMessage]);
+
 
     return {
         attributes,
@@ -879,5 +1024,11 @@ export const useCharacter = (setToastMessage: (msg: string | null, type?: ToastT
         activeKitName,
         selectedSpecialTrainings,
         handleToggleSpecialTraining,
+        pendingAiDistribution,
+        isAiDistributionRunning,
+        handleAiSkillDistribution,
+        applyPendingAiDistribution,
+        clearPendingAiDistribution,
+        loadFromSaveData,
     };
 };

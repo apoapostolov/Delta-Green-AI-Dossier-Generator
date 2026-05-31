@@ -19,6 +19,8 @@ export const useSaveSystem = () => {
     const [slots, setSlots] = useState<(SaveSlot | null)[]>(Array(MAX_SLOTS).fill(null));
     const character = useCharacterContext();
 
+    const saveSet = <T,>(value: Set<T> | T[] | null | undefined) => Array.isArray(value) ? value : Array.from(value || []);
+
     // Load slots from localStorage on mount
     useEffect(() => {
         try {
@@ -46,19 +48,72 @@ export const useSaveSystem = () => {
      * This captures ALL character state for perfect restoration
      */
     const createSaveData = useCallback((): CharacterSaveData => {
-        // Serialize the entire character object
-        // This includes all state from useCharacter hook
-        // Future-proof: If new fields are added, they'll automatically be saved
-        const charData = character as any; // Type assertion for dynamic access
-
-        // Extract character name from AI data if available
-        const characterName = charData.ai?.name || 'Unnamed Character';
+        const charData = character as any;
+        const characterName = charData.ai?.characterName || 'Unnamed Character';
 
         return {
             version: SAVE_VERSION,
             system: SYSTEM_NAME,
             timestamp: Date.now(),
-            characterData: { ...charData }, // Deep copy of all character state
+            characterData: {
+                attributes: charData.attributes,
+                baseAttributes: charData.baseAttributes,
+                derivedStats: charData.derivedStats,
+                selectedProfession: charData.selectedProfession,
+                selectedDepartment: charData.selectedDepartment,
+                bonds: charData.bonds,
+                selectedChoiceSkills: charData.selectedChoiceSkills,
+                bonusSkillAdvancementsSpent: charData.bonusSkillAdvancementsSpent,
+                userCreatedSkills: charData.userCreatedSkills,
+                consumedGenericSkills: saveSet(charData.consumedGenericSkills),
+                skillPackage: charData.skillPackage,
+                specializationInheritedValues: charData.specializationInheritedValues,
+                rollHistory: charData.rollHistory,
+                careerApplied: charData.careerApplied,
+                careerAttributeChanges: charData.careerAttributeChanges,
+                careerSkillGains: charData.careerSkillGains,
+                careerSanChange: charData.careerSanChange,
+                careerBondChange: charData.careerBondChange,
+                careerMaxHpChange: charData.careerMaxHpChange,
+                isDeceased: charData.isDeceased,
+                damagedVeteranOption: charData.damagedVeteranOption,
+                hardExperienceSkills: charData.hardExperienceSkills,
+                hardExperienceBondToRemove: charData.hardExperienceBondToRemove,
+                assignedDisorder: charData.assignedDisorder,
+                forbiddenKnowledgeDisorder: charData.forbiddenKnowledgeDisorder,
+                inventory: charData.inventory,
+                ownedItems: saveSet(charData.ownedItems),
+                findFailedItems: saveSet(charData.findFailedItems),
+                requisitionFailedItems: saveSet(charData.requisitionFailedItems),
+                isUnderReview: charData.isUnderReview,
+                terminalConsequence: charData.terminalConsequence,
+                activeKitName: charData.activeKitName,
+                selectedSpecialTrainings: saveSet(charData.selectedSpecialTrainings),
+                pendingAiDistribution: charData.pendingAiDistribution || null,
+                ai: {
+                    characterName: charData.ai?.characterName || '',
+                    codename: charData.ai?.codename || '',
+                    decade: charData.ai?.decade || '2020s',
+                    gender: charData.ai?.gender || null,
+                    nationality: charData.ai?.nationality || 'American (Unspecified/Mixed)',
+                    experienceLevel: charData.ai?.experienceLevel || 'Experienced',
+                    dob: charData.ai?.dob || '',
+                    dobOverwrittenByCareer: Boolean(charData.ai?.dobOverwrittenByCareer),
+                    education: charData.ai?.education || '',
+                    physicalDescription: charData.ai?.physicalDescription || null,
+                    distinguishingFeatures: charData.ai?.distinguishingFeatures || null,
+                    characterTraits: charData.ai?.characterTraits || null,
+                    portrait: charData.ai?.portrait || null,
+                    headshot: charData.ai?.headshot || null,
+                    pdfPortraitSrc: charData.ai?.pdfPortraitSrc || null,
+                    simResult: charData.ai?.simResult || null,
+                    injuryReport: charData.ai?.injuryReport || null,
+                    injurySummary: charData.ai?.injurySummary || null,
+                    injuryShortDescription: charData.ai?.injuryShortDescription || null,
+                    injuryMechanics: charData.ai?.injuryMechanics || null,
+                    dossier: charData.ai?.dossier || null,
+                },
+            },
             metadata: {
                 characterName,
             }
@@ -79,7 +134,7 @@ export const useSaveSystem = () => {
 
         const saveData = createSaveData();
         // Priority: AI-generated name > custom name > placeholder
-        const aiGeneratedName = (character as any)?.ai?.name;
+        const aiGeneratedName = (character as any)?.ai?.characterName;
         const finalName = aiGeneratedName || customName || `Character ${slotIndex + 1}`;
 
         const slot: SaveSlot = {
@@ -121,11 +176,12 @@ export const useSaveSystem = () => {
             throw new Error('Slot is empty');
         }
 
-        // TODO: Implement actual restoration
-        // For now, log the data and show info to user
-        console.log('Character data to restore:', slot.data);
-        alert(`Loading character "${slot.characterName}"...\n\nNote: Full restoration requires page refresh.\nThe data has been logged to console for now.`);
-    }, [slots]);
+        const loader = (character as any).loadFromSaveData;
+        if (typeof loader !== 'function') {
+            throw new Error('Character loader is not available');
+        }
+        loader(slot.data);
+    }, [character, slots]);
 
     /**
      * Delete a save slot

@@ -9,6 +9,7 @@ import { SKILL_GROUPS } from './skills/skill-utils';
 import { QuickAssignModal } from './skills/QuickAssignModal';
 import { SKILL_PACKAGES } from '../data/skill-packages-data';
 import { SpecialTrainingsManager } from './skills/SpecialTrainingsManager';
+import { AiDistributionModal } from './skills/AiDistributionModal';
 
 interface SkillsTabProps {
     selectedProfession: Profession | null;
@@ -35,9 +36,21 @@ interface SkillsTabProps {
 
 export const SkillsTab: React.FC<SkillsTabProps> = (props) => {
     const { selectedProfession, selectedDepartment, skills, selectedChoiceSkills, userCreatedSkills, aggregatedData, allSkills } = props;
-    const { handleSetSkillPackage, veteranChanges, damagedVeteranOption, attributes } = useCharacterContext();
+    const {
+        handleSetSkillPackage,
+        veteranChanges,
+        damagedVeteranOption,
+        attributes,
+        pendingAiDistribution,
+        handleAiSkillDistribution,
+        applyPendingAiDistribution,
+        clearPendingAiDistribution,
+        isAiDistributionRunning,
+    } = useCharacterContext();
     const [groupSkills, setGroupSkills] = useState(false);
     const [isQuickAssignModalOpen, setIsQuickAssignModalOpen] = useState(false);
+    const [isAiDistributionModalOpen, setIsAiDistributionModalOpen] = useState(false);
+    const [aiDistributionDescription, setAiDistributionDescription] = useState('');
 
     const isProfessional = useCallback((skillName: string): boolean => {
         if (!selectedProfession) return false;
@@ -129,10 +142,29 @@ export const SkillsTab: React.FC<SkillsTabProps> = (props) => {
                     onConfirm={handleConfirmQuickAssign}
                 />
             )}
+            <AiDistributionModal
+                open={isAiDistributionModalOpen}
+                occupationName={selectedProfession?.name || 'Agent'}
+                description={aiDistributionDescription}
+                onDescriptionChange={setAiDistributionDescription}
+                onClose={() => {
+                    setIsAiDistributionModalOpen(false);
+                    clearPendingAiDistribution();
+                }}
+                onSubmit={handleAiSkillDistribution}
+                onRetry={handleAiSkillDistribution}
+                onApply={() => {
+                    applyPendingAiDistribution();
+                    setIsAiDistributionModalOpen(false);
+                }}
+                review={pendingAiDistribution}
+            />
             <SkillsHeader 
                 onBonusSkillsReset={props.onBonusSkillsReset}
                 groupSkills={groupSkills}
                 onGroupToggle={() => setGroupSkills(prev => !prev)}
+                onOpenAiDistribution={() => setIsAiDistributionModalOpen(true)}
+                disableAiDistribution={!selectedProfession || props.availableAdvancements <= 0 || isAiDistributionRunning}
             />
 
             {!selectedProfession ? (

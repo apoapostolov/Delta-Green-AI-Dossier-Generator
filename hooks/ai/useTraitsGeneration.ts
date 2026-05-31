@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
-import { GoogleGenAI, Type } from '@google/genai';
 import type { CharacterTraits, Theme, ToastType } from '../../types';
 import { getTraitsPrompt } from '../../prompts/prompt-data';
 import type { AggregatedData } from '../useAggregatedData';
+import { useAiRuntime } from '../useAiRuntime';
+import { parseJsonLike } from '../../lib/ai/json';
 
 export const useTraitsGeneration = (
     showToast: (msg: string, type?: ToastType) => void,
@@ -10,6 +11,7 @@ export const useTraitsGeneration = (
 ) => {
     const [characterTraits, setCharacterTraits] = useState<CharacterTraits | null>(null);
     const [isGeneratingTraits, setIsGeneratingTraits] = useState(false);
+    const { generateText } = useAiRuntime();
     
     const onGenerateTraits = useCallback(async (
         gender: 'male' | 'female' | null, 
@@ -22,27 +24,9 @@ export const useTraitsGeneration = (
         }
         setIsGeneratingTraits(true);
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const selectedGender = gender ?? (Math.random() > 0.5 ? 'male' : 'female');
             const prompt = getTraitsPrompt(characterConcept, selectedGender, theme, aggregatedData.THEMES);
-    
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: Type.OBJECT,
-                        properties: {
-                            positivePhysical: { type: Type.STRING },
-                            positiveMental: { type: Type.STRING },
-                            negative: { type: Type.STRING },
-                        },
-                        required: ["positivePhysical", "positiveMental", "negative"],
-                    },
-                },
-            });
-            const result = JSON.parse(response.text.trim());
+            const result = parseJsonLike(await generateText({ prompt, json: true, purpose: 'simple' })) as CharacterTraits;
             setCharacterTraits(result);
         } catch (e) {
             console.error("Trait generation failed:", e);
@@ -50,10 +34,17 @@ export const useTraitsGeneration = (
         } finally {
             setIsGeneratingTraits(false);
         }
-    }, [showToast, aggregatedData.THEMES]);
+    }, [aggregatedData.THEMES, generateText, showToast]);
 
     const reset = useCallback(() => {
         setCharacterTraits(null);
+        setIsGeneratingTraits(false);
+    }, []);
+
+    const hydrate = useCallback((data: {
+        characterTraits?: CharacterTraits | null;
+    } | null | undefined) => {
+        setCharacterTraits(data?.characterTraits || null);
         setIsGeneratingTraits(false);
     }, []);
 
@@ -61,6 +52,7 @@ export const useTraitsGeneration = (
         characterTraits,
         isGeneratingTraits,
         onGenerateTraits,
+        hydrate,
         reset,
     };
 };

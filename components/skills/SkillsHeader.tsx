@@ -1,16 +1,21 @@
 import React from 'react';
 import { ResetIcon } from '../icons/ResetIcon';
+import { AIIcon } from '../icons/AIIcon';
 
 interface SkillsHeaderProps {
     onBonusSkillsReset: () => void;
     groupSkills: boolean;
     onGroupToggle: () => void;
+    onOpenAiDistribution: () => void;
+    disableAiDistribution?: boolean;
 }
 
 export const SkillsHeader: React.FC<SkillsHeaderProps> = ({
     onBonusSkillsReset,
     groupSkills,
-    onGroupToggle
+    onGroupToggle,
+    onOpenAiDistribution,
+    disableAiDistribution = false,
 }) => {
     return (
         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
@@ -30,9 +35,18 @@ export const SkillsHeader: React.FC<SkillsHeaderProps> = ({
                     </button>
                     <span className={`font-bold ${groupSkills ? 'text-green-300' : 'text-gray-500'}`}>On</span>
                 </div>
-                 <button onClick={onBonusSkillsReset} className="flex items-center justify-center gap-2 bg-gray-700 hover:bg-red-800 text-white font-bold py-2 px-3 rounded-lg text-sm transition-colors">
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                    <button
+                        onClick={onOpenAiDistribution}
+                        disabled={disableAiDistribution}
+                        className="flex items-center justify-center gap-2 bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-3 rounded-lg text-sm transition-colors"
+                    >
+                        <AIIcon className="h-4 w-4" /> AI Distribution
+                    </button>
+                    <button onClick={onBonusSkillsReset} className="flex items-center justify-center gap-2 bg-gray-700 hover:bg-red-800 text-white font-bold py-2 px-3 rounded-lg text-sm transition-colors">
                     <ResetIcon className="h-4 w-4" /> Reset Bonus Skills
-                </button>
+                    </button>
+                </div>
             </div>
         </div>
     );

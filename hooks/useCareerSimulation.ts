@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
-import { GoogleGenAI, Type } from '@google/genai';
 import { runSimulation } from '../sim/runClient';
 import type { SimResult, CareerState } from '../sim/types';
 import type { Profession, ExperienceLevel, ProfessionGroup, Department, ToastType } from '../types';
 import { getCareerNarrativePrompt, getInjuryReportPrompt, getEducationAndVitalsPrompt } from '../prompts/prompt-data';
+import { useAiRuntime } from './useAiRuntime';
+import { parseJsonLike } from '../lib/ai/json';
 
 // Helper functions (moved from useAIGeneration)
 const mapProfessionToStartState = (group: ProfessionGroup): CareerState => {
@@ -43,6 +44,7 @@ export const useCareerSimulation = (showToast: (msg: string, type?: ToastType) =
     const [injuryShortDescription, setInjuryShortDescription] = useState<string | null>(null);
     const [injuryMechanics, setInjuryMechanics] = useState<string | null>(null);
     const [isGeneratingInjuryReport, setIsGeneratingInjuryReport] = useState(false);
+    const { generateText } = useAiRuntime();
 
     const simulateCareer = useCallback(async (profession: Profession, department: Department | null, decade: string, experienceLevel: ExperienceLevel) => {
         setIsSimulating(true);
@@ -55,25 +57,10 @@ export const useCareerSimulation = (showToast: (msg: string, type?: ToastType) =
         setSimResult(null);
 
         try {
-            // Step 1: Generate Education and Starting Age via AI
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const vitalsPrompt = getEducationAndVitalsPrompt(profession, department);
-            const vitalsResponse = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: vitalsPrompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: Type.OBJECT,
-                        properties: {
-                            education: { type: Type.STRING },
-                            startingAge: { type: Type.INTEGER },
-                        },
-                        required: ["education", "startingAge"],
-                    },
-                },
-            });
-            const { education: generatedEducation, startingAge } = JSON.parse(vitalsResponse.text.trim());
+            const { education: generatedEducation, startingAge } = parseJsonLike(
+                await generateText({ prompt: vitalsPrompt, json: true, purpose: 'simple' }),
+            ) as { education: string; startingAge: number };
             
             // Step 2: Run procedural simulation with AI-provided starting age
             const endYear = getYearFromDecade(decade);
@@ -110,23 +97,9 @@ export const useCareerSimulation = (showToast: (msg: string, type?: ToastType) =
                 setIsGeneratingInjuryReport(true);
                 try {
                     const injuryPrompt = getInjuryReportPrompt(permanentInjuries);
-                    const injuryResponse = await ai.models.generateContent({ 
-                        model: 'gemini-2.5-flash', 
-                        contents: injuryPrompt,
-                        config: {
-                            responseMimeType: "application/json",
-                            responseSchema: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    report: { type: Type.STRING },
-                                    shortDescription: { type: Type.STRING },
-                                    mechanicalEffect: { type: Type.STRING },
-                                },
-                                required: ["report", "shortDescription", "mechanicalEffect"],
-                            },
-                        },
-                    });
-                    const injuryData = JSON.parse(injuryResponse.text.trim());
+                    const injuryData = parseJsonLike(
+                        await generateText({ prompt: injuryPrompt, json: true, purpose: 'creative' }),
+                    ) as { report: string; shortDescription: string; mechanicalEffect: string };
 
                     finalInjuryReport = injuryData.report;
                     setInjuryReport(finalInjuryReport);
@@ -138,8 +111,7 @@ export const useCareerSimulation = (showToast: (msg: string, type?: ToastType) =
                     setInjuryMechanics(finalInjuryMechanics);
 
                     const summaryPrompt = `Summarize the following medical report into one or two sentences for a personnel file. Focus on the agent's long-term operational limitations and suitability for non-frontline roles (e.g., support, analysis, advisory capacity) due to their injuries.\n\nMedical Report:\n"""\n${finalInjuryReport}\n"""\n\nSummary:`;
-                    const summaryResponse = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: summaryPrompt });
-                    finalInjurySummary = summaryResponse.text.trim();
+                    finalInjurySummary = (await generateText({ prompt: summaryPrompt, purpose: 'creative' })).trim();
                     setInjurySummary(finalInjurySummary);
 
                 } catch (e) {
@@ -165,21 +137,9 @@ export const useCareerSimulation = (showToast: (msg: string, type?: ToastType) =
             // Step 4: Generate AI narrative for events
             setIsGeneratingNarrative(true);
             const narrativePrompt = getCareerNarrativePrompt(rawResult.events.map(e => ({ year: e.year, detail: e.detail, success: e.check.success })));
-            
-            const response = await ai.models.generateContent({
-              model: 'gemini-2.5-flash',
-              contents: narrativePrompt,
-              config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                  type: Type.OBJECT,
-                  properties: { narratives: { type: Type.ARRAY, items: { type: Type.STRING } } },
-                  required: ["narratives"],
-                },
-              },
-            });
-
-            const result = JSON.parse(response.text.trim());
+            const result = parseJsonLike(
+                await generateText({ prompt: narrativePrompt, json: true, purpose: 'creative' }),
+            ) as { narratives?: string[] };
             const narratives = result.narratives;
 
             let finalSimResult = rawResult;
@@ -200,7 +160,7 @@ export const useCareerSimulation = (showToast: (msg: string, type?: ToastType) =
             setIsSimulating(false);
             setIsGeneratingNarrative(false);
         }
-    }, [showToast]);
+    }, [generateText, showToast]);
 
     const reset = useCallback(() => {
         setSimResult(null);
@@ -210,6 +170,23 @@ export const useCareerSimulation = (showToast: (msg: string, type?: ToastType) =
         setInjurySummary(null);
         setInjuryShortDescription(null);
         setInjuryMechanics(null);
+        setIsGeneratingInjuryReport(false);
+    }, []);
+
+    const hydrate = useCallback((data: {
+        simResult?: SimResult | null;
+        injuryReport?: string | null;
+        injurySummary?: string | null;
+        injuryShortDescription?: string | null;
+        injuryMechanics?: string | null;
+    } | null | undefined) => {
+        setSimResult(data?.simResult || null);
+        setIsSimulating(false);
+        setIsGeneratingNarrative(false);
+        setInjuryReport(data?.injuryReport || null);
+        setInjurySummary(data?.injurySummary || null);
+        setInjuryShortDescription(data?.injuryShortDescription || null);
+        setInjuryMechanics(data?.injuryMechanics || null);
         setIsGeneratingInjuryReport(false);
     }, []);
 
@@ -223,6 +200,7 @@ export const useCareerSimulation = (showToast: (msg: string, type?: ToastType) =
         injuryMechanics,
         isGeneratingInjuryReport,
         simulateCareer,
+        hydrate,
         reset,
     };
 };

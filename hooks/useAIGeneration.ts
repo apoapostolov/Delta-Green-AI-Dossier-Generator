@@ -181,6 +181,42 @@ export const useAIGeneration = (
         // DOB is reset by the decade useEffect
     }, [nameGen, portraitGen, traitsGen, careerSim, dossierGen]);
 
+    const hydrate = useCallback((data: any) => {
+        setDecade(data?.decade || '2020s');
+        setGender(data?.gender || null);
+        setNationality(data?.nationality || 'American (Unspecified/Mixed)');
+        setExperienceLevel(data?.experienceLevel || 'Experienced');
+        _setDob(data?.dob || '');
+        setDobOverwrittenByCareer(Boolean(data?.dobOverwrittenByCareer));
+        setEducation(data?.education || '');
+        setPhysicalDescription(data?.physicalDescription || null);
+        setDistinguishingFeatures(data?.distinguishingFeatures || null);
+        nameGen.hydrate({
+            characterName: data?.characterName ?? data?.name,
+            codename: data?.codename,
+        });
+        portraitGen.hydrate({
+            portrait: data?.portrait,
+            headshot: data?.headshot,
+            pdfPortraitSrc: data?.pdfPortraitSrc,
+            physicalDescription: data?.physicalDescription,
+            distinguishingFeatures: data?.distinguishingFeatures,
+        });
+        traitsGen.hydrate({
+            characterTraits: data?.characterTraits ?? data?.traits ?? null,
+        });
+        careerSim.hydrate({
+            simResult: data?.simResult || null,
+            injuryReport: data?.injuryReport || null,
+            injurySummary: data?.injurySummary || null,
+            injuryShortDescription: data?.injuryShortDescription || null,
+            injuryMechanics: data?.injuryMechanics || null,
+        });
+        dossierGen.hydrate({
+            backstory: data?.dossier ?? data?.backstory ?? null,
+        });
+    }, [careerSim, dossierGen, nameGen, portraitGen, traitsGen]);
+
     return {
         decade, setDecade,
         gender, setGender,
@@ -211,6 +247,7 @@ export const useAIGeneration = (
         dossier: dossierGen.backstory,
         isGeneratingDossier: dossierGen.isGeneratingBackstory,
         onGenerateDossier,
+        hydrate,
         reset,
         ...bondGen,
         onGenerateBond: (bondType: BondType, chaScore: number, chaCheckSuccess: boolean) => bondGen.onGenerateBond(

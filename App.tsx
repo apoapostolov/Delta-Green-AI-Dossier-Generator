@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { SourceProvider, useSourceContext } from './context/SourceContext';
 import { CharacterProvider } from './context/CharacterContext';
 import { SheetProvider } from './context/SheetContext';
+import { AiSettingsProvider } from './context/AiSettingsContext';
 import { useUIState } from './hooks/useUIState';
 import { useCharacter } from './hooks/useCharacter';
 import { useAggregatedData } from './hooks/useAggregatedData';
@@ -222,9 +223,11 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => (
     <SheetProvider>
-        <SourceProvider>
-            <AppContent />
-        </SourceProvider>
+        <AiSettingsProvider>
+            <SourceProvider>
+                <AppContent />
+            </SourceProvider>
+        </AiSettingsProvider>
     </SheetProvider>
 );
 

@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Reorganized the flat data, prompt, and configuration modules into `data/`,
     `prompts/`, and `config/` folders so the project root stays cleaner.
 -   Updated the Vite dev server and launcher scripts to use port `3002`.
+-   Backported the provider-aware AI runtime from the richer Call of Cthulhu
+    project so DG now supports Settings-based provider/model selection, `.env`
+    loading, AI skill distribution for DG bonus advancements, and restored
+    save/load coverage for the new state.
 
 ### Added
 
@@ -19,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   **Enhanced Dossier Prompt**: The dossier generation prompt now includes the agent's era, nationality, profession, rank, reporting structure, and top three skills for a more context-aware narrative.
 -   **Historical Context in Dossier**: The AI is now instructed to ground the agent's dossier in real-world political, geopolitical, or clandestine events from a specific year within their operational era.
 -   **Dossier Prompt Preview**: The AI prompt for the Career Dossier can now be viewed in the UI before the career is simulated.
+-   **The Complex Profession Import**: Added a first-pass backport of The Complex profession set as selectable Tab 1 professions, with repaired Markdown dossier text sourced from the OCR dumps and exposed through the profession `(?)` modal.
 
 ### Changed
 

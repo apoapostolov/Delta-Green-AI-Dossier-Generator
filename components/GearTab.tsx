@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
-import { GoogleGenAI, Type } from '@google/genai';
 import type { DGItem } from '../../types';
 import { ITEMS } from '../item-data';
 import { EquipmentList } from './gear/EquipmentList';
@@ -10,8 +9,12 @@ import { PromptInfoModal } from './PromptInfoModal';
 import { RestrictedRequisitionModal } from './gear/RestrictedRequisitionModal';
 import { TerminalConsequenceDisplay } from './gear/TerminalConsequenceDisplay';
 import { ToolsOfTheTrade } from './gear/ToolsOfTheTrade';
+import { EquipmentPacks } from './gear/EquipmentPacks';
 import { ItemDetailModal } from './gear/ItemDetailModal';
 import { RULES_TEXT } from '../data/item-creation-rules';
+import { useAiRuntime } from '../hooks/useAiRuntime';
+import { parseJsonLike } from '../lib/ai/json';
+import { EQUIPMENT_PACKS } from '../data/equipment-pack-data';
 
 // --- AI PROMPT ENGINEERING FOR CUSTOM ITEMS ---
 
@@ -91,6 +94,7 @@ interface GearTabProps {
 
 export const GearTab: React.FC<GearTabProps> = ({ kitInventory, inventory, ownedItems, isUnderReview, terminalConsequence, onDrop, onDeleteItem, onAcquisitionRoll }) => {
     const { attributes, skills, setToastMessage, setEquipmentKit, activeKitName, ai, aggregatedData, findFailedItems, requisitionFailedItems, fullyFailedItems } = useCharacterContext();
+    const { generateText } = useAiRuntime();
     const [filterText, setFilterText] = useState('');
     const [acquisitionInProgress, setAcquisitionInProgress] = useState<string | null>(null);
     const [customItemName, setCustomItemName] = useState('');
@@ -111,15 +115,10 @@ export const GearTab: React.FC<GearTabProps> = ({ kitInventory, inventory, owned
     const decadeConfig = useMemo(() => aggregatedData.DECADES.find(d => d.name === ai.decade), [aggregatedData.DECADES, ai.decade]);
     const decadeDisplayName = decadeConfig?.displayName || 'Modern era';
 
-    const combinedPrompt = useMemo(() => {
-        if (!phase1Prompt && !phase2Prompt) {
-            return "The prompts used to generate custom items via AI will appear here. \n\nPhase 1 involves categorizing the item based on its name and description. \n\nPhase 2 involves generating game-ready stats based on that category and a set of game rules.";
-        }
-        let promptText = '';
-        if (phase1Prompt) { promptText += `## Phase 1: Categorization & Analysis\n\nThis prompt is sent to the AI first to determine the item's general category.\n\n---\n\n${phase1Prompt}`; }
-        if (phase2Prompt) { promptText += `\n\n\n## Phase 2: Stat Generation\n\nBased on the category from Phase 1, this second prompt is sent to generate the final stats.\n\n---\n\n${phase2Prompt}`; }
-        return promptText;
-    }, [phase1Prompt, phase2Prompt]);
+    const promptTabs = useMemo(() => [
+        { id: 'prompt-1', label: 'Prompt 1', content: phase1Prompt || 'Generate an item once to view the first prompt.' },
+        { id: 'prompt-2', label: 'Prompt 2', content: phase2Prompt || 'Generate an item once to view the second prompt.' },
+    ], [phase1Prompt, phase2Prompt]);
 
     const handleGetItem = (item: DGItem) => {
         setAcquisitionInProgress(item.name);
@@ -176,45 +175,18 @@ export const GearTab: React.FC<GearTabProps> = ({ kitInventory, inventory, owned
         setPhase1Prompt(null);
         setPhase2Prompt(null);
         try {
-            const gemini = new GoogleGenAI({ apiKey: process.env.API_KEY });
             setGenerationPhase("Phase 1: Categorizing...");
             const builtPhase1Prompt = buildPhase1Prompt(customItemName, customItemDescription);
             setPhase1Prompt(builtPhase1Prompt);
-            const phase1Response = await gemini.models.generateContent({
-                model: 'gemini-2.5-flash', contents: builtPhase1Prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: { type: Type.OBJECT, properties: { section: { type: Type.STRING }, analysisKeywords: { type: Type.ARRAY, items: { type: Type.STRING } } }, required: ["section", "analysisKeywords"] }
-                }
-            });
-            const { section } = JSON.parse(phase1Response.text.trim());
+            const { section } = parseJsonLike(
+                await generateText({ prompt: builtPhase1Prompt, json: true, purpose: 'simple' }),
+            ) as { section: string; analysisKeywords: string[] };
             const promptForPhase2 = buildPhase2Prompt(customItemName, customItemDescription, section, decadeDisplayName, RULES_TEXT);
             setPhase2Prompt(promptForPhase2);
             setGenerationPhase("Phase 2: Generating stats...");
-            const phase2Response = await gemini.models.generateContent({
-                model: 'gemini-2.5-flash', contents: promptForPhase2,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: Type.OBJECT,
-                        properties: { 
-                            section: { type: Type.STRING }, name: { type: Type.STRING }, 
-                            skill: { type: Type.STRING, nullable: true }, damage: { type: Type.STRING, nullable: true }, 
-                            armorPiercing: { type: Type.STRING, nullable: true }, 
-                            expense: { type: Type.STRING, enum: ['None', 'Incidental', 'Standard', 'Unusual', 'Major', 'Extreme'] }, 
-                            range: { type: Type.STRING, nullable: true }, uses: { type: Type.STRING, nullable: true }, 
-                            radius: { type: Type.STRING, nullable: true }, victimsPenalty: { type: Type.STRING, nullable: true }, 
-                            baseRange: { type: Type.STRING, nullable: true }, lethality: { type: Type.STRING, nullable: true }, 
-                            killRadius: { type: Type.STRING, nullable: true }, ammoCapacity: { type: Type.STRING, nullable: true }, 
-                            description: { type: Type.STRING, nullable: true },
-                            isRestricted: { type: Type.BOOLEAN, nullable: true },
-                            sourceType: { type: Type.STRING, enum: ['core', 'homebrew', 'ai'], nullable: true },
-                        },
-                        required: ["section", "name", "expense"]
-                    }
-                }
-            });
-            const result = JSON.parse(phase2Response.text.trim());
+            const result = parseJsonLike(
+                await generateText({ prompt: promptForPhase2, json: true, purpose: 'creative' }),
+            ) as DGItem;
             setGeneratedCustomItem(result);
         } catch (e) {
             console.error("Custom item generation failed:", e);
@@ -242,6 +214,26 @@ export const GearTab: React.FC<GearTabProps> = ({ kitInventory, inventory, owned
         setPhase2Prompt(null);
     };
 
+    const handleAddEquipmentPack = useCallback((packName: string) => {
+        const pack = EQUIPMENT_PACKS.find((entry) => entry.name === packName);
+        if (!pack) return;
+
+        let addedCount = 0;
+        pack.items.forEach((itemName) => {
+            const item = ITEMS.find((entry) => entry.name === itemName);
+            if (!item) return;
+            addedCount += 1;
+            onDrop({
+                dataTransfer: { getData: () => JSON.stringify(item) },
+                preventDefault: () => {},
+            } as unknown as React.DragEvent<HTMLDivElement>);
+        });
+
+        if (addedCount > 0) {
+            setToastMessage(`${pack.name} added to inventory build.`, 'success');
+        }
+    }, [onDrop, setToastMessage]);
+
     const filteredItems = useMemo(() => {
         const allItems = [...new Set(ITEMS.map(item => item.name))].map(name => ITEMS.find(item => item.name === name)!);
         if (!filterText) return allItems;
@@ -251,7 +243,15 @@ export const GearTab: React.FC<GearTabProps> = ({ kitInventory, inventory, owned
     return (
         <div className="bg-gray-800/50 p-6 rounded-lg border-2 border-gray-700/50 max-w-7xl mx-auto">
              <ItemDetailModal item={modalItem} onClose={() => setModalItem(null)} onAddItem={handleAddItemFromModal} />
-             {isCustomItemPromptModalVisible && <PromptInfoModal title="AI Item Generation Prompts" prompt={combinedPrompt} onClose={() => setIsCustomItemPromptModalVisible(false)} />}
+             {isCustomItemPromptModalVisible && (
+                <PromptInfoModal
+                    title="AI Item Generation Prompts"
+                    tabs={promptTabs}
+                    description=""
+                    maxHeightClassName="max-h-[80vh]"
+                    onClose={() => setIsCustomItemPromptModalVisible(false)}
+                />
+             )}
              <RestrictedRequisitionModal item={requisitionModalItem} attributes={attributes} skills={skills} onClose={() => setRequisitionModalItem(null)} onNormal={handleNormalRequisition} onRisky={handleRiskyRequisition} />
              <h2 className="text-3xl font-bold text-green-400 text-center mb-2">Standard Issue & Requisitions</h2>
              <p className="text-gray-400 text-center mb-8">Drag items (desktop) or tap items (mobile) to add them to your inventory, then attempt to acquire them.</p>
@@ -260,6 +260,7 @@ export const GearTab: React.FC<GearTabProps> = ({ kitInventory, inventory, owned
             {/* --- DESKTOP VIEW --- */}
             <div className="hidden lg:grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
+                    <EquipmentPacks onAddPack={handleAddEquipmentPack} />
                     <EquipmentList items={filteredItems} filterText={filterText} onFilterChange={setFilterText} isUnderReview={isUnderReview} height="auto" fullyFailedItems={fullyFailedItems} />
                     <CustomItemCreator itemName={customItemName} onItemNameChange={setCustomItemName} description={customItemDescription} onDescriptionChange={setCustomItemDescription} onGenerate={handleGenerateCustomItem} isGenerating={isGeneratingCustomItem} generationPhase={generationPhase} generatedItem={generatedCustomItem} onAccept={handleAcceptGeneratedItem} onScrap={handleScrapGeneratedItem} onShowPrompt={() => setIsCustomItemPromptModalVisible(true)} decadeDisplayName={decadeDisplayName} />
                 </div>
@@ -277,7 +278,10 @@ export const GearTab: React.FC<GearTabProps> = ({ kitInventory, inventory, owned
                 </div>
 
                 {mobileTab === 'list' && (
-                    <EquipmentList items={filteredItems} filterText={filterText} onFilterChange={setFilterText} isUnderReview={isUnderReview} onItemClick={setModalItem} fullyFailedItems={fullyFailedItems} />
+                    <div className="space-y-6">
+                        <EquipmentPacks onAddPack={handleAddEquipmentPack} />
+                        <EquipmentList items={filteredItems} filterText={filterText} onFilterChange={setFilterText} isUnderReview={isUnderReview} onItemClick={setModalItem} fullyFailedItems={fullyFailedItems} />
+                    </div>
                 )}
 
                 {mobileTab === 'inventory' && (

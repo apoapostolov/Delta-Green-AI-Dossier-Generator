@@ -1,12 +1,29 @@
 import React from 'react';
 
 interface PromptInfoModalProps {
-  prompt: string;
+  prompt?: string;
+  tabs?: { id: string; label: string; content: string }[];
   onClose: () => void;
   title: string;
+  description?: string;
+  maxHeightClassName?: string;
 }
 
-export const PromptInfoModal: React.FC<PromptInfoModalProps> = ({ prompt, onClose, title }) => {
+export const PromptInfoModal: React.FC<PromptInfoModalProps> = ({
+  prompt,
+  tabs,
+  onClose,
+  title,
+  description = 'This is the exact text prompt that will be sent to the AI to generate the content.',
+  maxHeightClassName = 'max-h-[90vh]',
+}) => {
+  const [activeTab, setActiveTab] = React.useState(tabs?.[0]?.id || 'prompt');
+  const activeContent = tabs?.find((tab) => tab.id === activeTab)?.content || prompt || '';
+
+  React.useEffect(() => {
+    setActiveTab(tabs?.[0]?.id || 'prompt');
+  }, [tabs]);
+
   return (
     <div
       className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
@@ -16,7 +33,7 @@ export const PromptInfoModal: React.FC<PromptInfoModalProps> = ({ prompt, onClos
       aria-labelledby="prompt-modal-title"
     >
       <div
-        className="bg-gray-800 border-2 border-yellow-500/50 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
+        className={`bg-gray-800 border-2 border-yellow-500/50 rounded-lg shadow-2xl w-full max-w-2xl ${maxHeightClassName} flex flex-col`}
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between p-4 border-b border-gray-700">
@@ -32,10 +49,27 @@ export const PromptInfoModal: React.FC<PromptInfoModalProps> = ({ prompt, onClos
           </button>
         </header>
 
-        <div className="p-6 overflow-y-auto">
-          <p className="text-gray-400 mb-4">This is the exact text prompt that will be sent to the AI to generate the content.</p>
+        {tabs && tabs.length > 0 && (
+          <div className="px-6 pt-4">
+            <div className="inline-flex rounded-lg border border-gray-700 bg-gray-900/60 p-1">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`rounded-md px-3 py-1.5 text-sm font-semibold transition-colors ${activeTab === tab.id ? 'bg-yellow-600 text-gray-900' : 'text-gray-300 hover:bg-gray-700'}`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="p-6 overflow-y-auto pr-4 scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-yellow-600/70">
+          {description ? <p className="text-gray-400 mb-4">{description}</p> : null}
           <pre className="bg-gray-900/50 p-4 rounded-lg border border-gray-700 text-gray-300 whitespace-pre-wrap font-sans text-sm">
-            {prompt}
+            {activeContent}
           </pre>
         </div>
       </div>
