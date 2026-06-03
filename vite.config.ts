@@ -8,6 +8,8 @@ export default defineConfig(({ mode }) => {
     const openRouterApiKey = env.VITE_OPENROUTER_API_KEY || env.OPENROUTER_API_KEY || '';
     const openCodeGoApiKey = env.VITE_OPENCODE_GO_API_KEY || env.OPENCODE_GO_API_KEY || '';
     const deepSeekApiKey = env.VITE_DEEPSEEK_API_KEY || env.DEEPSEEK_API_KEY || '';
+    const openAiApiKey = env.VITE_OPENAI_API_KEY || env.OPENAI_API_KEY || '';
+    const anthropicApiKey = env.VITE_ANTHROPIC_API_KEY || env.ANTHROPIC_API_KEY || '';
     return {
       server: {
         port: 3002,
@@ -25,6 +27,10 @@ export default defineConfig(({ mode }) => {
         'process.env.VITE_OPENCODE_GO_API_KEY': JSON.stringify(env.VITE_OPENCODE_GO_API_KEY || ''),
         'process.env.DEEPSEEK_API_KEY': JSON.stringify(deepSeekApiKey),
         'process.env.VITE_DEEPSEEK_API_KEY': JSON.stringify(env.VITE_DEEPSEEK_API_KEY || ''),
+        'process.env.OPENAI_API_KEY': JSON.stringify(openAiApiKey),
+        'process.env.VITE_OPENAI_API_KEY': JSON.stringify(env.VITE_OPENAI_API_KEY || ''),
+        'process.env.ANTHROPIC_API_KEY': JSON.stringify(anthropicApiKey),
+        'process.env.VITE_ANTHROPIC_API_KEY': JSON.stringify(env.VITE_ANTHROPIC_API_KEY || ''),
       },
       resolve: {
         alias: {
