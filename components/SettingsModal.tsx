@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useSheetContext, SheetSourceType } from '../context/SheetContext';
 import { useAiSettings } from '../context/AiSettingsContext';
 import { AI_PROVIDER_OPTIONS, isAiProviderId } from '../lib/ai/provider-options';
-import { ERAS } from '../eras/manifest';
+import { SOURCES } from '../third-party/manifest';
 import { RefreshIcon } from './icons/RefreshIcon';
 
 interface SettingsModalProps { onClose: () => void; }
@@ -271,7 +271,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                                 <section>
                                     <h3 className="text-lg font-bold text-foreground mb-3">External URLs</h3>
                                     <div className="space-y-4 bg-cream-200 p-4 rounded-lg border border-border max-h-64 overflow-y-auto">
-                                        {ERAS.map(source => (
+                                        {SOURCES.map(source => (
                                             <div key={source.id}>
                                                 <h4 className="font-semibold text-foreground">{source.name}</h4>
                                                 <UrlInput label="Default Sheet URL" value={externalUrls[source.id]?.defaultSheet || ''} onChange={(val) => setExternalUrl(source.id, 'defaultSheet', val)} />
