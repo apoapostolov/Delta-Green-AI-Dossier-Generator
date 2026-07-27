@@ -7,7 +7,7 @@ import { ProfessionCard } from './ProfessionCard';
 import { DepartmentCard } from './DepartmentCard';
 import { RollHistoryCard } from './RollHistoryCard';
 import { Tooltip } from './Tooltip';
-import { useCharacterContext } from '../context/CharacterContext';
+import { useCharacterIdentity } from '../context/CharacterContext';
 
 const ATTRIBUTES: Attribute[] = ['STR', 'CON', 'DEX', 'INT', 'POW', 'CHA'];
 const ATTRIBUTE_MAP: Record<Attribute, string> = {
@@ -72,7 +72,7 @@ export const StatsTab: React.FC<StatsTabProps> = ({
     const [subTab, setSubTab] = useState<'professions' | 'departments'>('professions');
     const [professionFilterText, setProfessionFilterText] = useState('');
     const [departmentFilterText, setDepartmentFilterText] = useState('');
-    const { veteranChanges, damagedVeteranOption, selectDepartmentOrSpecialProfession } = useCharacterContext();
+    const { veteranChanges, damagedVeteranOption, selectDepartmentOrSpecialProfession } = useCharacterIdentity();
     const subTabContainerRef = useRef<HTMLDivElement>(null);
     
     const handleSubTabChange = (newSubTab: 'professions' | 'departments') => {

@@ -11,7 +11,7 @@ Generate unique and detailed characters for the Delta Green role-playing game wi
     -   **Narrative Synthesis**: After the career simulation, the AI writes evocative, first-person "memories" for each key event in the agent's life.
     -   **Medical Reports**: For agents who suffer career-ending injuries, the AI generates a clinical, in-universe medical report detailing their condition.
     -   **Final Dossier**: The entire simulated history is synthesized into a final, multi-paragraph classified dossier that assesses the agent's career and psychological state, grounding their activities in real-world historical events.
-    -   **Provider Settings**: OpenRouter, Gemini, OpenCode Go, and DeepSeek can be configured in the Settings modal, including separate model picks for simple text, creative text, vision, and image generation.
+    -   **Multi-slot AI Settings (v1.2)**: Creative, simple, vision, and image each have their own provider, remembered API key, and model. Providers include OpenAI, Anthropic, Gemini, OpenRouter, **xAI Grok** (API key or SuperGrok OAuth), **Z.ai GLM Coding Plan**, DeepSeek, and OpenCode Go.
     -   **AI Distribution**: The Skills tab can now distribute Delta Green creation advancements as legal `+20%` blocks instead of CoC-style point spreads.
 -   **Thematic Delta Green Mechanics**:
     -   **Sanity Erosion**: A rebalanced system where events, traumas, and encounters with the "Unnatural" will correctly impact an agent's Sanity score, with different outcomes for successes, failures, and criticals.

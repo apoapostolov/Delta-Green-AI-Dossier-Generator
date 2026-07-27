@@ -10,11 +10,33 @@ export default defineConfig(({ mode }) => {
     const deepSeekApiKey = env.VITE_DEEPSEEK_API_KEY || env.DEEPSEEK_API_KEY || '';
     const openAiApiKey = env.VITE_OPENAI_API_KEY || env.OPENAI_API_KEY || '';
     const anthropicApiKey = env.VITE_ANTHROPIC_API_KEY || env.ANTHROPIC_API_KEY || '';
+    const zhipuApiKey = env.VITE_ZHIPU_API_KEY || env.ZHIPU_API_KEY || env.VITE_ZAI_API_KEY || env.ZAI_API_KEY || '';
+    const xaiApiKey = env.VITE_XAI_API_KEY || env.XAI_API_KEY || '';
+    const xaiOauthProxy = {
+      '/__xai_oauth': {
+        target: 'https://auth.x.ai',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (p: string) => p.replace(/^\/__xai_oauth/, ''),
+      },
+    };
     return {
       server: {
         port: 3002,
         strictPort: true,
         host: '0.0.0.0',
+        // /mnt/c does not always emit inotify events — poll so HMR works from WSL.
+        watch: {
+          usePolling: true,
+          interval: 300,
+        },
+        hmr: {
+          overlay: true,
+        },
+        proxy: xaiOauthProxy,
+      },
+      preview: {
+        proxy: xaiOauthProxy,
       },
       plugins: [react()],
       define: {
@@ -31,11 +53,30 @@ export default defineConfig(({ mode }) => {
         'process.env.VITE_OPENAI_API_KEY': JSON.stringify(env.VITE_OPENAI_API_KEY || ''),
         'process.env.ANTHROPIC_API_KEY': JSON.stringify(anthropicApiKey),
         'process.env.VITE_ANTHROPIC_API_KEY': JSON.stringify(env.VITE_ANTHROPIC_API_KEY || ''),
+        'process.env.ZHIPU_API_KEY': JSON.stringify(zhipuApiKey),
+        'process.env.VITE_ZHIPU_API_KEY': JSON.stringify(zhipuApiKey),
+        'process.env.XAI_API_KEY': JSON.stringify(xaiApiKey),
+        'process.env.VITE_XAI_API_KEY': JSON.stringify(xaiApiKey),
       },
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
-      }
+      },
+      build: {
+        rollupOptions: {
+          output: {
+            manualChunks(id) {
+              if (id.includes('node_modules/pdf-lib')) return 'pdf-lib';
+              if (id.includes('node_modules/@google/genai')) return 'google-genai';
+              if (id.includes('openrouter-model-cache')) return 'openrouter-models';
+              if (id.includes('complex-org-dossiers') || id.includes('complex-profession-dossiers')) {
+                return 'profession-dossiers';
+              }
+            },
+          },
+        },
+        chunkSizeWarningLimit: 700,
+      },
     };
 });

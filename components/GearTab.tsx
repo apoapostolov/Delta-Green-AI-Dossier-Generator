@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { useCharacterContext } from '../context/CharacterContext';
+import { useCharacterGear } from '../context/CharacterContext';
 import type { DGItem } from '../../types';
 import { ITEMS } from '../item-data';
 import { EquipmentList } from './gear/EquipmentList';
@@ -96,7 +96,7 @@ interface GearTabProps {
 
 
 export const GearTab: React.FC<GearTabProps> = ({ kitInventory, inventory, ownedItems, isUnderReview, terminalConsequence, onDrop, onDeleteItem, onAcquisitionRoll }) => {
-    const { attributes, skills, setToastMessage, setEquipmentKit, activeKitName, ai, aggregatedData, findFailedItems, requisitionFailedItems, fullyFailedItems } = useCharacterContext();
+    const { attributes, skills, setToastMessage, setEquipmentKit, activeKitName, ai, aggregatedData, findFailedItems, requisitionFailedItems, fullyFailedItems } = useCharacterGear();
     const { generateText } = useAiRuntime();
     const [filterText, setFilterText] = useState('');
     const [acquisitionInProgress, setAcquisitionInProgress] = useState<string | null>(null);

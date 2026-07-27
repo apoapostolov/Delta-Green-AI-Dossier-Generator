@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import type { BondType } from '../../types';
-import { useCharacterContext } from '../../context/CharacterContext';
+import { useCharacterExtras } from '../../context/CharacterContext';
 import { BondCard } from './BondCard';
 import { SpinnerIcon } from '../icons/SpinnerIcon';
 import { DiceIcon } from '../icons/DiceIcon';
 import { Tooltip } from '../Tooltip';
 
 export const BondManager: React.FC = () => {
-    const { bonds, handleCreateBond, handleDeleteBond, selectedProfession, ai, aggregatedData } = useCharacterContext();
+    const { bonds, handleCreateBond, handleDeleteBond, selectedProfession, ai, aggregatedData } = useCharacterExtras();
     const [isCreating, setIsCreating] = useState(false);
     const [selectedBondType, setSelectedBondType] = useState<BondType | null>(null);
 

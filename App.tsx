@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { SourceProvider, useSourceContext } from './context/SourceContext';
 import { CharacterProvider } from './context/CharacterContext';
 import { SheetProvider } from './context/SheetContext';
@@ -8,15 +8,7 @@ import { useCharacter } from './hooks/useCharacter';
 import { useAggregatedData } from './hooks/useAggregatedData';
 import { usePdfPrinting } from './hooks/usePdfPrinting';
 import { Toast } from './components/Toast';
-import { DossierTab } from './components/DossierTab';
-import { GearTab } from './components/GearTab';
 import { StatsTab } from './components/StatsTab';
-import { SkillsTab } from './components/SkillsTab';
-import { PromptInfoModal } from './components/PromptInfoModal';
-import { SourcesModal } from './components/SourcesModal';
-import { SettingsModal } from './components/SettingsModal';
-import { ProfessionInfoModal } from './components/ProfessionInfoModal';
-import { DepartmentInfoModal } from './components/DepartmentInfoModal';
 import Logo from './components/icons/Logo';
 import { PrintIcon } from './components/icons/PrintIcon';
 import { GearIcon } from './components/icons/GearIcon';
@@ -24,6 +16,22 @@ import { TabButton } from './components/TabButton';
 import type { Profession, AttributeSet, Department } from './types';
 import { AlphonseAxioms } from './components/AlphonseAxioms';
 import { SaveSlotDrawer } from './components/SaveSlotDrawer';
+
+// Lazy-load tabs/modals not needed for first paint on Attributes.
+const SkillsTab = lazy(() => import('./components/SkillsTab').then(m => ({ default: m.SkillsTab })));
+const GearTab = lazy(() => import('./components/GearTab').then(m => ({ default: m.GearTab })));
+const DossierTab = lazy(() => import('./components/DossierTab').then(m => ({ default: m.DossierTab })));
+const PromptInfoModal = lazy(() => import('./components/PromptInfoModal').then(m => ({ default: m.PromptInfoModal })));
+const SourcesModal = lazy(() => import('./components/SourcesModal').then(m => ({ default: m.SourcesModal })));
+const SettingsModal = lazy(() => import('./components/SettingsModal').then(m => ({ default: m.SettingsModal })));
+const ProfessionInfoModal = lazy(() => import('./components/ProfessionInfoModal').then(m => ({ default: m.ProfessionInfoModal })));
+const DepartmentInfoModal = lazy(() => import('./components/DepartmentInfoModal').then(m => ({ default: m.DepartmentInfoModal })));
+
+const TabSuspenseFallback: React.FC = () => (
+    <div className="max-w-4xl mx-auto bg-gray-800/60 p-8 rounded-lg border border-gray-700 text-center text-gray-400">
+        Loading…
+    </div>
+);
 
 const AppContent: React.FC = () => {
     const { selectedSources } = useSourceContext();
@@ -34,7 +42,6 @@ const AppContent: React.FC = () => {
     const [viewingProfession, setViewingProfession] = useState<Profession | null>(null);
     const [viewingDepartment, setViewingDepartment] = useState<Department | null>(null);
     
-    // FIX: Destructured `dob` and `setDob` from the `ai` object, not directly from `character`.
     const { handleRoll, attributes, derivedStats, setProfession, selectedProfession, selectDepartmentOrSpecialProfession, selectedDepartment, skills, skillsWithBonuses, availableAdvancements, bonusSkillAdvancementsSpent, handleBonusSkillAdd, handleBonusSkillRemove, handleBonusSkillsReset, selectedChoiceSkills, handleChoiceSkillToggle, rollHistory, handleRestoreRoll, ai, careerAttributeChanges, careerSkillGains, isDeceased, careerApplied, userCreatedSkills, handleAddSpecialization, handleDeleteSpecialization, kitInventory, inventory, isUnderReview, terminalConsequence, handleDrop, handleDeleteItem, handleAcquisitionRoll, selectedSpecialTrainings, handleToggleSpecialTraining } = character;
     const [shouldPrintButtonGlow, setShouldPrintButtonGlow] = useState(false);
 
@@ -42,7 +49,6 @@ const AppContent: React.FC = () => {
         const newCompleted = new Set(uiState.completedTabs);
         let updated = false;
 
-        // Tab 1: Stats is complete when a profession is selected. If that profession has departments, a department must also be selected.
         if (selectedProfession && !uiState.completedTabs.has('stats')) {
             const professionHasDepartments = aggregatedData.DEPARTMENTS.some(d => d.professions.includes(selectedProfession.name));
             if (!professionHasDepartments || (professionHasDepartments && selectedDepartment) || selectedProfession.isDepartment) {
@@ -51,13 +57,11 @@ const AppContent: React.FC = () => {
             }
         }
 
-        // Tab 2: Skills is complete when all points are spent
         if (selectedProfession && availableAdvancements <= 0 && !uiState.completedTabs.has('skills')) {
             newCompleted.add('skills');
             updated = true;
         }
 
-        // Tab 4: Dossier is complete when a portrait is generated
         if (ai.portrait && !uiState.completedTabs.has('dossier')) {
             newCompleted.add('dossier');
             setShouldPrintButtonGlow(true);
@@ -87,7 +91,6 @@ const AppContent: React.FC = () => {
             return;
         }
 
-        // Portrait priority: explicitly selected > headshot > full-body > none
         const selectedPortrait = ai.pdfPortraitSrc || ai.headshot || ai.portrait || null;
         const characterSheetData = {
             ...character,
@@ -112,12 +115,14 @@ const AppContent: React.FC = () => {
                     type={uiState.toast?.type ?? 'error'} 
                     onDismiss={() => uiState.setToastMessage(null)} 
                 />
-                {viewingProfession && <ProfessionInfoModal profession={viewingProfession} allDepartments={aggregatedData.DEPARTMENTS} onClose={() => setViewingProfession(null)} />}
-                {viewingDepartment && <DepartmentInfoModal department={viewingDepartment} onClose={() => setViewingDepartment(null)} />}
-                {uiState.isPromptModalVisible && <PromptInfoModal title="Full Portrait AI Prompt" prompt={ai.portraitPrompt || "Generate a portrait to see the full AI prompt here."} onClose={() => uiState.setIsPromptModalVisible(false)} />}
-                {uiState.isBackstoryPromptModalVisible && <PromptInfoModal title="The Career Dossier™ AI Prompt" prompt={ai.dossierPrompt || "Simulate a career and generate a dossier to see the full AI prompt here."} onClose={() => uiState.setIsBackstoryPromptModalVisible(false)} />}
-                {uiState.isSourcesModalVisible && <SourcesModal onClose={() => uiState.setIsSourcesModalVisible(false)} />}
-                {uiState.isSettingsModalVisible && <SettingsModal onClose={() => uiState.setIsSettingsModalVisible(false)} />}
+                <Suspense fallback={null}>
+                    {viewingProfession && <ProfessionInfoModal profession={viewingProfession} allDepartments={aggregatedData.DEPARTMENTS} onClose={() => setViewingProfession(null)} />}
+                    {viewingDepartment && <DepartmentInfoModal department={viewingDepartment} onClose={() => setViewingDepartment(null)} />}
+                    {uiState.isPromptModalVisible && <PromptInfoModal title="Full Portrait AI Prompt" prompt={ai.portraitPrompt || "Generate a portrait to see the full AI prompt here."} onClose={() => uiState.setIsPromptModalVisible(false)} />}
+                    {uiState.isBackstoryPromptModalVisible && <PromptInfoModal title="The Career Dossier™ AI Prompt" prompt={ai.dossierPrompt || "Simulate a career and generate a dossier to see the full AI prompt here."} onClose={() => uiState.setIsBackstoryPromptModalVisible(false)} />}
+                    {uiState.isSourcesModalVisible && <SourcesModal onClose={() => uiState.setIsSourcesModalVisible(false)} />}
+                    {uiState.isSettingsModalVisible && <SettingsModal onClose={() => uiState.setIsSettingsModalVisible(false)} />}
+                </Suspense>
                 
                 <div className="max-w-7xl mx-auto">
                     <header className="text-center mb-4"><Logo className="w-full max-w-md mx-auto h-auto px-4" /></header>
@@ -166,49 +171,51 @@ const AppContent: React.FC = () => {
                                 setActiveTab={uiState.setActiveTab}
                             />
                         )}
-                        {uiState.activeTab === 'skills' && (
-                           <SkillsTab
-                                selectedProfession={selectedProfession}
-                                selectedDepartment={selectedDepartment}
-                                skills={skills}
-                                skillsWithBonuses={skillsWithBonuses}
-                                allSkills={aggregatedData.SKILLS}
-                                careerSkillGains={careerSkillGains}
-                                simResult={ai.simResult}
-                                availableAdvancements={availableAdvancements}
-                                bonusSkillAdvancementsSpent={bonusSkillAdvancementsSpent}
-                                onBonusSkillAdd={handleBonusSkillAdd}
-                                onBonusSkillRemove={handleBonusSkillRemove}
-                                onBonusSkillsReset={handleBonusSkillsReset}
-                                selectedChoiceSkills={selectedChoiceSkills}
-                                onChoiceSkillToggle={handleChoiceSkillToggle}
-                                userCreatedSkills={userCreatedSkills}
-                                handleAddSpecialization={handleAddSpecialization}
-                                handleDeleteSpecialization={handleDeleteSpecialization}
-                                aggregatedData={aggregatedData}
-                                selectedSpecialTrainings={selectedSpecialTrainings}
-                                handleToggleSpecialTraining={handleToggleSpecialTraining}
-                           />
-                        )}
-                        {uiState.activeTab === 'gear' && <GearTab 
-                            kitInventory={kitInventory}
-                            inventory={inventory}
-                            ownedItems={character.ownedItems}
-                            isUnderReview={isUnderReview}
-                            terminalConsequence={terminalConsequence}
-                            onDrop={handleDrop}
-                            onDeleteItem={handleDeleteItem}
-                            onAcquisitionRoll={handleAcquisitionRoll}
-                        />}
-                        {uiState.activeTab === 'dossier' && (
-                            <DossierTab 
-                                onShowPromptInfo={() => uiState.setIsPromptModalVisible(true)}
-                                onShowBackstoryPromptInfo={() => uiState.setIsBackstoryPromptModalVisible(true)}
-                                dob={ai.dob}
-                                setDob={ai.setDob}
-                                dobOverwrittenByCareer={ai.dobOverwrittenByCareer}
-                            />
-                        )}
+                        <Suspense fallback={<TabSuspenseFallback />}>
+                            {uiState.activeTab === 'skills' && (
+                               <SkillsTab
+                                    selectedProfession={selectedProfession}
+                                    selectedDepartment={selectedDepartment}
+                                    skills={skills}
+                                    skillsWithBonuses={skillsWithBonuses}
+                                    allSkills={aggregatedData.SKILLS}
+                                    careerSkillGains={careerSkillGains}
+                                    simResult={ai.simResult}
+                                    availableAdvancements={availableAdvancements}
+                                    bonusSkillAdvancementsSpent={bonusSkillAdvancementsSpent}
+                                    onBonusSkillAdd={handleBonusSkillAdd}
+                                    onBonusSkillRemove={handleBonusSkillRemove}
+                                    onBonusSkillsReset={handleBonusSkillsReset}
+                                    selectedChoiceSkills={selectedChoiceSkills}
+                                    onChoiceSkillToggle={handleChoiceSkillToggle}
+                                    userCreatedSkills={userCreatedSkills}
+                                    handleAddSpecialization={handleAddSpecialization}
+                                    handleDeleteSpecialization={handleDeleteSpecialization}
+                                    aggregatedData={aggregatedData}
+                                    selectedSpecialTrainings={selectedSpecialTrainings}
+                                    handleToggleSpecialTraining={handleToggleSpecialTraining}
+                               />
+                            )}
+                            {uiState.activeTab === 'gear' && <GearTab 
+                                kitInventory={kitInventory}
+                                inventory={inventory}
+                                ownedItems={character.ownedItems}
+                                isUnderReview={isUnderReview}
+                                terminalConsequence={terminalConsequence}
+                                onDrop={handleDrop}
+                                onDeleteItem={handleDeleteItem}
+                                onAcquisitionRoll={handleAcquisitionRoll}
+                            />}
+                            {uiState.activeTab === 'dossier' && (
+                                <DossierTab 
+                                    onShowPromptInfo={() => uiState.setIsPromptModalVisible(true)}
+                                    onShowBackstoryPromptInfo={() => uiState.setIsBackstoryPromptModalVisible(true)}
+                                    dob={ai.dob}
+                                    setDob={ai.setDob}
+                                    dobOverwrittenByCareer={ai.dobOverwrittenByCareer}
+                                />
+                            )}
+                        </Suspense>
                     </main>
                     <footer className="text-center mt-12 text-gray-600 text-sm">
                        <p>Delta Green AI-Powered Agent Creator. This is an unofficial fan project.</p>

@@ -1,9 +1,17 @@
 import { useState, useCallback } from 'react';
-import { PDFDocument } from 'pdf-lib';
 import type { AggregatedData } from './useAggregatedData';
 import { useSheetContext } from '../context/SheetContext';
 import type { useCharacter } from './useCharacter';
 import type { ToastType, DGItem, SpecialTraining, Attribute } from '../types';
+
+/** Load pdf-lib only when printing — keeps it out of the initial app chunk. */
+let pdfLibModule: typeof import('pdf-lib') | null = null;
+async function getPdfLib() {
+    if (!pdfLibModule) {
+        pdfLibModule = await import('pdf-lib');
+    }
+    return pdfLibModule;
+}
 
 type CharacterSheetData = ReturnType<typeof useCharacter> & { pdfPortrait: string | null };
 
@@ -401,6 +409,7 @@ export const usePdfPrinting = (aggregatedData: AggregatedData, showToast: (msg: 
                 existingPdfBytes = await initialResponse.arrayBuffer();
             }
 
+            const { PDFDocument } = await getPdfLib();
             const pdfDoc = await PDFDocument.load(existingPdfBytes);
             const form = pdfDoc.getForm();
     

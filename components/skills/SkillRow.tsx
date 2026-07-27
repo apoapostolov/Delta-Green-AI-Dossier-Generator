@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import type { Skill as SkillType } from '../../types';
 import type { SimResult } from '../../sim/types';
 import { Tooltip } from '../Tooltip';
@@ -28,7 +28,7 @@ interface SkillRowProps {
     veteranGainInfo: string | null;
 }
 
-export const SkillRow: React.FC<SkillRowProps> = ({ skillName, value, creationValue, baseSkill, isProfessional, isSuggested, onBonusSkillAdd, onBonusSkillRemove, canIncrement, totalGain, simResult, advancements, allSkills, canSpecialize, availableSubTypes, onAddSpecialization, onDeleteSpecialization, baseName, isGeneric, veteranGainInfo }) => {
+const SkillRowInner: React.FC<SkillRowProps> = ({ skillName, value, creationValue, baseSkill, isProfessional, isSuggested, onBonusSkillAdd, onBonusSkillRemove, canIncrement, totalGain, simResult, advancements, allSkills, canSpecialize, availableSubTypes, onAddSpecialization, onDeleteSpecialization, baseName, isGeneric, veteranGainInfo }) => {
     const [isSpecializing, setIsSpecializing] = useState(false);
     const [selectedSubType, setSelectedSubType] = useState('');
 
@@ -146,3 +146,6 @@ export const SkillRow: React.FC<SkillRowProps> = ({ skillName, value, creationVa
         </div>
     );
 };
+
+/** Memoized so incrementing one skill does not re-render every row. */
+export const SkillRow = memo(SkillRowInner);

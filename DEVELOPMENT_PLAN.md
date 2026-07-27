@@ -2,7 +2,8 @@
 
 ## Current Focus
 
-- finish the Delta Green doc refresh and folder cleanup started in this pass
+- **Optimization Waves A–C COMPLETE** (`docs/OPTIMIZATION_PROPOSAL.md`).
+  Multi-slot AI + performance overhaul landed; residual is product polish only.
 - keep the root focused on core app code while data, prompts, and config live
   in their own folders
 - keep the local dev server and launcher scripts aligned on port `3002`

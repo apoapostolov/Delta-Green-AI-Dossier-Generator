@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useCharacterContext } from '../context/CharacterContext';
+import { useCharacterExtras } from '../context/CharacterContext';
 import { CareerDossierGenerator } from './draft/CareerDossierGenerator';
 import { ExpressivePortraitsStudio } from './draft/ExpressivePortraitsStudio';
 import { CharacterDetailsColumn } from './draft/CharacterDetailsColumn';
@@ -15,7 +15,7 @@ interface DossierTabProps {
 }
 
 export const DossierTab: React.FC<DossierTabProps> = ({ onShowPromptInfo, onShowBackstoryPromptInfo, dob, setDob, dobOverwrittenByCareer }) => {
-    const { ai, selectedProfession, selectedDepartment, baseAttributes, baseSkills, applyCareerConsequences, ignoreConsequences, careerApplied, damagedVeteranOption, aggregatedData } = useCharacterContext();
+    const { ai, selectedProfession, selectedDepartment, baseAttributes, baseSkills, applyCareerConsequences, ignoreConsequences, careerApplied, damagedVeteranOption, aggregatedData } = useCharacterExtras();
     const [isConsequencesModalOpen, setIsConsequencesModalOpen] = useState(false);
 
     useEffect(() => {

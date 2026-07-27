@@ -1,3 +1,34 @@
+# DEVELOPMENT LOG
+
+## 2026-07-27 - Release v1.2.0
+
+- Version **1.2.0** (from changelog line 1.1.0 / package was 0.0.0).
+- Multi-slot AI (Zhipu, xAI key + OAuth) + optimization Waves A–C.
+- Tag `v1.2.0` + GitHub release after test/build green.
+
+## 2026-07-27 - Optimization Waves A–C complete
+
+- Code overhaul per `docs/OPTIMIZATION_PROPOSAL.md` (CoC 1.1 pattern).
+- Wave A: typecheck script, `.kilo` excludes, memoized `useCharacter`, deleted
+  root orphan tabs.
+- Wave B: lazy Skills/Gear/Dossier/Settings/modals; dynamic pdf-lib;
+  manualChunks; WSL polling HMR.
+- Wave C: sliced CharacterContext + SkillRow memo; hot consumers on narrow hooks.
+- Outcome: main chunk ~1.76 MB → **~592 KB**; tests 56 green.
+- Dark-theme global scrollbars in `index.html` (shared with OSE).
+
+## 2026-07-27 - Multi-slot AI + Zhipu + xAI OAuth (port from CoC)
+
+- Context: shared later-wave from CoC optimization proposal
+  (`docs/SHARED_AI_PROVIDERS_ZHIPU_GROK.md`).
+- Changes: `lib/ai/ai-slots.ts`, `load-provider-models.ts`, `zhipu.ts`, `xai.ts`,
+  `xai-oauth.ts`, caches; multi-slot `AiSettingsContext`; Settings four slot
+  blocks with OAuth device UI; slot-routed `useAiRuntime`; Vite
+  `/__xai_oauth` proxy; tests.
+- Validation: `tests/zhipu-xai.test.ts` + `providers.test.ts` (23 green);
+  no AI-related tsc errors introduced.
+- Follow-up: optional browser smoke for mixed providers.
+
 # DEVELOPMENT_LOG.md
 
 ## 2026-02-24 - Initial project scaffolding

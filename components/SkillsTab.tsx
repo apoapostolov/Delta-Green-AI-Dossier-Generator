@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import type { Profession, Skill as SkillType, Department, SkillValue, SkillPackage } from '../../types';
 import type { SimResult } from '../../sim/types';
-import { useCharacterContext } from '../context/CharacterContext';
+import { useCharacterSkills } from '../context/CharacterContext';
 import { SkillsHeader } from './skills/SkillsHeader';
 import { ChoiceSkillsSelector } from './skills/ChoiceSkillsSelector';
 import { SkillRow } from './skills/SkillRow';
@@ -47,7 +47,7 @@ export const SkillsTab: React.FC<SkillsTabProps> = (props) => {
         applyPendingAiDistribution,
         clearPendingAiDistribution,
         isAiDistributionRunning,
-    } = useCharacterContext();
+    } = useCharacterSkills();
     const [groupSkills, setGroupSkills] = useState(false);
     const [isQuickAssignModalOpen, setIsQuickAssignModalOpen] = useState(false);
     const [isAiDistributionModalOpen, setIsAiDistributionModalOpen] = useState(false);
