@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSaveSystem } from '../hooks/useSaveSystem';
 import { useCharacterContext } from '../context/CharacterContext';
-import type { SaveSlot } from '../types';
 
 export const SaveSlotDrawer: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -12,11 +11,13 @@ export const SaveSlotDrawer: React.FC = () => {
     const [exportCurrentModalOpen, setExportCurrentModalOpen] = useState(false);
     const [importData, setImportData] = useState('');
     const [exportData, setExportData] = useState<string | null>(null);
+    const importFileInputRef = useRef<HTMLInputElement | null>(null);
     const [currentCharacterExportData, setCurrentCharacterExportData] = useState<string | null>(null);
     const [copiedSlot, setCopiedSlot] = useState<number | null>(null);
 
     const character = useCharacterContext();
     const { slots, saveCharacter, loadCharacter, deleteSlot, exportSlot, importSlot, exportCurrentCharacter } = useSaveSystem();
+    const isModalOpen = customNameModalOpen || importModalOpen || !!exportData || exportCurrentModalOpen;
 
     const copyTextToClipboard = async (text: string) => {
         if (!text) return false;
@@ -49,8 +50,10 @@ export const SaveSlotDrawer: React.FC = () => {
         }
     };
 
+    const characterDisplayName = character.ai?.characterName || '';
+
     const handleSave = (slotIndex: number) => {
-        const slotName = slots[slotIndex]?.customName || character.ai?.name || '';
+        const slotName = slots[slotIndex]?.customName || characterDisplayName || '';
         if (!slotName && !slots[slotIndex]?.customName) {
             // Open modal to ask for custom name
             setSelectedSlotIndex(slotIndex);
@@ -62,7 +65,7 @@ export const SaveSlotDrawer: React.FC = () => {
 
     const handleSaveWithName = () => {
         if (selectedSlotIndex !== null) {
-            saveCharacter(selectedSlotIndex, customName || character.ai?.name || `Character ${selectedSlotIndex + 1}`);
+            saveCharacter(selectedSlotIndex, customName || characterDisplayName || `Character ${selectedSlotIndex + 1}`);
             setCustomNameModalOpen(false);
             setCustomName('');
             setSelectedSlotIndex(null);
@@ -71,7 +74,12 @@ export const SaveSlotDrawer: React.FC = () => {
 
     const handleLoad = (slotIndex: number) => {
         if (window.confirm('Loading will replace your current character. Continue?')) {
-            loadCharacter(slotIndex);
+            try {
+                loadCharacter(slotIndex);
+                setIsOpen(false);
+            } catch (error) {
+                alert('Failed to load character: ' + (error instanceof Error ? error.message : String(error)));
+            }
         }
     };
 
@@ -107,6 +115,39 @@ export const SaveSlotDrawer: React.FC = () => {
         }
     };
 
+    const handleImportFilePick = () => {
+        importFileInputRef.current?.click();
+    };
+
+    const handleImportFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImportData(typeof reader.result === 'string' ? reader.result : '');
+        };
+        reader.onerror = () => alert('Failed to read file. Please try again.');
+        reader.readAsText(file);
+        event.target.value = '';
+    };
+
+    const handlePasteFromClipboard = async () => {
+        try {
+            if (!navigator.clipboard || !window.isSecureContext) {
+                alert('Clipboard access is not available. Please paste manually.');
+                return;
+            }
+            const text = await navigator.clipboard.readText();
+            if (!text) {
+                alert('Clipboard is empty.');
+                return;
+            }
+            setImportData(text);
+        } catch {
+            alert('Failed to read from clipboard. Please paste manually.');
+        }
+    };
+
     const handleExportCurrent = () => {
         try {
             const jsonData = exportCurrentCharacter();
@@ -134,7 +175,7 @@ export const SaveSlotDrawer: React.FC = () => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${character.ai?.name || 'character'}_${Date.now()}.json`;
+            a.download = `${characterDisplayName || 'character'}_${Date.now()}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -159,7 +200,7 @@ export const SaveSlotDrawer: React.FC = () => {
             {/* Drawer Handle */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="save-drawer-handle"
+                className={`save-drawer-handle ${isModalOpen ? 'dimmed' : ''}`}
                 aria-label={isOpen ? 'Close save menu' : 'Open save menu'}
                 title={isOpen ? 'Close save menu' : 'Open save menu'}
             >
@@ -298,7 +339,18 @@ export const SaveSlotDrawer: React.FC = () => {
                 <div className="modal-overlay">
                     <div className="modal">
                         <h3>Import Character</h3>
-                        <p>Paste the JSON data for the character you want to import:</p>
+                        <p>Paste JSON, or load a saved file:</p>
+                        <div className="modal-actions">
+                            <button type="button" onClick={handlePasteFromClipboard}>Paste from Clipboard</button>
+                            <button type="button" onClick={handleImportFilePick}>Load from File</button>
+                            <input
+                                ref={importFileInputRef}
+                                type="file"
+                                accept="application/json,.json"
+                                onChange={handleImportFileChange}
+                                style={{ display: 'none' }}
+                            />
+                        </div>
                         <textarea
                             value={importData}
                             onChange={(e) => setImportData(e.target.value)}
@@ -307,7 +359,7 @@ export const SaveSlotDrawer: React.FC = () => {
                         />
                         <div className="modal-actions">
                             <button onClick={() => setImportModalOpen(false)}>Cancel</button>
-                            <button onClick={handleImportSubmit}>Import</button>
+                            <button onClick={handleImportSubmit} disabled={!importData.trim()}>Import</button>
                         </div>
                     </div>
                 </div>
@@ -329,12 +381,27 @@ export const SaveSlotDrawer: React.FC = () => {
                             <button
                                 onClick={async () => {
                                     const ok = await copyTextToClipboard(exportData);
-                                    if (!ok) {
+                                    if (ok) {
+                                        alert('Copied to clipboard!');
+                                    } else {
                                         alert('Failed to copy to clipboard. Please copy from the text area.');
                                     }
                                 }}
                             >
                                 Copy to Clipboard
+                            </button>
+                            <button
+                                onClick={() => {
+                                    const blob = new Blob([exportData], { type: 'application/json' });
+                                    const url = URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = `${characterDisplayName || 'character'}_${Date.now()}.json`;
+                                    a.click();
+                                    URL.revokeObjectURL(url);
+                                }}
+                            >
+                                Download JSON
                             </button>
                         </div>
                     </div>
@@ -387,6 +454,12 @@ export const SaveSlotDrawer: React.FC = () => {
 
                 .save-drawer-handle:active {
                     transform: scale(0.95);
+                }
+
+                .save-drawer-handle.dimmed {
+                    opacity: 0.35;
+                    filter: grayscale(1);
+                    pointer-events: none;
                 }
 
                 .save-drawer {

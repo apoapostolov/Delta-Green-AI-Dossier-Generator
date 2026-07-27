@@ -152,20 +152,7 @@ export const useSaveSystem = () => {
         });
     }, [createSaveData, character]);
 
-    /**
-     * Load character from a slot
-     *
-     * NOTE: Currently displays save data in console
-     * Actual restoration would require exposing setters from useCharacter
-     * OR implementing a loadCharacter function in useCharacter hook
-     * OR restructuring state management to use React Context setters
-     *
-     * For now, this serves as data persistence/export functionality
-     * Full load/restore can be implemented by:
-     * 1. Adding a loadFromSave(data) function to useCharacter
-     * 2. OR exposing all setters from useCharacter
-     * 3. OR using a state management library like Zustand/Redux
-     */
+    /** Restore character from a filled slot via useCharacter.loadFromSaveData. */
     const loadCharacter = useCallback((slotIndex: number) => {
         if (slotIndex < 0 || slotIndex >= MAX_SLOTS) {
             throw new Error(`Invalid slot index: ${slotIndex}`);

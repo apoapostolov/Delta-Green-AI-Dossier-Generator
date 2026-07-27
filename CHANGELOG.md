@@ -27,6 +27,9 @@ Theme: **faster app** + **multi-provider AI control** (aligned with CoC 1.1).
   load when you open them; print tooling loads only when you print.
 - **Snappier skill editing.** Changing one skill’s advances no longer thrash
   the whole sheet; gear and dossier stay calmer while you allocate.
+- **Save drawer reliability.** Correct AI name on slots, import from file or
+  clipboard, load errors surface, export can download JSON, and the drawer
+  handle dims while modals are open.
 - **Dark-theme scrollbars** that match the black-ops UI.
 - Leaner production bundle (main chunk roughly **1.8 MB → ~0.6 MB**).
 
