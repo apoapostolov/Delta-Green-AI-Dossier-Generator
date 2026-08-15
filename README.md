@@ -96,8 +96,8 @@ local Vite proxy.
 - Export an agent as JSON for backup or sharing, then import it from a file or
   the clipboard.
 
-Browser storage is convenient, not a permanent backup. Export any agent you
-would be unhappy to lose.
+Browser storage is convenient day to day. Treat it as temporary and export any
+agent you would be unhappy to lose.
 
 ## Quick Start
 
