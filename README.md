@@ -13,8 +13,11 @@ damage, and the Unnatural leave a history the Handler can use at the table.
 Optional AI turns those events into names, portraits, memories, medical reports,
 custom gear, and a final classified dossier.
 
-<!-- Product proof needed: capture the finished Dossier tab with portrait,
-career timeline, and classified report visible. -->
+![A newly rolled agent with attributes, derived statistics, and profession selection in the running app](docs/screenshots/agent-creation.png)
+
+An agent taking shape: roll attributes, see the consequences in HP and SAN,
+then choose a profession. Portraits and the final classified report are
+optional AI steps later in the workflow.
 
 ## What's New in 1.2.0
 
