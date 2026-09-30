@@ -1,11 +1,19 @@
-# Delta Green A.I. Agent Dossier Generator
+<!-- markdownlint-disable MD033 -->
 
-*Build an agent who already has a past, then see what that past cost them.*
+<div align="center">
 
-[![Version 1.2.0](https://img.shields.io/badge/version-1.2.0-blue)](./CHANGELOG.md)
-[![React](https://img.shields.io/badge/React-18-61DAFB)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6)](https://www.typescriptlang.org/)
-[![Issues](https://img.shields.io/github/issues/apoapostolov/Delta-Green-AI-Dossier-Generator)](https://github.com/apoapostolov/Delta-Green-AI-Dossier-Generator/issues)
+  <h1>Delta Green A.I. Agent Dossier Generator</h1>
+
+  <p>Build an agent with a past, then follow the cost of that past into the field.</p>
+
+  <p>
+    <a href="#what-you-can-do"><img src="https://img.shields.io/badge/Type-Web%20app-555" alt="Type: Web app"></a>
+    <a href="./package.json"><img src="https://img.shields.io/badge/Language-TypeScript-555" alt="Language: TypeScript"></a>
+    <a href="https://github.com/apoapostolov/Delta-Green-AI-Dossier-Generator/releases/latest"><img src="https://img.shields.io/github/v/release/apoapostolov/Delta-Green-AI-Dossier-Generator" alt="Latest stable release version"></a>
+    <a href="https://github.com/apoapostolov/Delta-Green-AI-Dossier-Generator/releases/latest"><img src="https://img.shields.io/github/release-date/apoapostolov/Delta-Green-AI-Dossier-Generator?display_date=published_at&amp;label=last%20release" alt="Published date of latest stable release"></a>
+  </p>
+
+</div>
 
 Choose an agent's attributes, profession, skills, and gear, then play their
 career forward year by year. Promotions, injuries, relationships, psychological
