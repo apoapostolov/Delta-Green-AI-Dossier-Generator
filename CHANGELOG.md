@@ -7,39 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0] - 2026-07-27
 
-Theme: **faster app** + **multi-provider AI control** (aligned with CoC 1.1).
+Spend less time waiting for the dossier workspace, and choose which AI
+provider handles each optional part of an agent's story.
 
 ### Added
 
-- **Per-task AI setup in Settings.** Creative writing, simple writing, vision,
-  and image generation each pick their own provider, remembered API key, and
-  model — mix vendors freely across use cases.
-- **Z.ai GLM (Coding Plan).** Coding Plan keys for text generation on the
-  Coding endpoint.
-- **xAI Grok (API key).** Point any slot at Grok with a standard xAI key.
-- **xAI Grok (SuperGrok / OAuth).** Device-code login with browser approval —
-  no API key field. Optional advanced token paste if you already have a session.
-- Keys stay remembered per provider when you switch slots or reopen Settings.
+- Choose a provider and model separately for prose, short text, vision, and
+  images. Settings remember each provider's key when you switch tasks.
+- Z.ai GLM Coding Plan and xAI Grok join the available choices. SuperGrok
+  can use device-code sign-in through the local OAuth proxy.
 
-### Improved
+### Changed
 
-- **Much faster first load.** Heavy tabs (Skills, Gear, Dossier) and Settings
-  load when you open them; print tooling loads only when you print.
-- **Snappier skill editing.** Changing one skill’s advances no longer thrash
-  the whole sheet; gear and dossier stay calmer while you allocate.
-- **Save drawer reliability.** Correct AI name on slots, import from file or
-  clipboard, load errors surface, export can download JSON, and the drawer
-  handle dims while modals are open.
-- **Dark-theme scrollbars** that match the black-ops UI.
-- Leaner production bundle (main chunk roughly **1.8 MB → ~0.6 MB**).
+- Skills, Gear, Dossier, Settings, and print tools load when opened, reducing
+  the first-download burden. Editing skill advances stays more responsive.
+- Saved agents show the correct generated name. You can import from a file or
+  clipboard, download JSON, and see load errors instead of a silent failure.
 
-### Notes for power users
+### For local hosts
 
-- SuperGrok OAuth works best via `npm run dev` (device login needs the Vite proxy).
-- Optional env keys: `VITE_ZHIPU_API_KEY` / `VITE_ZAI_API_KEY`, `VITE_XAI_API_KEY`
-  (plus existing Gemini / OpenRouter / OpenAI / Anthropic / DeepSeek keys).
-- Engineering notes: `docs/OPTIMIZATION_PROPOSAL.md`,
-  `docs/SHARED_AI_PROVIDERS_ZHIPU_GROK.md`.
+SuperGrok device-code sign-in needs the OAuth proxy used by `npm run dev`.
+See the [AI provider notes](docs/SHARED_AI_PROVIDERS_ZHIPU_GROK.md) for the
+available keys and host setup.
 
 ## [1.1.0] - 2026-05-31
 

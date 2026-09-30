@@ -1,18 +1,17 @@
 # Delta Green A.I. Agent Dossier Generator
 
-*Build a playable agent, simulate a dangerous career, and turn it into a
-classified dossier.*
+*Build an agent who already has a past, then see what that past cost them.*
 
 [![Version 1.2.0](https://img.shields.io/badge/version-1.2.0-blue)](./CHANGELOG.md)
 [![React](https://img.shields.io/badge/React-18-61DAFB)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6)](https://www.typescriptlang.org/)
 [![Issues](https://img.shields.io/github/issues/apoapostolov/Delta-Green-AI-Dossier-Generator)](https://github.com/apoapostolov/Delta-Green-AI-Dossier-Generator/issues)
 
-This browser app combines Delta Green character creation with a year-by-year
-career simulator. Choose the agent's attributes, profession, skills, and gear;
-then let promotions, injuries, relationships, psychological damage, and the
-Unnatural shape a history worth bringing to the table. AI is optional and adds
-names, portraits, memories, medical reports, custom gear, and the final dossier.
+Choose an agent's attributes, profession, skills, and gear, then play their
+career forward year by year. Promotions, injuries, relationships, psychological
+damage, and the Unnatural leave a history the Handler can use at the table.
+Optional AI turns those events into names, portraits, memories, medical reports,
+custom gear, and a final classified dossier.
 
 <!-- Product proof needed: capture the finished Dossier tab with portrait,
 career timeline, and classified report visible. -->
