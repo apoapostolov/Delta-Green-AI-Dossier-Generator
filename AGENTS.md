@@ -55,6 +55,7 @@ Vite hot reload is not reliable enough for this workspace.
 ## Workspace Sanitation (Playtesting)
 
 When asked to reset:
+
 1. Delete `dist/`.
 2. Remove `node_modules/.vite`.
 3. Truncate any `server.log`.
@@ -62,6 +63,7 @@ When asked to reset:
 ## Dependency & Documentation Sync (Mandatory)
 
 Whenever npm packages change, update concurrently:
+
 1. `package.json`
 2. `README.md` (dependency tables/descriptions)
 3. `DEVELOPMENT_LOG.md`
